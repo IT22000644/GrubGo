@@ -18,8 +18,16 @@ const deliverySchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Pending', 'Picked Up', 'In Transit', 'Delivered'],
-    default: 'Pending',
+    enum: ['Assigned', 'Picked Up', 'In Transit', 'Delivered'],
+    default: 'Assigned', // Set to 'Assigned' initially
+  },
+  estimatedDeliveryTime: {
+    type: Number, // Estimated time in minutes
+    required: false,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 

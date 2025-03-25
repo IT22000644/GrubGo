@@ -1,12 +1,10 @@
 import express from 'express';
-import {
-  getAvailableDrivers,
-  addDummyDrivers,
-} from '../controllers/dummy.driver.controller.js';
+import driverController from '../controllers/dummy.driver.controller.js';
 
 const router = express.Router();
 
-router.get('/', getAvailableDrivers);
-router.post('/dummy', addDummyDrivers);
+// Use the methods from the controller object
+router.get('/', driverController.getAvailableDrivers);
+router.post('/dummy', driverController.addDummyDrivers);
 
 export default router;

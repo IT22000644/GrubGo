@@ -1,13 +1,9 @@
 import express from 'express';
-import {
-  addDummyRestaurants,
-  getRestaurants,
-} from '../controllers/dummy.restaurant.controller.js';
+import restaurantController from '../controllers/dummy.restaurant.controller.js';
 
 const router = express.Router();
 
-router.get('/', getRestaurants);
-
-router.post('/dummy', addDummyRestaurants);
+router.get('/', restaurantController.getRestaurants);
+router.post('/dummy', restaurantController.addDummyRestaurants);
 
 export default router;
