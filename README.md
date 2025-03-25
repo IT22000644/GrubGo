@@ -1,4 +1,4 @@
-# GrubGo
+# GrubGo Food Delivery Application
 
 ## Contributors
 
