@@ -1,7 +1,20 @@
-const express = require("express");
+import express from "express";
+import { registerNewRestaurant } from "../controllers/restaurantController.js";
+import { upload } from "../config/multer.js";
+import {
+  restaurantValidationRules,
+  validateRequest,
+} from "../middleware/restaurantValidation.js";
+
 const router = express.Router();
-const restaurantController = require("../controllers/restaurantController");
 
-router.get("/", restaurantController.getAllRestaurants);
+router.post(
+  "/",
+  upload.array("images", 5),
+  restaurantValidationRules,
+  validateRequest,
 
-module.exports = router;
+  registerNewRestaurant
+);
+
+export default router;

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const RestaurantSchema = new mongoose.Schema(
   {
@@ -24,9 +24,17 @@ const RestaurantSchema = new mongoose.Schema(
       ref: "User",
       required: false,
     },
-    menus: [{ type: mongoose.Schema.Types.ObjectId, ref: "FoodMenu" }],
+    menus: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FoodMenu",
+        required: false,
+      },
+    ],
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Restaurant", RestaurantSchema);
+const Restaurant = mongoose.model("Restaurant", RestaurantSchema);
+
+export default Restaurant;

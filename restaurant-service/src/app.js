@@ -1,7 +1,10 @@
-const express = require("express");
-const connectDB = require("../src/config/db_config");
-require("dotenv").config();
+import express from "express";
+import connectDB from "./config/db_config.js";
+import apiV1Routes from "./routes/index.js";
+import dotenv from "dotenv";
+import path from "path";
 
+dotenv.config();
 const app = express();
 app.use(express.json());
 
@@ -10,15 +13,10 @@ const mongoURI =
     ? process.env.MONGO_TEST_URI
     : process.env.MONGO_URI;
 
-// Connect to DB
 connectDB(mongoURI);
 
-app.get("/health", (req, res) => {
-  res.send("Restaurant service is healthy!");
-});
-
-const restaurantRoutes = require("./routes/restaurantRoutes");
-app.use("/api/restaurants", restaurantRoutes);
+app.use("/api/v1", apiV1Routes);
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 if (process.env.NODE_ENV !== "test") {
   const PORT = process.env.PORT || 3000;
@@ -27,4 +25,4 @@ if (process.env.NODE_ENV !== "test") {
   );
 }
 
-module.exports = app; // export for test files
+export default app;
