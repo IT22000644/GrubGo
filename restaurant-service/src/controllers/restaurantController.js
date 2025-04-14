@@ -41,7 +41,7 @@ export const RestaurantController = {
         !phoneRegex.test(phone)
       ) {
         deleteUploadedImages();
-        return res.status(400).json({ message: "Invalid input data" });
+        return res.status(400).json({ message: "Image Deleted." });
       }
 
       const restaurantData = {

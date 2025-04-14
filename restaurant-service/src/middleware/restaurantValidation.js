@@ -11,6 +11,18 @@ export const restaurantValidationRules = [
     .matches(/^\+?\d{10}$/)
     .withMessage("Phone number must be 10 digits with optional +"),
 ];
+
+export const foodMenuValidationRules = [
+  body("restaurant").notEmpty().withMessage("Restaurant ID is required"),
+  body("title").notEmpty().withMessage("Menu title is required"),
+  body("offerDiscount")
+    .optional()
+    .isNumeric()
+    .withMessage("Offer discount must be a number"),
+  body("available").optional().isBoolean(),
+  body("offers").optional().isBoolean(),
+];
+
 export const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
