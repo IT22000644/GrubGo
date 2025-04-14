@@ -1,4 +1,6 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+import Food from "./Food.js";
+import Restaurant from "./Restaurant.js";
 
 const FoodMenuSchema = new mongoose.Schema(
   {
@@ -16,4 +18,6 @@ const FoodMenuSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("FoodMenu", FoodMenuSchema);
+const FoodMenu = mongoose.model("FoodMenu", FoodMenuSchema);
+
+export default FoodMenu;

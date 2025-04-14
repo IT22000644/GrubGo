@@ -1,4 +1,6 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+import Food from "./Food.js";
+import Restaurant from "./Restaurant.js";
 
 const ReviewSchema = new mongoose.Schema(
   {
@@ -15,4 +17,5 @@ const ReviewSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Review", ReviewSchema);
+const Review = mongoose.model("Review", ReviewSchema);
+export default Review;

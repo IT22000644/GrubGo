@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import FoodMenu from "./FoodMenu.js";
 
 const RestaurantSchema = new mongoose.Schema(
   {
@@ -7,6 +8,12 @@ const RestaurantSchema = new mongoose.Schema(
       shopNumber: { type: String, required: true },
       street: { type: String, required: true },
       town: { type: String, required: true },
+    },
+    description: { type: String, required: false },
+    status: {
+      type: String,
+      enum: ["open", "closed"],
+      default: "open",
     },
     phone: {
       type: String,
@@ -18,7 +25,7 @@ const RestaurantSchema = new mongoose.Schema(
         message: (props) => `${props.value} is not a valid phone number!`,
       },
     },
-    images: [{ type: String, required: false }],
+    images: [{ type: String, required: true }],
     restaurantOwner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
