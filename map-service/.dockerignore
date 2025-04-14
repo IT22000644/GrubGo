@@ -1,0 +1,16 @@
+# Exclude node_modules
+node_modules
+
+# Ignore log files
+npm-debug.log
+
+# Exclude git directory and git-related files
+.git
+.gitignore
+
+# Avoid copying local Docker config files if they exist
+Dockerfile
+.dockerignore
+
+# Exclude the local environment file containing sensitive data
+.env
