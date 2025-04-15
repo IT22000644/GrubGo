@@ -3,7 +3,9 @@ const Order = require('../models/orderModel');
 const { publishToQueue } = require('./messageQueue');
 
 const listenToPayments = async () => {
-    const connection = await amqp.connect('amqp://localhost');
+    const amqpUrl = process.env.RABBITMQ_URL || 'amqp://localhost';
+    const connection = await amqp.connect(amqpUrl);
+
     const channel = await connection.createChannel();
 
     await channel.assertQueue('paymentResponseQueue');

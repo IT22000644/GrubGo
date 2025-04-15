@@ -5,7 +5,9 @@ let channel, connection;
 // Connect to RabbitMQ 
 const connectQueue = async () => {
     try {
-        connection = await amqp.connect('amqp://localhost');
+        const amqpUrl = process.env.RABBITMQ_URL || 'amqp://localhost';
+        const connection = await amqp.connect(amqpUrl);
+        
         channel = await connection.createChannel();
 
         await channel.assertQueue('orderQueue');
