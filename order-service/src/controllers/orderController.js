@@ -1,6 +1,7 @@
 const Order = require('../models/orderModel');
 const Cart = require('../models/cartModel');
 
+const { publishToQueue } = require('../utils/messageQueue');
 
 // Create an order
 const createOrder = async (req, res) => {
@@ -22,12 +23,18 @@ const createOrder = async (req, res) => {
       restaurantId,
       items: cart.items,
       totalAmount,
-      status: 'pending' 
+      status: 'pending'
     });
 
     await newOrder.save();
 
     await Cart.deleteOne({ _id: cart._id });
+
+    await publishToQueue('orderQueue', {
+      orderId: newOrder._id,
+      customerId,
+      amount: totalAmount
+    });
 
 
     res.status(201).json({
@@ -38,7 +45,7 @@ const createOrder = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: 'Error creating order',
-      error: error.message 
+      error: error.message
     });
   }
 };
@@ -77,7 +84,7 @@ const updateOrder = async (req, res) => {
 const getOrdersByCustomer = async (req, res) => {
   try {
     const { customerId } = req.params;
-  
+
     const orders = await Order.find({ customerId });
     if (orders.length === 0) {
       return res.status(404).json({ message: 'No orders found for this customer' });
@@ -101,7 +108,7 @@ const cancelOrder = async (req, res) => {
       return res.status(400).json({ message: 'Only pending orders can be canceled' });
     }
 
-    order.status = 'canceled';
+    order.status = 'cancelled';
     await order.save();
 
     res.status(200).json({ message: 'Order canceled successfully', order });
