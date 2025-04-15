@@ -84,14 +84,46 @@ const updateOrder = async (req, res) => {
 const getOrdersByCustomer = async (req, res) => {
   try {
     const { customerId } = req.params;
+    const { status, startDate, endDate } = req.query;
 
-    const orders = await Order.find({ customerId });
-    if (orders.length === 0) {
-      return res.status(404).json({ message: 'No orders found for this customer' });
+    const query = { customerId };
+
+    if (status) {
+      const validStatuses = ['completed', 'cancelled', 'pending'];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({
+          message: 'Invalid status value',
+          validStatuses
+        });
+      }
+      query.status = status;
     }
+
+    if (startDate || endDate) {
+      query.createdAt = {};
+      if (startDate) {
+        query.createdAt.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        query.createdAt.$lte = new Date(endDate);
+      }
+    }
+
+    const orders = await Order.find(query).sort({ createdAt: -1 });
+
+    if (orders.length === 0) {
+      return res.status(404).json({
+        message: 'No orders found matching the criteria'
+      });
+    }
+
     res.status(200).json(orders);
   } catch (error) {
-    res.status(500).json({ message: 'Error retrieving orders', error });
+    console.error('Error retrieving orders:', error);
+    res.status(500).json({
+      message: 'Error retrieving orders',
+      error: error.message
+    });
   }
 };
 
