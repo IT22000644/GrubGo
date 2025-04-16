@@ -23,7 +23,8 @@ const createOrder = async (req, res) => {
       restaurantId,
       items: cart.items,
       totalAmount,
-      status: 'pending'
+      status: 'pending',
+      PaymentStatus: 'pending',
     });
 
     await newOrder.save();
@@ -33,7 +34,11 @@ const createOrder = async (req, res) => {
     await publishToQueue('orderQueue', {
       orderId: newOrder._id,
       customerId,
-      amount: totalAmount
+      amount: totalAmount,
+      restaurantId,
+      items: cart.items,
+      PaymentStatus: 'pending',
+      status: 'pending',
     });
 
 
