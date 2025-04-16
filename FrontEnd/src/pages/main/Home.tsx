@@ -7,7 +7,6 @@ const Home = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Featured restaurants data
   const featuredRestaurants = [
     {
       id: 1,
@@ -47,7 +46,6 @@ const Home = () => {
     },
   ];
 
-  // Popular categories
   const categories = [
     { name: "Pizza", icon: "🍕", bgColor: "bg-orange-100 dark:bg-orange-900" },
     { name: "Sushi", icon: "🍣", bgColor: "bg-red-100 dark:bg-red-900" },
@@ -61,7 +59,6 @@ const Home = () => {
     { name: "Dessert", icon: "🍰", bgColor: "bg-pink-100 dark:bg-pink-900" },
   ];
 
-  // Hero section images with text
   const heroContent = [
     {
       image: "/api/placeholder/1200/600",
@@ -86,7 +83,6 @@ const Home = () => {
     },
   ];
 
-  // Auto-rotate hero content
   useEffect(() => {
     const interval = setInterval(() => {
       setHeroIndex((prevIndex) => (prevIndex + 1) % heroContent.length);
@@ -94,28 +90,23 @@ const Home = () => {
     return () => clearInterval(interval);
   }, [heroContent.length]);
 
-  // Handle search
   const handleSearch = (e: any) => {
     e.preventDefault();
-    // Handle search logic here
+
     console.log("Searching for:", searchQuery);
   };
 
   return (
     <div className="min-h-screen pt-16 bg-gray-50 dark:bg-gray-900">
-      {/* Hero Section */}
       <section className="relative h-96 md:h-[500px] overflow-hidden">
-        {/* Hero Background with Overlay */}
         <div className="absolute inset-0 bg-black/50 z-10"></div>
 
-        {/* Hero Image */}
         <img
           src={heroContent[heroIndex].image}
           alt="Hero"
           className="absolute h-full w-full object-cover transition-transform duration-1000 transform scale-105"
         />
 
-        {/* Hero Content */}
         <div className="relative z-20 container mx-auto px-4 h-full flex flex-col justify-center items-center text-center text-white">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 animate-fadeIn">
             {heroContent[heroIndex].title}
@@ -124,7 +115,6 @@ const Home = () => {
             {heroContent[heroIndex].subtitle}
           </p>
 
-          {/* Search Bar */}
           <div
             className={`w-full max-w-2xl transition-all duration-300 transform ${
               isSearchFocused ? "scale-105" : "scale-100"
@@ -156,7 +146,6 @@ const Home = () => {
             </form>
           </div>
 
-          {/* Hero Navigation Dots */}
           <div className="absolute bottom-6 flex space-x-2">
             {heroContent.map((_, index) => (
               <button
@@ -172,7 +161,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Popular Categories */}
       <section className="py-12 container mx-auto px-4">
         <h2 className="text-2xl md:text-3xl font-bold mb-8 text-gray-800 dark:text-gray-200">
           Popular Categories
@@ -197,7 +185,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Featured Restaurants */}
       <section className="py-12 bg-white dark:bg-gray-800">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
@@ -219,7 +206,6 @@ const Home = () => {
                 to={`/restaurant/${restaurant.id}`}
                 className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow group"
               >
-                {/* Restaurant Image */}
                 <div className="relative h-48 overflow-hidden">
                   <img
                     src={restaurant.image}
@@ -236,7 +222,6 @@ const Home = () => {
                   </div>
                 </div>
 
-                {/* Restaurant Info */}
                 <div className="p-4">
                   <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-1">
                     {restaurant.name}
@@ -245,7 +230,6 @@ const Home = () => {
                     {restaurant.cuisine}
                   </p>
 
-                  {/* Tags */}
                   <div className="flex flex-wrap gap-1 mb-3">
                     {restaurant.tags.map((tag, i) => (
                       <span
@@ -257,7 +241,6 @@ const Home = () => {
                     ))}
                   </div>
 
-                  {/* Delivery Time */}
                   <div className="flex items-center text-gray-600 dark:text-gray-400 text-sm">
                     <Clock size={14} className="mr-1" />
                     {restaurant.deliveryTime} min
@@ -269,14 +252,12 @@ const Home = () => {
         </div>
       </section>
 
-      {/* How It Works */}
       <section className="py-16 container mx-auto px-4">
         <h2 className="text-2xl md:text-3xl font-bold mb-12 text-center text-gray-800 dark:text-gray-200">
           How It Works
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Step 1 */}
           <div className="flex flex-col items-center text-center">
             <div className="w-20 h-20 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center mb-6 text-orange-500 text-2xl font-bold">
               1
@@ -289,7 +270,6 @@ const Home = () => {
             </p>
           </div>
 
-          {/* Step 2 */}
           <div className="flex flex-col items-center text-center">
             <div className="w-20 h-20 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center mb-6 text-orange-500 text-2xl font-bold">
               2
@@ -302,7 +282,6 @@ const Home = () => {
             </p>
           </div>
 
-          {/* Step 3 */}
           <div className="flex flex-col items-center text-center">
             <div className="w-20 h-20 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center mb-6 text-orange-500 text-2xl font-bold">
               3
@@ -317,7 +296,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Call to Action */}
       <section className="py-16 bg-gradient-to-r from-orange-400 to-orange-500 dark:from-orange-500 dark:to-orange-600">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">

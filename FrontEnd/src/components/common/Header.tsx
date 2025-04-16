@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ThemeToggle from "../../assets/Theme/ThemeToggle";
-import { ChevronDown, ShoppingBag, User, Search, Menu, X } from "lucide-react";
+import {
+  ChevronDown,
+  ShoppingBag,
+  User,
+  Search,
+  Menu,
+  X,
+  LogIn,
+} from "lucide-react";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -166,6 +174,14 @@ const Header = () => {
             </Link>
 
             <ThemeToggle />
+
+            <Link
+              to="/login"
+              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-white hover:text-primary dark:hover:text-primary"
+            >
+              <LogIn size={18} />
+              Login
+            </Link>
           </div>
 
           <div className="flex items-center space-x-3 md:hidden">
@@ -176,6 +192,13 @@ const Header = () => {
               </span>
             </Link>
             <ThemeToggle />
+            <Link
+              to="/login"
+              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
+            >
+              <LogIn size={18} />
+              Login
+            </Link>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-md hover:bg-light_hover dark:hover:bg-dark_hover transition-colors"
