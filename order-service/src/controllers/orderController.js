@@ -1,5 +1,8 @@
 const Order = require('../models/orderModel');
 const Cart = require('../models/cartModel');
+const dotenv = require('dotenv');
+dotenv.config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const { publishToQueue } = require('../utils/messageQueue');
 
@@ -154,10 +157,53 @@ const cancelOrder = async (req, res) => {
   }
 };
 
+const checkout = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    if (order.Paymentstatus === 'completed') {
+      return res.status(400).json({ message: 'Payment already completed for this order' });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: order.items.map(item => ({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: `Item ${item.foodItemId}`,
+          },
+          unit_amount: Math.round(item.price * 100),
+        },
+        quantity: item.quantity,
+      })),
+      mode: 'payment',
+      success_url: `http://localhost:5173/payment-success?session_id={CHECKOUT_SESSION_ID}&order_id=${order._id}`,
+      cancel_url: `http://localhost:5173/payment-cancel`,
+      metadata: {
+        orderId: order._id.toString()
+      }
+    });
+
+    return res.status(200).json({ url: session.url });
+  } catch (error) {
+    console.error('Error during Stripe checkout:', error);
+    return res.status(500).json({ message: 'Stripe checkout error', error: error.message });
+  }
+};
+
+
 module.exports = {
   createOrder,
   getOrderById,
   updateOrder,
   getOrdersByCustomer,
-  cancelOrder
+  cancelOrder,
+  checkout
 }

@@ -12,4 +12,6 @@ router.get('/customer/:customerId', orderController.getOrdersByCustomer);
 
 router.put('/:id/cancel', orderController.cancelOrder);
 
+router.post('/checkout', orderController.checkout);
+
 module.exports = router;

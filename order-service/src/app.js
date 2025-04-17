@@ -6,11 +6,14 @@ const cartRoutes = require('./routes/cartRoutes');
 const cors = require('cors');
 const { connectQueue } = require('./utils/messageQueue');
 const listenToPayments = require('./utils/paymentConsumer');
+const { stripeWebhook } = require('./utils/stripeWebhookController');
 
 dotenv.config();
 
 const app = express();
 app.use(cors());
+
+app.post('/webhook/stripe', express.raw({ type: 'application/json' }), stripeWebhook);
 
 app.use(express.json());
 
