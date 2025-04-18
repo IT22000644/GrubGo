@@ -23,24 +23,43 @@ export const foodMenuValidationRules = [
   body("offers").optional().isBoolean(),
 ];
 
+export const foodValidationRules = [
+  body("name").notEmpty().withMessage("Food name is required"),
+  body("price")
+    .notEmpty()
+    .withMessage("Price is required")
+    .isNumeric()
+    .withMessage("Price must be a number"),
+  body("category")
+    .notEmpty()
+    .withMessage("Category is required")
+    .isMongoId()
+    .withMessage("Invalid category ID"),
+];
+
 export const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
+
+  // if (!req.files || req.files.length === 0 || req.files.length >= 1) {
+  //   return res.status(400).json({
+  //     message: "At least one image is required",
+  //     field: "images",
+  //   });
+  // }
+
   if (!errors.isEmpty()) {
-    if (req.files) {
-      req.files.forEach((file) => {
-        fs.unlink(file.path, (err) => {
-          if (err) console.error("Failed to delete file:", file.path);
-        });
+    req.files.forEach((file) => {
+      fs.unlink(file.path, (err) => {
+        if (err) console.error("Failed to delete file:", file.path);
       });
-    }
+    });
 
     const firstError = errors.array()[0];
-
     return res.status(400).json({
       message: firstError.msg,
       field: firstError.path,
     });
-  } else {
-    next();
   }
+
+  next();
 };

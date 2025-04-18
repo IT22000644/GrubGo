@@ -1,6 +1,8 @@
 import {
   addFoodMenuService,
+  deleteFoodMenuService,
   getFoodMenuByIdService,
+  getMenuWithItemsService,
   updateFoodMenuService,
 } from "../services/foodMenuService.js";
 
@@ -66,17 +68,18 @@ export const foodMenuController = {
 
   updateFoodMenu: async (req, res) => {
     const { id } = req.params;
-    const {
-      restaurant,
-      title,
-      available,
-      offers,
-      offerDiscount,
-      description,
-      items,
-    } = req.body;
+    const { restaurant, title, available, offers, offerDiscount, description } =
+      req.body;
 
-    const imagePaths = req.files ? req.files.map((file) => file.path) : [];
+    const imagePaths = req.files
+      ? req.files.map(
+          (file) =>
+            `${req.protocol}://${req.get("host")}/${file.path.replace(
+              /\\/g,
+              "/"
+            )}`
+        )
+      : [];
 
     try {
       const updatedData = {
@@ -87,7 +90,6 @@ export const foodMenuController = {
         images: imagePaths.length > 0 ? imagePaths : undefined,
         offerDiscount,
         description,
-        items,
       };
 
       const updatedMenu = await updateFoodMenuService(id, updatedData);
@@ -126,6 +128,50 @@ export const foodMenuController = {
       });
     }
   },
-};
+  getFoodsByMenu: async (req, res) => {
+    const { menuId } = req.params;
 
-export default foodMenuController;
+    if (!mongoose.Types.ObjectId.isValid(menuId)) {
+      return res.status(400).json({
+        message: "Invalid menu ID",
+        field: "menuId",
+      });
+    }
+
+    try {
+      const menu = await getMenuWithItemsService(menuId);
+
+      if (!menu) {
+        return res.status(404).json({ message: "Food menu not found" });
+      }
+
+      res.status(200).json({ foods: menu.items });
+    } catch (error) {
+      res.status(500).json({
+        message: "Error fetching foods by menu",
+        error: error.message,
+      });
+    }
+  },
+  deleteFoodMenu: async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      const deletedMenu = await deleteFoodMenuService(id);
+
+      if (!deletedMenu) {
+        return res.status(404).json({ message: "Food menu not found" });
+      }
+
+      return res.status(200).json({
+        message: "Food menu and associated foods deleted successfully",
+        deletedMenu,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: "Failed to delete food menu",
+        error: error.message,
+      });
+    }
+  },
+};
