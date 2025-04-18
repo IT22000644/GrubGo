@@ -4,7 +4,13 @@ import {
   useJsApiLoader,
   DirectionsRenderer,
   Marker,
+  Polyline,
 } from "@react-google-maps/api";
+import {
+  getVehicleIconUrl,
+  VehicleType,
+  VehicleColor,
+} from "../../utils/delivery/vehicleIcons";
 
 const MAP_ID = import.meta.env.VITE_GOOGLE_CLOUD_MAP_ID;
 const DEFAULT_CENTER = { lat: 0, lng: 0 };
@@ -14,61 +20,85 @@ export interface LatLng {
   latitude: number;
   longitude: number;
 }
+
 export interface DeliveryRoute {
   driverLocation: LatLng;
   restaurantLocation: LatLng;
   customerLocation: LatLng;
+  vehicleType?: string;
+  vehicleColor?: string;
+  vehicleNumber?: string;
 }
 
 interface Props {
   route?: DeliveryRoute;
+  pathStage?: "toRestaurant" | "toCustomer";
+  dynamicPath?: google.maps.LatLngLiteral[];
 }
 
-export default function DeliveryMap({ route }: Props) {
+export default function DeliveryMap({
+  route,
+  pathStage = "toRestaurant",
+  dynamicPath = [],
+}: Props) {
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
     mapIds: [MAP_ID],
     libraries: ["geometry"],
   });
+
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [zoom, setZoom] = useState(2);
   const [directions, setDirections] =
     useState<google.maps.DirectionsResult | null>(null);
 
   const fetchRoute = useCallback(() => {
-    if (!map || !route) return;
+    if (!map || !route || dynamicPath.length > 0) return;
+
+    const origin =
+      pathStage === "toCustomer"
+        ? {
+            lat: route.restaurantLocation.latitude,
+            lng: route.restaurantLocation.longitude,
+          }
+        : {
+            lat: route.driverLocation.latitude,
+            lng: route.driverLocation.longitude,
+          };
+
+    const destination =
+      pathStage === "toCustomer"
+        ? {
+            lat: route.customerLocation.latitude,
+            lng: route.customerLocation.longitude,
+          }
+        : {
+            lat: route.restaurantLocation.latitude,
+            lng: route.restaurantLocation.longitude,
+          };
+
     new google.maps.DirectionsService().route(
       {
-        origin: {
-          lat: route.driverLocation.latitude,
-          lng: route.driverLocation.longitude,
-        },
-        destination: {
-          lat: route.customerLocation.latitude,
-          lng: route.customerLocation.longitude,
-        },
-        waypoints: [
-          {
-            location: {
-              lat: route.restaurantLocation.latitude,
-              lng: route.restaurantLocation.longitude,
-            },
-            stopover: true,
-          },
-        ],
+        origin,
+        destination,
         travelMode: google.maps.TravelMode.DRIVING,
+        provideRouteAlternatives: false,
       },
       (res, status) => {
         if (status === google.maps.DirectionsStatus.OK && res) {
           setDirections(res);
+        } else {
+          console.warn("Failed to fetch directions:", status);
         }
       }
     );
-  }, [map, route]);
+  }, [map, route, pathStage, dynamicPath]);
 
   useEffect(() => {
-    if (map && route) fetchRoute();
-  }, [map, route, fetchRoute]);
+    if (map && route) {
+      fetchRoute();
+    }
+  }, [map, route, pathStage, fetchRoute]);
 
   if (loadError) return <div className="text-red-600">Map error</div>;
   if (!isLoaded) return <div>Loading map…</div>;
@@ -92,9 +122,23 @@ export default function DeliveryMap({ route }: Props) {
       }}
       options={{ mapId: MAP_ID }}
     >
-      {directions && (
+      {dynamicPath.length > 1 && (
+        <Polyline
+          path={dynamicPath}
+          options={{
+            strokeColor: "#4285F4",
+            strokeOpacity: 0.9,
+            strokeWeight: 5,
+          }}
+        />
+      )}
+
+      {!dynamicPath.length && directions && (
         <DirectionsRenderer
-          options={{ suppressMarkers: true }}
+          options={{
+            suppressMarkers: true,
+            preserveViewport: true,
+          }}
           directions={directions}
         />
       )}
@@ -106,21 +150,33 @@ export default function DeliveryMap({ route }: Props) {
               lat: route.restaurantLocation.latitude,
               lng: route.restaurantLocation.longitude,
             }}
-            label={{ text: "🍴", fontSize: "24px" }}
+            icon={{
+              url: "https://cdn-icons-png.flaticon.com/128/10309/10309202.png", // 🍴 icon from Flaticon
+              scaledSize: new google.maps.Size(32, 32), // adjust size
+            }}
           />
           <Marker
             position={{
               lat: route.customerLocation.latitude,
               lng: route.customerLocation.longitude,
             }}
-            label={{ text: "🏠", fontSize: "24px" }}
+            icon={{
+              url: "https://cdn-icons-png.flaticon.com/128/3293/3293413.png", // 🍴 icon from Flaticon
+              scaledSize: new google.maps.Size(32, 32), // adjust size
+            }}
           />
           <Marker
             position={{
               lat: route.driverLocation.latitude,
               lng: route.driverLocation.longitude,
             }}
-            label={{ text: "🚚", fontSize: "24px" }}
+            icon={{
+              url: getVehicleIconUrl(
+                route.vehicleType as VehicleType,
+                route.vehicleColor as VehicleColor
+              ),
+              scaledSize: new google.maps.Size(40, 40),
+            }}
           />
         </>
       )}

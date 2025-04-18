@@ -57,7 +57,7 @@ const StatusPanel: React.FC<Props> = ({
         </p>
       )}
 
-      {etaToCustomer > 0 && status !== "Delivered" && (
+      {etaToCustomer > 0 && status === "Assigned" && (
         <p>
           ETA to Customer: <strong>{etaToCustomer} min</strong>
         </p>
@@ -68,7 +68,7 @@ const StatusPanel: React.FC<Props> = ({
       </p>
 
       {status === "Delivered" && (
-        <p className="text-green-600 font-semibold">✅ Delivery Completed!</p>
+        <p className="text-green-600 font-semibold">Delivery Completed!</p>
       )}
     </div>
   );

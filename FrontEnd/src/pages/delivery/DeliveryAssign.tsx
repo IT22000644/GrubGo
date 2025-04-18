@@ -15,7 +15,7 @@ interface AssignPayload {
     status: string;
     estimatedTimeToRestaurant: number;
     estimatedTimeToCustomer: number;
-    expectedDeliveryTime: string; // ✅ moved here
+    expectedDeliveryTime: string;
   };
 }
 
@@ -30,30 +30,61 @@ export default function DeliveryAssign() {
   const [etaToRestaurant, setEtaToRestaurant] = useState(0);
   const [etaToCustomer, setEtaToCustomer] = useState(0);
   const [expectedDeliveryTime, setExpectedDeliveryTime] = useState("");
+  const [pathCoords, setPathCoords] = useState<google.maps.LatLngLiteral[]>([]);
 
   const deliveryIdRef = useRef<string>("");
   const assignCalledRef = useRef(false);
+  const [mapPathStage, setMapPathStage] = useState<
+    "toRestaurant" | "toCustomer"
+  >("toRestaurant");
 
-  const animateAlong = (path: google.maps.LatLngLiteral[], totalMs: number) =>
-    new Promise<void>((resolve) => {
-      const steps = path.length;
-      const interval = totalMs / steps;
-      let i = 0;
-      const iv = setInterval(() => {
-        i++;
-        setRoute(
-          (r) =>
-            r && {
-              ...r,
-              driverLocation: { latitude: path[i].lat, longitude: path[i].lng },
-            }
+  function interpolate(
+    start: google.maps.LatLngLiteral,
+    end: google.maps.LatLngLiteral,
+    t: number
+  ): google.maps.LatLngLiteral {
+    return {
+      lat: start.lat + (end.lat - start.lat) * t,
+      lng: start.lng + (end.lng - start.lng) * t,
+    };
+  }
+
+  const animateAlong = async (
+    path: google.maps.LatLngLiteral[],
+    totalMs: number,
+    onFinish?: () => void
+  ): Promise<void> => {
+    const updatesPerSegment = 10;
+    const segmentDuration = totalMs / ((path.length - 1) * updatesPerSegment);
+
+    for (let i = 0; i < path.length - 1; i++) {
+      const from = path[i];
+      const to = path[i + 1];
+
+      for (let step = 0; step <= updatesPerSegment; step++) {
+        const t = step / updatesPerSegment;
+        const interpolated = interpolate(from, to, t);
+
+        setRoute((r) =>
+          r
+            ? {
+                ...r,
+                driverLocation: {
+                  latitude: interpolated.lat,
+                  longitude: interpolated.lng,
+                },
+              }
+            : r
         );
-        if (i >= steps - 1) {
-          clearInterval(iv);
-          resolve();
-        }
-      }, interval);
-    });
+
+        setPathCoords(path.slice(i + 1)); // Trim behind the vehicle
+
+        await new Promise((res) => setTimeout(res, segmentDuration));
+      }
+    }
+
+    onFinish?.();
+  };
 
   const assignDelivery = useCallback(async () => {
     if (!state || state.mode !== "assign") return;
@@ -81,6 +112,7 @@ export default function DeliveryAssign() {
       setExpectedDeliveryTime(etd);
       setRoute(initialRoute);
       setStatus("Assigned");
+      setMapPathStage("toRestaurant");
 
       setTimeout(async () => {
         setStatus("In Transit");
@@ -104,37 +136,42 @@ export default function DeliveryAssign() {
 
   const handlePickedUp = useCallback(async () => {
     if (!route) return;
+
     setStatus("Picked Up");
+    setMapPathStage("toCustomer");
+
+    const restaurantLocation = route.restaurantLocation;
+    const customerLocation = route.customerLocation;
+
     await axios.put("http://localhost:5005/api/deliveries/status/picked-up", {
       deliveryId: deliveryIdRef.current,
     });
 
-    const updated = await axios.get(
-      `http://localhost:5005/api/deliveries/status/${deliveryIdRef.current}`
+    const updated = await axios.post(
+      `http://localhost:5005/api/deliveries/status/${deliveryIdRef.current}`,
+      {
+        driverLocation: {
+          latitude: 6.930079,
+          longitude: 79.858244,
+        },
+      }
     );
-    console.log(
-      "API returned expectedDeliveryTime:",
-      updated.data.expectedDeliveryTime
-    );
-
     setExpectedDeliveryTime(updated.data.expectedDeliveryTime);
-    console.log(
-      "PickedUp - New expectedDeliveryTime:",
-      updated.data.expectedDeliveryTime
-    );
 
     setTimeout(async () => {
       setStatus("In Transit - Picked Up");
+
       const path = await fetchRoadPath(
         {
-          lat: route.restaurantLocation.latitude,
-          lng: route.restaurantLocation.longitude,
+          lat: restaurantLocation.latitude,
+          lng: restaurantLocation.longitude,
         },
         {
-          lat: route.customerLocation.latitude,
-          lng: route.customerLocation.longitude,
+          lat: customerLocation.latitude,
+          lng: customerLocation.longitude,
         }
       );
+
       await animateAlong(path, etaToCustomer * 60_000);
       setStatus("Arrived Customer");
     }, 10_000);
@@ -159,7 +196,11 @@ export default function DeliveryAssign() {
       <h1 className="text-2xl font-semibold">Delivery</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="col-span-2 h-96">
-          <DeliveryMap route={route} />
+          <DeliveryMap
+            route={route}
+            pathStage={mapPathStage}
+            dynamicPath={pathCoords}
+          />
         </div>
         <div className="space-y-4">
           {route && (

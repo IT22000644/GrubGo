@@ -11,6 +11,9 @@ export default function DeliveryTemp() {
       driverLocation: { latitude: 6.927079, longitude: 79.861244 },
       restaurantLocation: { latitude: 6.930079, longitude: 79.858244 },
       customerLocation: { latitude: 6.927079, longitude: 79.861244 },
+      vehicleType: "bike",
+      vehicleColor: "red",
+      vehicleNumber: "XT-9988",
     };
 
     navigate("/delivery", {

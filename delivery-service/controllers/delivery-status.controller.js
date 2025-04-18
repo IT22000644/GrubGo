@@ -69,14 +69,18 @@ const DeliveryStatusController = {
   async getCurrentStatus(req, res) {
     try {
       const { deliveryId } = req.params;
-      if (!deliveryId) {
-        return res.status(400).json({ message: "Missing delivery ID" });
+      const { driverLocation } = req.body;
+
+      if (!deliveryId || !driverLocation) {
+        return res.status(400).json({
+          message: "Missing delivery ID or driver location",
+        });
       }
 
       const d = await Delivery.findById(deliveryId);
-      if (!d) return res.status(404).json({ message: "Not found" });
+      if (!d) return res.status(404).json({ message: "Delivery not found" });
 
-      const now = new Date(); // UTC
+      const now = new Date();
       let liveStatus = d.status;
 
       if (now < d.inTransitAt) {
@@ -95,40 +99,62 @@ const DeliveryStatusController = {
         liveStatus = "Delivered";
       }
 
-      console.log(
-        `Order ${d.orderId} — live status: ${liveStatus} @ ${now.toISOString()}`
-      );
+      let nextDestination;
+      let nextLocation;
+      let distanceToNext;
+      let etaToNext;
 
-      let nextDestination, nextLocation, distanceToNext, etaToNext;
-      if (
-        ["Assigned", "In Transit", "Arrived Restaurant"].includes(liveStatus)
-      ) {
-        nextDestination = "restaurant";
-        nextLocation = d.restaurantLocation;
-        distanceToNext = calculateHaversineDistance(
-          d.driverLocation.latitude,
-          d.driverLocation.longitude,
-          d.restaurantLocation.latitude,
-          d.restaurantLocation.longitude
-        );
-        etaToNext = d.estimatedTimeToRestaurant;
-      } else {
-        nextDestination = "customer";
+      if (liveStatus === "Arrived Restaurant") {
+        nextDestination = "Pending Pickup";
         nextLocation = d.customerLocation;
-        distanceToNext = calculateHaversineDistance(
-          d.driverLocation.latitude,
-          d.driverLocation.longitude,
-          d.customerLocation.latitude,
-          d.customerLocation.longitude
+        distanceToNext = "Pending Pickup";
+        etaToNext = 0;
+      } else if (liveStatus === "Arrived Customer") {
+        nextDestination = "Delivery Completion";
+        nextLocation = "Delivery Completion";
+        distanceToNext = 0;
+        etaToNext = 0;
+      } else if (
+        [
+          "Assigned",
+          "In Transit",
+          "Picked Up",
+          "In Transit - Picked Up",
+        ].includes(liveStatus)
+      ) {
+        const isGoingToRestaurant = ["Assigned", "In Transit"].includes(
+          liveStatus
         );
-        etaToNext = d.estimatedTimeToCustomer;
+        nextDestination = isGoingToRestaurant ? "restaurant" : "customer";
+        nextLocation = isGoingToRestaurant
+          ? d.restaurantLocation
+          : d.customerLocation;
+
+        distanceToNext = calculateHaversineDistance(
+          driverLocation.latitude,
+          driverLocation.longitude,
+          nextLocation.latitude,
+          nextLocation.longitude
+        );
+
+        etaToNext = isGoingToRestaurant
+          ? d.estimatedTimeToRestaurant
+          : d.estimatedTimeToCustomer;
+      } else {
+        // Final fallback for Delivered
+        nextDestination = "None";
+        nextLocation = "N/A";
+        distanceToNext = 0;
+        etaToNext = 0;
       }
 
       return res.json({
         orderId: d.orderId,
         driverId: d.driverId,
         status: liveStatus,
-        driverLocation: d.driverLocation,
+        driverLocation,
+        restaurantLocation: d.restaurantLocation,
+        customerLocation: d.customerLocation,
         nextDestination,
         nextLocation,
         distanceToNext,

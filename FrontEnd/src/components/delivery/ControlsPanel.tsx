@@ -38,7 +38,7 @@ const ControlsPanel: React.FC<Props> = ({
       <p className="text-gray-600">Waiting for next step…</p>
     )}
 
-    {status === "Delivered" && <p className="text-green-600">✅ Done!</p>}
+    {status === "Delivered" && <p className="text-green-600"> Done!</p>}
   </div>
 );
 
