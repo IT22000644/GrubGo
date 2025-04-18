@@ -5,15 +5,12 @@ const orderRoutes = require('./routes/orderRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const cors = require('cors');
 const { connectQueue } = require('./utils/messageQueue');
-const listenToPayments = require('./utils/paymentConsumer');
-const { stripeWebhook } = require('./utils/stripeWebhookController');
+const { consumePaymentDoneQueue } = require('./utils/paymentQueueConsumer');
 
 dotenv.config();
 
 const app = express();
 app.use(cors());
-
-app.post('/webhook/stripe', express.raw({ type: 'application/json' }), stripeWebhook);
 
 app.use(express.json());
 
@@ -25,7 +22,7 @@ app.use('/api/cart', cartRoutes);
 const PORT = process.env.PORT || 5005;
 const startServer = async () => {
   await connectQueue();
-  await listenToPayments();
+  await consumePaymentDoneQueue();
   app.listen(PORT, () => console.log(`Order service running on port ${PORT}`));
 };
 

@@ -184,10 +184,14 @@ const checkout = async (req, res) => {
         quantity: item.quantity,
       })),
       mode: 'payment',
-      success_url: `http://localhost:5173/payment-success?session_id={CHECKOUT_SESSION_ID}&order_id=${order._id}`,
-      cancel_url: `http://localhost:5173/payment-cancel`,
+      success_url: `${process.env.CLIENT_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}&order_id=${order._id}`,
+      cancel_url: `${process.env.CLIENT_URL}/payment-cancel`,
       metadata: {
-        orderId: order._id.toString()
+        orderId: order._id.toString(),
+        customerId: order.customerId,
+        restaurantId: order.restaurantId,
+        status: order.status,
+        Paymentstatus: order.Paymentstatus,
       }
     });
 

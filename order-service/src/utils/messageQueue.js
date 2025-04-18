@@ -7,7 +7,7 @@ const connectQueue = async () => {
     try {
         const amqpUrl = process.env.RABBITMQ_URL || 'amqp://localhost';
         const connection = await amqp.connect(amqpUrl);
-        
+
         channel = await connection.createChannel();
 
         await channel.assertQueue('orderQueue');
@@ -21,7 +21,7 @@ const connectQueue = async () => {
     }
 };
 
-// Send a message to a specific queue
+// Send to a queue
 const publishToQueue = async (queueName, data) => {
     if (!channel) {
         console.error('[RabbitMQ] Channel is not initialized.');
