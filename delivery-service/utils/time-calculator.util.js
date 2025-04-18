@@ -1,16 +1,14 @@
 // Calculate estimated time from a Google Maps route
 
 export const calculateEstimatedTimeFromRoute = (route) => {
-  const duration = route.legs[0].duration.value; // Duration in seconds
-  return Math.round(duration / 60); // Convert seconds to minutes
+  const duration = route.legs[0].duration.value;
+  return Math.round(duration / 60);
 };
 
 // Calculate expected delivery time based on current time including delay (in minutes)
 
 export const calculateExpectedDeliveryTime = (deliveryTimeInMinutes) => {
-  const currentDate = new Date();
-  currentDate.setMinutes(currentDate.getMinutes() + deliveryTimeInMinutes);
-  return currentDate;
+  return new Date(Date.now() + deliveryTimeInMinutes * 60_000);
 };
 
 export const calculateHaversineDistance = (lat1, lon1, lat2, lon2) => {

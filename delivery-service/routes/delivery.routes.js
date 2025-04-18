@@ -19,6 +19,8 @@ router.put(
   DeliveryStatusController.updateStatusToDelivered
 );
 
+router.get("/status/:deliveryId", DeliveryStatusController.getCurrentStatus);
+
 router.get("/", DeliveryCrudController.getAllDeliveries);
 router.put("/:deliveryId", DeliveryCrudController.updateDelivery);
 router.delete("/:deliveryId", DeliveryCrudController.deleteDelivery);

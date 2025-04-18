@@ -1,4 +1,6 @@
+import React from "react";
 import { Routes, Route } from "react-router-dom";
+
 import Home from "../pages/main/Home";
 import About from "../pages/main/About";
 import Login from "../features/auth/Login";
@@ -8,7 +10,11 @@ import Profile from "../pages/user/Profile";
 import NotFound from "../pages/NotFound";
 import MainLayout from "../layouts/MainLayout";
 
-const AppRoutes = () => {
+import DeliveryAssign from "../pages/delivery/DeliveryAssign";
+import TempDelivery from "../pages/delivery/Delivery-temp";
+// import DeliveryTracking from "../pages/delivery/DeliveryTracking";
+
+const AppRoutes: React.FC = () => {
   return (
     <Routes>
       <Route element={<MainLayout />}>
@@ -16,7 +22,11 @@ const AppRoutes = () => {
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        <Route path="/delivery" element={<DeliveryAssign />} />
+        <Route path="/delivery-temp" element={<TempDelivery />} />
       </Route>
+
       <Route
         path="/profile"
         element={

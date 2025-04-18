@@ -6,6 +6,9 @@ import {
   calculateHaversineDistance,
 } from "../utils/time-calculator.util.js";
 
+const TEN_SECONDS = 10 * 1000;
+const MS_PER_MINUTE = 60 * 1000;
+
 const AssignDeliveryController = {
   async findClosestDriver(req, res) {
     try {
@@ -56,100 +59,79 @@ const AssignDeliveryController = {
 
   async assignDelivery(req, res) {
     try {
+      const now = new Date();
+
       const {
         orderId,
         driverId,
         driverLocation,
-        customerLocation,
         restaurantLocation,
+        customerLocation,
       } = req.body;
 
       if (
+        !orderId ||
+        !driverId ||
         !driverLocation ||
-        !customerLocation ||
         !restaurantLocation ||
-        !driverId
+        !customerLocation
       ) {
         return res.status(400).json({ message: "Missing required data" });
       }
 
-      //Get directions from the driver to the restaurant
-
-      const directionsToRestaurant = await getDirections(
+      // Fetching Estimated Times
+      const dirToRest = await getDirections(
         `${driverLocation.latitude},${driverLocation.longitude}`,
         `${restaurantLocation.latitude},${restaurantLocation.longitude}`
       );
-
-      //Get directions from the restaurant to the customer
-
-      const directionsToCustomer = await getDirections(
+      const dirToCust = await getDirections(
         `${restaurantLocation.latitude},${restaurantLocation.longitude}`,
         `${customerLocation.latitude},${customerLocation.longitude}`
       );
 
-      const estimatedTimeToRestaurant = calculateEstimatedTimeFromRoute(
-        directionsToRestaurant.data.routes[0]
-      );
-      const estimatedTimeToCustomer = calculateEstimatedTimeFromRoute(
-        directionsToCustomer.data.routes[0]
+      const etaRest = calculateEstimatedTimeFromRoute(dirToRest.data.routes[0]);
+      const etaCust = calculateEstimatedTimeFromRoute(dirToCust.data.routes[0]);
+
+      console.log(`Order ${orderId} - ETA to Restaurant: ${etaRest} min`);
+      console.log(`Order ${orderId} - ETA to Customer:  ${etaCust} min`);
+
+      // compute scheduled timestamps
+      const assignedAt = now;
+      const inTransitAt = new Date(now.getTime() + TEN_SECONDS);
+      const arrivedRestaurantAt = new Date(
+        inTransitAt.getTime() + etaRest * MS_PER_MINUTE
       );
 
-      console.log(
-        `Order ${orderId} - Estimated time to Restaurant: ${estimatedTimeToRestaurant} minutes`
-      );
-      console.log(
-        `Order ${orderId} - Estimated time to Customer: ${estimatedTimeToCustomer} minutes`
-      );
+      const totalEta = etaRest + etaCust;
+      const expectedDeliveryTime = calculateExpectedDeliveryTime(totalEta);
 
-      const totalEstimatedTime =
-        estimatedTimeToRestaurant + estimatedTimeToCustomer;
-      const expectedDeliveryTime =
-        calculateExpectedDeliveryTime(totalEstimatedTime);
-
-      // Create and save the delivery
-      const delivery = new Delivery({
+      const delivery = await Delivery.create({
         orderId,
         driverId,
-        customerLocation,
+        driverLocation,
         restaurantLocation,
-        estimatedTimeToRestaurant,
-        estimatedTimeToCustomer,
-        estimatedDeliveryTime: totalEstimatedTime,
-        expectedDeliveryTime: expectedDeliveryTime,
+        customerLocation,
+
+        // scheduling fields for cron
+        assignedAt,
+        inTransitAt,
+        arrivedRestaurantAt,
+
+        estimatedTimeToRestaurant: etaRest,
+        estimatedTimeToCustomer: etaCust,
+        expectedDeliveryTime,
+
         status: "Assigned",
       });
 
-      await delivery.save();
-
       console.log(
-        `Order ${orderId} assigned. Expected delivery time: ${expectedDeliveryTime.toLocaleTimeString()}`
+        `Order ${orderId} assigned @ ${assignedAt.toISOString()}. Expected delivery at ${expectedDeliveryTime.toISOString()}`
       );
 
-      res.status(201).json({
-        message: "Delivery assigned successfully",
-        delivery,
-        totalEstimatedTime,
-        expectedDeliveryTime: expectedDeliveryTime.toLocaleTimeString(),
-      });
-
-      // After 10 seconds, update status to "In Transit"
-      setTimeout(async () => {
-        delivery.status = "In Transit";
-        await delivery.save();
-        console.log(`Order ${orderId} - Status updated to 'In Transit'`);
-
-        // After the estimatedTimeToRestaurant elapses, update status to "Arrived Restaurant"
-        setTimeout(async () => {
-          delivery.status = "Arrived Restaurant";
-          await delivery.save();
-          console.log(
-            `Order ${orderId} - Status updated to 'Arrived Restaurant'`
-          );
-        }, estimatedTimeToRestaurant * 60000);
-      }, 10000); // 10 seconds delay
-    } catch (error) {
-      console.error("Error in assignDelivery:", error);
-      res.status(500).json({ message: "Error assigning delivery", error });
+      res.status(201).json({ message: "Delivery assigned", delivery });
+    } catch (err) {
+      console.error("Error in assignDelivery:", err);
+      res.status(500).json({ message: "Error assigning delivery", err });
     }
   },
 };

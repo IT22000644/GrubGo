@@ -11,7 +11,9 @@
     "dev": "vite"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.6",
     "@reduxjs/toolkit": "^2.6.1",
+    "axios": "^1.8.4",
     "firebase": "^11.6.0",
     "frontend": "file:",
     "lucide-react": "^0.488.0",
