@@ -25,7 +25,7 @@ router.put(
 );
 
 router.get("/:id", foodMenuController.getFoodMenuById);
-router.get("/", foodMenuController.getFoodsByMenu);
+router.get("/menu/:id", foodMenuController.getFoodsByMenu);
 router.delete("/:id", foodMenuController.deleteFoodMenu);
 
 export default router;

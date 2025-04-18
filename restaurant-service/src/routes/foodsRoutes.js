@@ -24,7 +24,7 @@ router.put(
   foodController.updateFood
 );
 
-router.get("/", foodController.getFoodsByCategory);
+router.get("/category/:id", foodController.getFoodsByCategory);
 router.get("/:id", foodController.getFoodById);
 router.delete("/:id", foodController.deleteFood);
 

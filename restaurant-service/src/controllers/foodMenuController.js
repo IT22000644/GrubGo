@@ -129,23 +129,16 @@ export const foodMenuController = {
     }
   },
   getFoodsByMenu: async (req, res) => {
-    const { menuId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(menuId)) {
-      return res.status(400).json({
-        message: "Invalid menu ID",
-        field: "menuId",
-      });
-    }
+    const { id } = req.params;
 
     try {
-      const menu = await getMenuWithItemsService(menuId);
+      const menuItems = await getMenuWithItemsService(id);
 
-      if (!menu) {
+      if (!menuItems) {
         return res.status(404).json({ message: "Food menu not found" });
       }
 
-      res.status(200).json({ foods: menu.items });
+      res.status(200).json({ foods: menuItems.items });
     } catch (error) {
       res.status(500).json({
         message: "Error fetching foods by menu",

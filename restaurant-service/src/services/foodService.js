@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Category from "../schema/Category.js";
 import Food from "../schema/Food.js";
 import FoodMenu from "../schema/FoodMenu.js";
@@ -20,26 +21,46 @@ export const updateFoodService = async (id, updatedData) => {
 };
 
 export const getFoodByIdService = async (id) => {
-  return await Food.findById(id).populate("foodMenu").populate("category");
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new Error("Invalid food ID");
+  }
+
+  const food = await Food.findById(id)
+    .populate("foodMenu")
+    .populate("category");
+
+  if (food && food.foodMenu) {
+    const foodMenu = await FoodMenu.findById(food.foodMenu).populate(
+      "restaurant"
+    );
+    return { ...food.toObject(), restaurant: foodMenu?.restaurant };
+  }
+
+  return food;
 };
 
-export const getFoodsByCategoryService = async (categoryId) => {
-  return await Food.find({ category: categoryId }).populate("category");
+export const getFoodsByCategoryService = async (id) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return Error("Invalid category ID");
+  }
+
+  const foods = await Food.find({ category: id }).populate("category");
+  return foods;
 };
 
 export const getFoodsByMenuService = async (menuFoodIds) => {
   return await Food.find({ _id: { $in: menuFoodIds } }).populate("category");
 };
 
-export const deleteFoodService = async (foodId) => {
-  if (!mongoose.Types.ObjectId.isValid(foodId)) {
+export const deleteFoodService = async (id) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new Error("Invalid food ID");
   }
 
-  const food = await Food.findByIdAndDelete(foodId);
+  const food = await Food.findByIdAndDelete(id);
   if (!food) return null;
 
-  await FoodMenu.updateMany({ items: foodId }, { $pull: { items: foodId } });
+  await FoodMenu.updateMany({ items: id }, { $pull: { items: id } });
 
   return food;
 };

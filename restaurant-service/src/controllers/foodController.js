@@ -55,12 +55,17 @@ export const foodController = {
     const imagePaths = req.files ? req.files.map((file) => file.path) : [];
 
     try {
+      const existingFood = await getFoodByIdService(id);
+      if (!existingFood) {
+        return res.status(404).json({ message: "Food item not found" });
+      }
+
       const updatedData = {
-        name,
-        price,
-        description,
-        discount,
-        category,
+        name: name || existingFood.name,
+        price: price || existingFood.price,
+        description: description || existingFood.description,
+        discount: discount || existingFood.discount,
+        category: category || existingFood.category,
         images: imagePaths.length > 0 ? imagePaths : existingFood.images,
       };
 
@@ -78,17 +83,10 @@ export const foodController = {
     }
   },
   getFoodsByCategory: async (req, res) => {
-    const { categoryId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-      return res.status(400).json({
-        message: "Invalid category ID",
-        field: "categoryId",
-      });
-    }
+    const { id } = req.params;
 
     try {
-      const foods = await getFoodsByCategoryService(categoryId);
+      const foods = await getFoodsByCategoryService(id);
       res.status(200).json({ foods });
     } catch (error) {
       res.status(500).json({
@@ -98,17 +96,10 @@ export const foodController = {
     }
   },
   getFoodById: async (req, res) => {
-    const { foodId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(foodId)) {
-      return res.status(400).json({
-        message: "Invalid food ID",
-        field: "foodId",
-      });
-    }
+    const { id } = req.params;
 
     try {
-      const food = await getFoodByIdService(foodId);
+      const food = await getFoodByIdService(id);
 
       if (!food) {
         return res.status(404).json({ message: "Food item not found" });
@@ -123,10 +114,10 @@ export const foodController = {
     }
   },
   deleteFood: async (req, res) => {
-    const { foodId } = req.params;
+    const { id } = req.params;
 
     try {
-      const deletedFood = await deleteFoodService(foodId);
+      const deletedFood = await deleteFoodService(id);
 
       if (!deletedFood) {
         return res.status(404).json({ message: "Food item not found" });
