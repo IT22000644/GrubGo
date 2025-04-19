@@ -13,6 +13,7 @@ import MainLayout from "../layouts/MainLayout";
 import DeliveryAssign from "../pages/delivery/DeliveryAssign";
 import TempDelivery from "../pages/delivery/Delivery-temp";
 import DeliveryTracking from "../pages/delivery/DeliveryTracking";
+import CustomerTracking from "../pages/delivery/CustomerTracking";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -26,6 +27,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/delivery" element={<DeliveryAssign />} />
         <Route path="/delivery-temp" element={<TempDelivery />} />
         <Route path="/delivery-tracking" element={<DeliveryTracking />} />
+        <Route path="/customer-tracking" element={<CustomerTracking />} />
       </Route>
 
       <Route

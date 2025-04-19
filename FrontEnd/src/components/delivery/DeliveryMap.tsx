@@ -5,6 +5,7 @@ import {
   DirectionsRenderer,
   Marker,
   Polyline,
+  Libraries,
 } from "@react-google-maps/api";
 import {
   getVehicleIconUrl,
@@ -15,6 +16,8 @@ import {
 const MAP_ID = import.meta.env.VITE_GOOGLE_CLOUD_MAP_ID;
 const DEFAULT_CENTER = { lat: 0, lng: 0 };
 const ICON_ZOOM_THRESHOLD = 10;
+
+const libraries: Libraries = ["geometry"];
 
 export interface LatLng {
   latitude: number;
@@ -44,7 +47,7 @@ export default function DeliveryMap({
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
     mapIds: [MAP_ID],
-    libraries: ["geometry"],
+    libraries,
   });
 
   const [map, setMap] = useState<google.maps.Map | null>(null);

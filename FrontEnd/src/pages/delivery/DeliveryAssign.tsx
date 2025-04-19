@@ -19,6 +19,32 @@ interface AssignPayload {
   };
 }
 
+interface DeliveryStatusResponse {
+  _id: string;
+  orderId: string;
+  driverId: string;
+  driverLocation: {
+    latitude: number;
+    longitude: number;
+  };
+  restaurantLocation: {
+    latitude: number;
+    longitude: number;
+  };
+  customerLocation: {
+    latitude: number;
+    longitude: number;
+  };
+  status: string;
+  expectedDeliveryTime: string;
+  etaToNext: number;
+  pickedUpAt: string;
+  inTransitPickedUpAt: string;
+  arrivedCustomerAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 type LocationState = { mode: "assign"; initialRoute: DeliveryRoute };
 
 export default function DeliveryAssign() {
@@ -77,7 +103,7 @@ export default function DeliveryAssign() {
             : r
         );
 
-        setPathCoords(path.slice(i + 1)); // Trim behind the vehicle
+        setPathCoords(path.slice(i + 1));
 
         await new Promise((res) => setTimeout(res, segmentDuration));
       }
@@ -126,7 +152,7 @@ export default function DeliveryAssign() {
             lng: initialRoute.restaurantLocation.longitude,
           }
         );
-        await animateAlong(path, delivery.estimatedTimeToRestaurant * 60_000);
+        await animateAlong(path, delivery.estimatedTimeToRestaurant * 1000);
         setStatus("Arrived Restaurant");
       }, 10_000);
     } catch (e) {
@@ -137,42 +163,41 @@ export default function DeliveryAssign() {
   const handlePickedUp = useCallback(async () => {
     if (!route) return;
 
-    setStatus("Picked Up");
-    setMapPathStage("toCustomer");
+    try {
+      await axios.put("http://localhost:5005/api/deliveries/status/picked-up", {
+        deliveryId: deliveryIdRef.current,
+      });
+    } catch (error) {
+      console.error("Error updating status to 'Picked Up':", error);
+      return;
+    }
 
-    const restaurantLocation = route.restaurantLocation;
-    const customerLocation = route.customerLocation;
-
-    await axios.put("http://localhost:5005/api/deliveries/status/picked-up", {
-      deliveryId: deliveryIdRef.current,
-    });
-
-    const updated = await axios.post(
-      `http://localhost:5005/api/deliveries/status/${deliveryIdRef.current}`,
-      {
-        driverLocation: {
-          latitude: 6.930079,
-          longitude: 79.858244,
-        },
-      }
+    const updated = await axios.get<DeliveryStatusResponse>(
+      `http://localhost:5005/api/deliveries/status/${deliveryIdRef.current}`
     );
-    setExpectedDeliveryTime(updated.data.expectedDeliveryTime);
+
+    const updatedDelivery = updated.data;
+
+    setStatus("Picked Up");
+    setExpectedDeliveryTime(updatedDelivery.expectedDeliveryTime);
+
+    setMapPathStage("toCustomer");
 
     setTimeout(async () => {
       setStatus("In Transit - Picked Up");
 
       const path = await fetchRoadPath(
         {
-          lat: restaurantLocation.latitude,
-          lng: restaurantLocation.longitude,
+          lat: route.restaurantLocation.latitude,
+          lng: route.restaurantLocation.longitude,
         },
         {
-          lat: customerLocation.latitude,
-          lng: customerLocation.longitude,
+          lat: route.customerLocation.latitude,
+          lng: route.customerLocation.longitude,
         }
       );
 
-      await animateAlong(path, etaToCustomer * 60_000);
+      await animateAlong(path, etaToCustomer * 1000);
       setStatus("Arrived Customer");
     }, 10_000);
   }, [route, etaToCustomer]);

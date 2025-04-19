@@ -7,6 +7,14 @@ export default function DeliveryTemp() {
   const [deliveryId, setDeliveryId] = useState("");
   const navigate = useNavigate();
 
+  const handleTrackCustomerOrder = () => {
+    const id = deliveryId.trim();
+    if (!id) return alert("Please enter a Delivery ID.");
+    navigate("/customer-tracking", {
+      state: { mode: "track", deliveryId: id },
+    });
+  };
+
   const getCoordinates = async (address: string) => {
     try {
       const response = await axios.post("http://localhost:5004/api/map/", {
@@ -22,11 +30,10 @@ export default function DeliveryTemp() {
 
   const handleStartSimulation = async () => {
     const driverAddress =
-      "Colombo Town Hall, Colombo, Western Province, Sri Lanka";
+      "Dinlo Lanka Pvt Ltd, Malabe, Western Province, Sri Lanka";
     const restaurantAddress =
-      "Viharamahadevi Park, Colombo, Western Province, Sri Lanka";
-    const customerAddress =
-      "Colombo Town Hall, Colombo, Western Province, Sri Lanka";
+      "Spar Supermarket, Malabe, Western Province, Sri Lanka";
+    const customerAddress = "SLIIT Malabe, Malabe, Western Province, Sri Lanka";
 
     const driverCoords = await getCoordinates(driverAddress);
     const restaurantCoords = await getCoordinates(restaurantAddress);
@@ -71,6 +78,10 @@ export default function DeliveryTemp() {
         Assign Driver & Start Simulation
       </button>
 
+      <h2 className="text-base font-semibold text-center">
+        Restaurant and Driver Tracking Delievery
+      </h2>
+
       <div className="flex space-x-2">
         <input
           type="text"
@@ -81,6 +92,26 @@ export default function DeliveryTemp() {
         />
         <button
           onClick={handleTrackOrder}
+          className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+        >
+          Track Order
+        </button>
+      </div>
+
+      <h2 className="text-base font-semibold text-center">
+        Customer Tracking Delievery
+      </h2>
+
+      <div className="flex space-x-2">
+        <input
+          type="text"
+          value={deliveryId}
+          onChange={(e) => setDeliveryId(e.target.value)}
+          placeholder="Enter Delivery ID"
+          className="flex-1 border rounded px-3 py-2 text-black"
+        />
+        <button
+          onClick={handleTrackCustomerOrder}
           className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
         >
           Track Order

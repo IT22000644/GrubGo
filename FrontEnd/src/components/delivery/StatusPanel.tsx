@@ -1,5 +1,12 @@
 import React from "react";
 
+// Helper function to format ETA in minutes and seconds
+const formatEta = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}m ${remainingSeconds}s`;
+};
+
 interface Props {
   status: string;
   etaToRestaurant: number;
@@ -15,9 +22,6 @@ const StatusPanel: React.FC<Props> = ({
 }) => {
   const formattedTime = (() => {
     try {
-      console.log("Expected Delivery Time Raw:", expectedDeliveryTime);
-      console.log("Type of expectedDeliveryTime:", typeof expectedDeliveryTime);
-
       if (!expectedDeliveryTime || typeof expectedDeliveryTime !== "string") {
         return "Unavailable";
       }
@@ -25,10 +29,7 @@ const StatusPanel: React.FC<Props> = ({
       const isoString = expectedDeliveryTime.trim();
       const date = new Date(isoString);
 
-      console.log("Parsed Date Object:", date);
-
       if (isNaN(date.getTime())) {
-        console.warn("Invalid date format:", isoString);
         return "Invalid time";
       }
 
@@ -39,7 +40,6 @@ const StatusPanel: React.FC<Props> = ({
         timeZone: "Asia/Kolkata",
       });
     } catch (err) {
-      console.error("Time formatting error:", err);
       return "Error";
     }
   })();
@@ -53,13 +53,13 @@ const StatusPanel: React.FC<Props> = ({
 
       {status === "Assigned" && (
         <p>
-          ETA to Restaurant: <strong>{etaToRestaurant} min</strong>
+          ETA to Restaurant: <strong>{formatEta(etaToRestaurant)}</strong>
         </p>
       )}
 
       {etaToCustomer > 0 && status === "Assigned" && (
         <p>
-          ETA to Customer: <strong>{etaToCustomer} min</strong>
+          ETA to Customer: <strong>{formatEta(etaToCustomer)}</strong>
         </p>
       )}
 

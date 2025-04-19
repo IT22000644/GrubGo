@@ -2,7 +2,7 @@ import Delivery from "../models/Delivery.js";
 import { calculateHaversineDistance } from "../utils/time-calculator.util.js";
 
 const TEN_SECONDS = 10 * 1000;
-const MS_PER_MINUTE = 60 * 1000;
+const ONE_SECOND = 1 * 1000;
 
 const DeliveryStatusController = {
   // Method to update the status to "Picked Up".
@@ -18,20 +18,18 @@ const DeliveryStatusController = {
       d.pickedUpAt = now;
       d.inTransitPickedUpAt = new Date(now.getTime() + TEN_SECONDS);
       d.arrivedCustomerAt = new Date(
-        d.inTransitPickedUpAt.getTime() +
-          d.estimatedTimeToCustomer * MS_PER_MINUTE
+        d.inTransitPickedUpAt.getTime() + d.estimatedTimeToCustomer * ONE_SECOND
       );
 
       d.expectedDeliveryTime = new Date(
-        d.inTransitPickedUpAt.getTime() +
-          d.estimatedTimeToCustomer * MS_PER_MINUTE
+        d.inTransitPickedUpAt.getTime() + d.estimatedTimeToCustomer * ONE_SECOND
       );
 
       d.status = "Picked Up";
       await d.save();
 
       console.log(
-        `Order ${d.orderId} - Status updated to 'Picked Up' @ ${now.toISOString()}`
+        `[Update] Order ${d.orderId} - Status updated to 'Picked Up'`
       );
       return res.json({ message: "Picked Up", delivery: d });
     } catch (err) {
@@ -52,12 +50,12 @@ const DeliveryStatusController = {
       const now = new Date();
       d.deliveredAt = now;
       d.actualDeliveryTime = now;
-      d.actualTimeElapsed = Math.round((now - d.createdAt) / MS_PER_MINUTE);
+      d.actualTimeElapsed = Math.round((now - d.createdAt) / ONE_SECOND);
       d.status = "Delivered";
       await d.save();
 
       console.log(
-        `Order ${d.orderId} - Status updated to 'Delivered' @ ${now.toISOString()}`
+        `[Update] Order ${d.orderId} - Status updated to 'Delivered' `
       );
       return res.json({ message: "Delivered", delivery: d });
     } catch (err) {
