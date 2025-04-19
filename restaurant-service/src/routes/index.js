@@ -2,11 +2,13 @@ import express from "express";
 const router = express.Router();
 
 import restaurantRoutes from "./restaurantRoutes.js";
-import foodRoutes from "./foodRoutes.js";
-import reviewRoutes from "./reviewRoutes.js";
+import foodMenuRoutes from "./foodMenuRoutes.js";
+import foodsRoutes from "./foodsRoutes.js";
+import categoryRoutes from "./categoryRoutes.js";
 
 router.use("/restaurants", restaurantRoutes);
-router.use("/foods", foodRoutes);
-router.use("/reviews", reviewRoutes);
+router.use("/foodMenus", foodMenuRoutes);
+router.use("/foods", foodsRoutes);
+router.use("/categories", categoryRoutes);
 
 export default router;
