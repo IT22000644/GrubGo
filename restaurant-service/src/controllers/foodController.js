@@ -10,17 +10,27 @@ import {
 export const foodController = {
   addFood: async (req, res) => {
     try {
-      const { name, description, price, category, foodMenu } = req.body;
-
       const imagePaths = req.files
         ? req.files.map(
             (file) =>
-              `${req.protocol}://${req.get("host")}/${file.path.replace(
-                /\\/g,
-                "/"
-              )}`
+              `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
           )
         : [];
+
+      const deleteUploadedImages = () => {
+        imagePaths.forEach((path) => {
+          fs.unlink(path, (err) => {
+            if (err) console.error("Failed to delete file:", path);
+          });
+        });
+      };
+
+      if (!req.body.name || !req.body.price || !req.body.category) {
+        deleteUploadedImages();
+        return res.status(400).json({ message: "Image Deleted." });
+      }
+
+      const { name, description, price, category, foodMenu } = req.body;
 
       const foodData = {
         name,
@@ -51,8 +61,25 @@ export const foodController = {
   },
   updateFood: async (req, res) => {
     const { id } = req.params;
-    const { name, price, description, discount, category } = req.body;
-    const imagePaths = req.files ? req.files.map((file) => file.path) : [];
+    const {
+      name,
+      price,
+      description,
+      discount,
+      category,
+      existingImages = [],
+      foodMenu,
+    } = req.body;
+
+    const newImagePaths = req.files
+      ? req.files.map(
+          (file) =>
+            `${req.protocol}://${req.get("host")}/${file.path.replace(
+              /\\/g,
+              "/"
+            )}`
+        )
+      : [];
 
     try {
       const existingFood = await getFoodByIdService(id);
@@ -60,16 +87,27 @@ export const foodController = {
         return res.status(404).json({ message: "Food item not found" });
       }
 
+      const updatedImages =
+        newImagePaths.length > 0
+          ? [...existingImages, ...newImagePaths]
+          : existingFood.images;
+
       const updatedData = {
-        name: name || existingFood.name,
-        price: price || existingFood.price,
-        description: description || existingFood.description,
-        discount: discount || existingFood.discount,
-        category: category || existingFood.category,
-        images: imagePaths.length > 0 ? imagePaths : existingFood.images,
+        name: name ?? existingFood.name,
+        price: price ?? existingFood.price,
+        description: description ?? existingFood.description,
+        discount: discount ?? existingFood.discount,
+        category: category ?? existingFood.category,
+        images: updatedImages,
+        foodMenu: foodMenu ?? existingFood.foodMenu,
       };
 
       const updatedFood = await updateFoodService(id, updatedData);
+      if (foodMenu) {
+        await updateFoodMenuService(foodMenu, {
+          $addToSet: { items: updatedFood._id },
+        });
+      }
 
       res.status(200).json({
         message: "Food item updated successfully",
@@ -123,9 +161,20 @@ export const foodController = {
         return res.status(404).json({ message: "Food item not found" });
       }
 
+      if (deletedFood.images?.length) {
+        await Promise.all(
+          deletedFood.images.map(async (path) => {
+            try {
+              await fs.promises.unlink(path);
+            } catch (err) {
+              console.error("Failed to delete file:", path, err);
+            }
+          })
+        );
+      }
+
       res.status(200).json({
         message: "Food item deleted successfully and removed from menus",
-        food: deletedFood,
       });
     } catch (error) {
       res.status(500).json({

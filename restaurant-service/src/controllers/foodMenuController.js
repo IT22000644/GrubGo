@@ -5,6 +5,7 @@ import {
   getMenuWithItemsService,
   updateFoodMenuService,
 } from "../services/foodMenuService.js";
+import { updateRestaurantService } from "../services/restaurantService.js";
 
 export const foodMenuController = {
   addFoodMenu: async (req, res) => {
@@ -54,6 +55,11 @@ export const foodMenuController = {
       };
 
       const newMenu = await addFoodMenuService(menuData);
+      if (restaurant) {
+        await updateRestaurantService(restaurant, {
+          $push: { menus: menuData._id },
+        });
+      }
       res.status(201).json({
         message: "Food menu added successfully.",
         menu: newMenu,
@@ -156,9 +162,20 @@ export const foodMenuController = {
         return res.status(404).json({ message: "Food menu not found" });
       }
 
+      if (deletedMenu.images?.length) {
+        await Promise.all(
+          deletedMenu.images.map(async (path) => {
+            try {
+              await fs.promises.unlink(path);
+            } catch (err) {
+              console.error("Failed to delete file:", path, err);
+            }
+          })
+        );
+      }
+
       return res.status(200).json({
         message: "Food menu and associated foods deleted successfully",
-        deletedMenu,
       });
     } catch (error) {
       return res.status(500).json({

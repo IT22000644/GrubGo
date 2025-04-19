@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.post(
   "/",
-  upload.array("images", 5),
+  upload.array("images", 10),
   foodValidationRules,
   validateRequest,
   foodController.addFood
@@ -18,7 +18,7 @@ router.post(
 
 router.put(
   "/:id",
-  upload.array("images", 5),
+  upload.array("images", 10),
   foodValidationRules,
   validateRequest,
   foodController.updateFood

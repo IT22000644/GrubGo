@@ -1,19 +1,17 @@
 import multer from "multer";
 import path from "path";
 
-// Storage configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Where images will be saved
+    cb(null, "uploads/");
   },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname); // Get the file extension
-    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`; // Generate unique file name
-    cb(null, uniqueName); // Save the file with the generated name
+    const ext = path.extname(file.originalname);
+    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    cb(null, uniqueName);
   },
 });
 
-// Error handling middleware for Multer errors
 export const handleMulterError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     if (err.code === "LIMIT_FILE_SIZE") {
@@ -30,7 +28,7 @@ export const handleMulterError = (err, req, res, next) => {
 
 export const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // Max file size 5MB
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif/;
     const mime = allowedTypes.test(file.mimetype);
@@ -38,7 +36,7 @@ export const upload = multer({
       path.extname(file.originalname).toLowerCase()
     );
 
-    if (mime && ext) return cb(null, true); // Allow file
-    cb(new Error("Only images are allowed")); // Reject invalid file types
+    if (mime && ext) return cb(null, true);
+    cb(new Error("Only images are allowed"));
   },
 });

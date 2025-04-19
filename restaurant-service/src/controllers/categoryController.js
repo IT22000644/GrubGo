@@ -37,7 +37,6 @@ export const categoryController = {
 
       res.status(200).json({
         message: "Category deleted successfully",
-        category: deletedCategory,
       });
     } catch (error) {
       res.status(500).json({
