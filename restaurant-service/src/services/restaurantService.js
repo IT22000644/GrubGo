@@ -30,7 +30,13 @@ export const updateRestaurantService = async (id, updateData) => {
 export const getRestaurantByIdService = async (id) => {
   return await Restaurant.findById(id)
     .populate("restaurantOwner", "-password")
-    .populate("menus");
+    .populate({
+      path: "menus",
+      populate: {
+        path: "items",
+        model: "Food",
+      },
+    });
 };
 
 export const getAllRestaurantsService = async () => {

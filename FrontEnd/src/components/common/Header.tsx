@@ -183,7 +183,7 @@ const Header = () => {
             <button
               onClick={() => {
                 setShowAuthModal(true);
-                setIsLogin(true); // default to login when opening modal
+                setIsLogin(true);
               }}
               className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-white hover:text-primary dark:hover:text-primary"
             >
