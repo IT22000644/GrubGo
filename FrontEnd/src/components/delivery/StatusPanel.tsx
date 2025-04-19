@@ -1,6 +1,5 @@
 import React from "react";
 
-// Helper function to format ETA in minutes and seconds
 const formatEta = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
