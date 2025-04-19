@@ -2,7 +2,10 @@ import { useState } from "react";
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../../firebase/config";
 
-const Register = () => {
+interface RegisterProps {
+  switchToLogin: () => void;
+}
+export const Register = ({ switchToLogin }: RegisterProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -30,10 +33,10 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-neutral dark:bg-dark">
+    <div>
       <form
         onSubmit={handleRegister}
-        className="bg-white dark:bg-gray-800 p-8 rounded shadow-md w-full max-w-md"
+        className="bg-white dark:bg-gray-800 p-8 w-full max-w-md"
       >
         <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
 
@@ -59,27 +62,28 @@ const Register = () => {
 
         <button
           type="submit"
-          className="w-full font-bold bg-neutral text-dark hover:bg-primary hover:text-neutral text-white py-2 rounded shadow-md border-1 mb-4"
+          className="w-full font-bold text-sm bg-neutral text-text_dark hover:bg-primary hover:text-neutral text-white py-2 rounded shadow-md border-1 mb-4"
         >
           Register
         </button>
 
         <button
           onClick={handleGoogleLogin}
-          className="w-full font-bold bg-neutral text-dark hover:bg-primary hover:text-neutral text-white py-2 rounded shadow-md border-1"
+          className="w-full font-bold text-sm  bg-neutral text-text_dark hover:bg-primary hover:text-neutral text-white py-2 rounded shadow-md border-1"
         >
           Sign in with Google
         </button>
 
         <p className="text-center text-sm mt-4 text-gray-600 dark:text-gray-400">
           Already have an account?{" "}
-          <a href="/login" className="text-primary hover:text-black">
+          <button
+            onClick={switchToLogin}
+            className="text-primary hover:text-black underline"
+          >
             Login
-          </a>
+          </button>
         </p>
       </form>
     </div>
   );
 };
-
-export default Register;
