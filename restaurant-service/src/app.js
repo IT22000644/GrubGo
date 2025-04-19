@@ -3,9 +3,11 @@ import connectDB from "./config/db_config.js";
 import apiV1Routes from "./routes/index.js";
 import dotenv from "dotenv";
 import path from "path";
+import cors from "cors";
 
 dotenv.config();
 const app = express();
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
 const mongoURI =

@@ -1,11 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, MapPin, Clock, Star, Search } from "lucide-react";
+import api from "../../api/axios";
 
 const Home = () => {
   const [heroIndex, setHeroIndex] = useState(0);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [restaurants, setRestaurants] = useState<
+    { _id: string; name: string }[]
+  >([]);
+  const [menus, setMenus] = useState<{ _id: string; title: string }[]>([]);
+  const [foods, setFoods] = useState<{ _id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res1 = await api.get("/restaurants/");
+        console.log(res1.data.restaurants);
+        setRestaurants(res1.data.restaurants);
+      } catch (error) {
+        console.error("Failed to fetch:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const featuredRestaurants = [
     {
@@ -192,7 +212,7 @@ const Home = () => {
               Featured Restaurants
             </h2>
             <Link
-              to="/restaurants"
+              to="/allRestaurants"
               className="text-orange-400 dark:text-orange-500 font-medium flex items-center hover:underline"
             >
               View All <ArrowRight size={16} className="ml-1" />
