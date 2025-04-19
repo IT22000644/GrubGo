@@ -7,13 +7,12 @@ const connectQueue = async () => {
     try {
         const amqpUrl = process.env.RABBITMQ_URL || 'amqp://localhost';
         const connection = await amqp.connect(amqpUrl);
-        
+
         channel = await connection.createChannel();
 
         await channel.assertQueue('orderQueue');
-        await channel.assertQueue('paymentResponseQueue');
-        await channel.assertQueue('restaurant_queue');
-        await channel.assertQueue('delivery_queue');
+        await channel.assertQueue('paymentdoneQueue');
+        await channel.assertQueue('deliveryqueue');
 
         console.log('[RabbitMQ] Connected and Queues asserted.');
     } catch (error) {
@@ -21,7 +20,7 @@ const connectQueue = async () => {
     }
 };
 
-// Send a message to a specific queue
+// Send to a queue
 const publishToQueue = async (queueName, data) => {
     if (!channel) {
         console.error('[RabbitMQ] Channel is not initialized.');
