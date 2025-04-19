@@ -56,6 +56,7 @@ export const RestaurantController = {
       };
 
       const newRestaurant = await registerRestaurantService(restaurantData);
+
       res.status(201).json({
         message: "Restaurant added successfully!",
         restaurant: newRestaurant,
@@ -180,9 +181,21 @@ export const RestaurantController = {
     const { id } = req.params;
 
     try {
-      const deleted = await deleteRestaurantService(id);
-      if (!deleted) {
+      const deletedRestaurant = await deleteRestaurantService(id);
+      if (!deletedRestaurant) {
         return res.status(404).json({ message: "Restaurant not found" });
+      }
+
+      if (deletedRestaurant.images?.length) {
+        await Promise.all(
+          deletedRestaurant.images.map(async (path) => {
+            try {
+              await fs.promises.unlink(path);
+            } catch (err) {
+              console.error("Failed to delete file:", path, err);
+            }
+          })
+        );
       }
 
       res

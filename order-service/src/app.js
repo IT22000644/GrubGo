@@ -5,7 +5,8 @@ const orderRoutes = require('./routes/orderRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const cors = require('cors');
 const { connectQueue } = require('./utils/messageQueue');
-const listenToPayments = require('./utils/paymentConsumer');
+const { consumePaymentDoneQueue } = require('./utils/paymentQueueConsumer');
+const { listenToDeliveryQueue } = require('./utils/deliveryConsumer');
 
 dotenv.config();
 
@@ -22,7 +23,8 @@ app.use('/api/cart', cartRoutes);
 const PORT = process.env.PORT || 5005;
 const startServer = async () => {
   await connectQueue();
-  await listenToPayments();
+  await consumePaymentDoneQueue();
+  await listenToDeliveryQueue();
   app.listen(PORT, () => console.log(`Order service running on port ${PORT}`));
 };
 
