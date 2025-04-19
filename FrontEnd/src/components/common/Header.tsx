@@ -10,11 +10,16 @@ import {
   X,
   LogIn,
 } from "lucide-react";
+import Modal from "../modal/Modal";
+import { Login } from "../../features/auth/Login";
+import { Register } from "../../features/auth/Register";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
 
   // Handle scroll effect for sticky header
   useEffect(() => {
@@ -175,14 +180,26 @@ const Header = () => {
 
             <ThemeToggle />
 
-            <Link
-              to="/login"
+            <button
+              onClick={() => {
+                setShowAuthModal(true);
+                setIsLogin(true); // default to login when opening modal
+              }}
               className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-white hover:text-primary dark:hover:text-primary"
             >
+              {" "}
               <LogIn size={18} />
               Login
-            </Link>
+            </button>
           </div>
+
+          <Modal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)}>
+            {isLogin ? (
+              <Login switchToRegister={() => setIsLogin(false)} />
+            ) : (
+              <Register switchToLogin={() => setIsLogin(true)} />
+            )}
+          </Modal>
 
           <div className="flex items-center space-x-3 md:hidden">
             <Link to="/cart" className="p-2 relative">
