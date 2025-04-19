@@ -34,15 +34,15 @@ const createOrder = async (req, res) => {
 
     await Cart.deleteOne({ _id: cart._id });
 
-    await publishToQueue('orderQueue', {
-      orderId: newOrder._id,
-      customerId,
-      amount: totalAmount,
-      restaurantId,
-      items: cart.items,
-      PaymentStatus: 'pending',
-      status: 'pending',
-    });
+    // await publishToQueue('orderQueue', {
+    //   orderId: newOrder._id,
+    //   customerId,
+    //   amount: totalAmount,
+    //   restaurantId,
+    //   items: cart.items,
+    //   PaymentStatus: 'pending',
+    //   status: 'pending',
+    // });
 
 
     res.status(201).json({
@@ -159,7 +159,7 @@ const cancelOrder = async (req, res) => {
 
 const checkout = async (req, res) => {
   try {
-    const { orderId } = req.body;
+    const { orderId } = req.params;
 
     const order = await Order.findById(orderId);
 
@@ -202,6 +202,75 @@ const checkout = async (req, res) => {
   }
 };
 
+const setOrderPreparing = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    if (order.status !== 'process') {
+      return res.status(400).json({ message: 'Order must be in process state to prepare' });
+    }
+
+    order.status = 'preparing';
+    order.updatedAt = Date.now();
+    await order.save();
+
+    return res.status(200).json({ message: 'Order status set to preparing', order });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to set order to preparing', error: error.message });
+  }
+};
+
+const setOrderCompleted = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    if (order.status !== 'preparing') {
+      return res.status(400).json({ message: 'Order must be in preparing state to complete' });
+    }
+
+    order.status = 'completed';
+    order.updatedAt = Date.now();
+    await order.save();
+    
+    await publishToQueue('deliveryqueue', {
+      orderId: order._id,
+      customerId: order.customerId,
+      restaurantId: order.restaurantId,
+      status: 'delivering',
+    });
+
+    return res.status(200).json({ message: 'Order status set to completed', order });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to set order to completed', error: error.message });
+  }
+};
+
+const setOrderDelivered = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    if (order.status !== 'completed') {
+      return res.status(400).json({ message: 'Order must be in completed state to deliver' });
+    }
+
+    order.status = 'done';
+    order.updatedAt = Date.now();
+    await order.save();
+
+    return res.status(200).json({ message: 'Order status set to delivered', order });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to set order to delivered', error: error.message });
+  }
+};
 
 module.exports = {
   createOrder,
@@ -209,5 +278,8 @@ module.exports = {
   updateOrder,
   getOrdersByCustomer,
   cancelOrder,
-  checkout
+  checkout,
+  setOrderPreparing,
+  setOrderCompleted,
+  setOrderDelivered
 }

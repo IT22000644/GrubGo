@@ -12,6 +12,12 @@ router.get('/customer/:customerId', orderController.getOrdersByCustomer);
 
 router.put('/:id/cancel', orderController.cancelOrder);
 
-router.post('/checkout', orderController.checkout);
+router.post('/:orderId/checkout', orderController.checkout);
+
+router.put('/status/preparing/:orderId', orderController.setOrderPreparing);
+
+router.put('/status/completed/:orderId', orderController.setOrderCompleted);
+
+router.put('/status/delivered/:orderId', orderController.setOrderDelivered);
 
 module.exports = router;

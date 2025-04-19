@@ -11,9 +11,8 @@ const connectQueue = async () => {
         channel = await connection.createChannel();
 
         await channel.assertQueue('orderQueue');
-        await channel.assertQueue('paymentResponseQueue');
-        await channel.assertQueue('restaurant_queue');
-        await channel.assertQueue('delivery_queue');
+        await channel.assertQueue('paymentdoneQueue');
+        await channel.assertQueue('deliveryqueue');
 
         console.log('[RabbitMQ] Connected and Queues asserted.');
     } catch (error) {
