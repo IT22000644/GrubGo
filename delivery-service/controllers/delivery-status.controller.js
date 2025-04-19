@@ -6,7 +6,6 @@ const MS_PER_MINUTE = 60 * 1000;
 
 const DeliveryStatusController = {
   // Method to update the status to "Picked Up".
-
   async updateStatusToPickedUp(req, res) {
     try {
       const { deliveryId } = req.body;
@@ -41,6 +40,7 @@ const DeliveryStatusController = {
     }
   },
 
+  // Method to update the status to "Delivered".
   async updateStatusToDelivered(req, res) {
     try {
       const { deliveryId } = req.body;
@@ -49,7 +49,7 @@ const DeliveryStatusController = {
         return res.status(400).json({ message: "Cannot deliver yet" });
       }
 
-      const now = new Date(); // UTC
+      const now = new Date();
       d.deliveredAt = now;
       d.actualDeliveryTime = now;
       d.actualTimeElapsed = Math.round((now - d.createdAt) / MS_PER_MINUTE);
@@ -66,16 +66,10 @@ const DeliveryStatusController = {
     }
   },
 
+  // Method to check the current status of the Delivery
   async getCurrentStatus(req, res) {
     try {
       const { deliveryId } = req.params;
-      const { driverLocation } = req.body;
-
-      if (!deliveryId || !driverLocation) {
-        return res.status(400).json({
-          message: "Missing delivery ID or driver location",
-        });
-      }
 
       const d = await Delivery.findById(deliveryId);
       if (!d) return res.status(404).json({ message: "Delivery not found" });
@@ -131,8 +125,8 @@ const DeliveryStatusController = {
           : d.customerLocation;
 
         distanceToNext = calculateHaversineDistance(
-          driverLocation.latitude,
-          driverLocation.longitude,
+          d.driverLocation.latitude,
+          d.driverLocation.longitude,
           nextLocation.latitude,
           nextLocation.longitude
         );
@@ -141,9 +135,8 @@ const DeliveryStatusController = {
           ? d.estimatedTimeToRestaurant
           : d.estimatedTimeToCustomer;
       } else {
-        // Final fallback for Delivered
         nextDestination = "None";
-        nextLocation = "N/A";
+        nextLocation = "None";
         distanceToNext = 0;
         etaToNext = 0;
       }
@@ -152,7 +145,7 @@ const DeliveryStatusController = {
         orderId: d.orderId,
         driverId: d.driverId,
         status: liveStatus,
-        driverLocation,
+        driverLocation: d.driverLocation,
         restaurantLocation: d.restaurantLocation,
         customerLocation: d.customerLocation,
         nextDestination,
@@ -160,6 +153,8 @@ const DeliveryStatusController = {
         distanceToNext,
         etaToNext,
         expectedDeliveryTime: d.expectedDeliveryTime,
+        estimatedTimeToRestaurant: d.estimatedTimeToRestaurant,
+        estimatedTimeToCustomer: d.estimatedTimeToCustomer,
         createdAt: d.createdAt,
       });
     } catch (err) {

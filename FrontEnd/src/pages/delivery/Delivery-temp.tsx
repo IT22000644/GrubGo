@@ -1,30 +1,61 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DeliveryRoute } from "../../components/delivery/DeliveryMap";
+import axios from "axios";
 
 export default function DeliveryTemp() {
   const [deliveryId, setDeliveryId] = useState("");
   const navigate = useNavigate();
 
-  const handleStartSimulation = () => {
+  const getCoordinates = async (address: string) => {
+    try {
+      const response = await axios.post("http://localhost:5004/api/map/", {
+        address: address,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching coordinates:", error);
+      alert("Failed to get coordinates");
+      return { latitude: 0, longitude: 0 };
+    }
+  };
+
+  const handleStartSimulation = async () => {
+    const driverAddress =
+      "Colombo Town Hall, Colombo, Western Province, Sri Lanka";
+    const restaurantAddress =
+      "Viharamahadevi Park, Colombo, Western Province, Sri Lanka";
+    const customerAddress =
+      "Colombo Town Hall, Colombo, Western Province, Sri Lanka";
+
+    const driverCoords = await getCoordinates(driverAddress);
+    const restaurantCoords = await getCoordinates(restaurantAddress);
+    const customerCoords = await getCoordinates(customerAddress);
+
     const initialRoute: DeliveryRoute = {
-      driverLocation: { latitude: 6.927079, longitude: 79.861244 },
-      restaurantLocation: { latitude: 6.930079, longitude: 79.858244 },
-      customerLocation: { latitude: 6.927079, longitude: 79.861244 },
+      driverLocation: driverCoords,
+      restaurantLocation: restaurantCoords,
+      customerLocation: customerCoords,
       vehicleType: "bike",
       vehicleColor: "red",
       vehicleNumber: "XT-9988",
     };
 
     navigate("/delivery", {
-      state: { mode: "assign", initialRoute },
+      state: {
+        mode: "assign",
+        initialRoute,
+        driverAddress,
+        restaurantAddress,
+        customerAddress,
+      },
     });
   };
 
   const handleTrackOrder = () => {
     const id = deliveryId.trim();
     if (!id) return alert("Please enter a Delivery ID.");
-    navigate("/delivery", {
+    navigate("/delivery-tracking", {
       state: { mode: "track", deliveryId: id },
     });
   };
@@ -46,7 +77,7 @@ export default function DeliveryTemp() {
           value={deliveryId}
           onChange={(e) => setDeliveryId(e.target.value)}
           placeholder="Enter Delivery ID"
-          className="flex-1 border rounded px-3 py-2"
+          className="flex-1 border rounded px-3 py-2 text-black"
         />
         <button
           onClick={handleTrackOrder}

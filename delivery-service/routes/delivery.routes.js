@@ -19,7 +19,7 @@ router.put(
   DeliveryStatusController.updateStatusToDelivered
 );
 
-router.post("/status/:deliveryId", DeliveryStatusController.getCurrentStatus);
+router.get("/status/:deliveryId", DeliveryStatusController.getCurrentStatus);
 
 router.get("/", DeliveryCrudController.getAllDeliveries);
 router.put("/:deliveryId", DeliveryCrudController.updateDelivery);
