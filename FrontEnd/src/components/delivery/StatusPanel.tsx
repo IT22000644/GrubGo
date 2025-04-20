@@ -44,9 +44,9 @@ const StatusPanel: React.FC<Props> = ({
   })();
 
   return (
-    <div className="border rounded-lg p-4 shadow">
-      <h2 className="text-xl font-medium mb-2">Current Status</h2>
-      <p className="mb-4">
+    <div className="border-4 border-blue-500 rounded-lg p-4 shadow bg-blue-50">
+      <h2 className="text-xl font-medium mb-2 text-black">Current Status</h2>
+      <p className="mb-4 text-black">
         <strong>{status}</strong>
       </p>
 
@@ -62,7 +62,7 @@ const StatusPanel: React.FC<Props> = ({
         </p>
       )}
 
-      <p>
+      <p className="text-black">
         Expected Delivery: <strong>{formattedTime}</strong>
       </p>
 

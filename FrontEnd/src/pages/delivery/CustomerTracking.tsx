@@ -7,6 +7,8 @@ import DeliveryMap, {
 } from "../../components/delivery/DeliveryMap";
 import StatusPanel from "../../components/delivery/StatusPanel";
 import { fetchRoadPath } from "../../utils/delivery/mapHelpers";
+import StatusTracker from "../../components/delivery/StatusTracker";
+import DriverInfoCard from "../../components/delivery/DriverInfoCard";
 
 interface TrackingState {
   mode: "track";
@@ -109,8 +111,11 @@ export default function CustomerTracking() {
       );
       const data = res.data;
 
-      if (data.status === lastFetchedStatusRef.current) return;
-      lastFetchedStatusRef.current = data.status;
+      if (data.status !== lastFetchedStatusRef.current) {
+        lastFetchedStatusRef.current = data.status;
+      } else {
+        return;
+      }
 
       orderIdRef.current = data.orderId;
 
@@ -209,7 +214,9 @@ export default function CustomerTracking() {
     fetchStatusAndResume().then(() => {
       const evt = `delivery:${orderIdRef.current}`;
       socketRef.current!.on(evt, async (_data: { status: string }) => {
-        console.log("Socket triggered. Refreshing status and resuming...");
+        console.log("Received status update from server:", _data.status);
+
+        lastFetchedStatusRef.current = null;
         await fetchStatusAndResume();
       });
       subscribedRef.current = true;
@@ -219,8 +226,11 @@ export default function CustomerTracking() {
   return (
     <div className="p-4 space-y-6">
       <h1 className="text-2xl font-semibold">Tracking Delivery</h1>
+
+      <StatusTracker currentStatus={status} />
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="col-span-2 h-96">
+        <div className="col-span-2 h-96 border-4 border-blue-500">
           <DeliveryMap
             route={route}
             pathStage={mapPathStage}
@@ -228,6 +238,14 @@ export default function CustomerTracking() {
           />
         </div>
         <div className="space-y-4">
+          <DriverInfoCard
+            name="Alex Rider"
+            imageUrl="https://images.pexels.com/photos/28955594/pexels-photo-28955594/free-photo-of-chimpanzee-at-zoo-in-natural-habitat.jpeg?auto=compress&cs=tinysrgb&w=600"
+            vehicleType={route?.vehicleType || "Car"}
+            vehicleColor={route?.vehicleColor || "Blue"}
+            vehicleNumber={route?.vehicleNumber || "XT-9988"}
+          />
+
           {route && (
             <StatusPanel
               status={status}
