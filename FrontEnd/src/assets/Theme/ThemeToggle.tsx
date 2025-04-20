@@ -53,14 +53,12 @@ const ThemeToggle: React.FC = () => {
         isDark ? "bg-dark" : "bg-orange-100"
       }`}
     >
-      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-orange-300 to-yellow-300 dark:from-indigo-900 dark:to-purple-900 opacity-50 transition-opacity duration-300" />
+      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-orange-300 to-yellow-300 dark:from-accent dark:to-accent/30 opacity-50 transition-opacity duration-300" />
 
       <div
         className={`flex items-center justify-center w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
           isAnimating ? "scale-90" : "scale-100"
-        } ${
-          isDark ? "translate-x-6 bg-indigo-800" : "translate-x-0 bg-primary"
-        }`}
+        } ${isDark ? "translate-x-6 bg-accent" : "translate-x-0 bg-primary"}`}
       >
         {isDark ? (
           <Moon size={10} className="text-white" />
@@ -82,7 +80,7 @@ const ThemeToggle: React.FC = () => {
       ></span>
 
       <div
-        className={`absolute inset-0 rounded-full ring-4 ring-orange-300 dark:ring-indigo-700 transition-all duration-300 ${
+        className={`absolute inset-0 rounded-full ring-2 ring-orange-300 dark:ring-accent transition-all duration-300 ${
           isAnimating ? "ring-opacity-50 scale-105" : "ring-opacity-0 scale-100"
         }`}
       />

@@ -87,15 +87,15 @@ const Contact = () => {
           />
         </div>
 
-        <div className="absolute inset-0 bg-gradient-to-r from-neutral via-neutral/80 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-neutral via-neutral/80 to-transparent dark:from-dark_bg dark:via-dark_bg/80"></div>
 
         <div className="container mx-auto px-6 relative z-10 flex items-center h-full">
           <div className="max-w-xl">
-            <h1 className="text-4xl md:text-5xl font-bold text-text_dark mb-4">
+            <h1 className="text-3xl md:text-5xl font-bold text-text_dark mb-4 dark:text-text_white">
               Contact Us
             </h1>
-            <p className="text-xl text-text_dark">
-              We'd love to hear from you!
+            <p className="text-md text-text_dark dark:text-text_white ">
+              We'd love to hear from you
             </p>
           </div>
         </div>
@@ -104,54 +104,58 @@ const Contact = () => {
       <div className="container mx-auto px-6 py-12">
         <div className="grid md:grid-cols-2 gap-12 items-start">
           <div>
-            <h2 className="text-3xl font-bold text-text_dark mb-6">
+            <h2 className="text-3xl font-bold text-text_dark mb-6 dark:text-text_white">
               Get in Touch
             </h2>
-            <p className="text-text_gray_600 mb-8">
+            <p className="text-text_gray_600 dark:text-text_white text-sm mb-8 dark:text-text_white/80 text-md">
               Have questions about our service, restaurant partnerships, or
               delivery areas? Our friendly team is here to help you.
             </p>
 
             <div className="space-y-6">
               <div className="flex items-start">
-                <div className="bg-amber-100 p-3 rounded-full text-primary_lite mr-4">
+                <div className="bg-amber-100 p-3 rounded-full text-primary_lite dark:bg-accent/60 mr-4 mt-4">
                   <Phone size={22} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-text_dark">
+                  <h3 className="text-lg font-semibold text-text_dark dark:text-text_white">
                     Phone
                   </h3>
-                  <p className="text-text_gray_600">(555) 123-4567</p>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-text_gray_600 dark:text-text_white text-sm dark:text-text_white text-sm">
+                    (555) 123-4567
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1 dark:text-text_white text-sm dark:text-text_white text-sm">
                     Monday to Friday, 9am to 6pm
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start">
-                <div className="bg-amber-100 p-3 rounded-full text-primary_lite mr-4">
+                <div className="bg-amber-100 p-3 rounded-full text-primary_lite dark:bg-accent/60 mr-4 mt-4">
                   <Mail size={22} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-text_dark">
+                  <h3 className="text-lg font-semibold text-text_dark dark:text-text_white">
                     Email
                   </h3>
-                  <p className="text-text_gray_600">support@grubgo.com</p>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-text_gray_600 dark:text-text_white text-sm">
+                    support@grubgo.com
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1 dark:text-text_white text-sm">
                     We'll respond within 24 hours
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start">
-                <div className="bg-amber-100 p-3 rounded-full text-primary_lite mr-4">
+                <div className="bg-amber-100 p-3 rounded-full text-primary_lite dark:bg-accent/60 mr-4 mt-4">
                   <MapPin size={22} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-text_dark">
+                  <h3 className="text-lg font-semibold text-text_dark dark:text-text_white">
                     Office
                   </h3>
-                  <p className="text-text_gray_600">
+                  <p className="text-text_gray_600 dark:text-text_white text-sm">
                     123 Delivery Street
                     <br />
                     Foodville, CA 90210
@@ -160,14 +164,14 @@ const Contact = () => {
               </div>
 
               <div className="flex items-start">
-                <div className="bg-amber-100 p-3 rounded-full text-primary_lite mr-4">
+                <div className="bg-amber-100 p-3 rounded-full text-primary_lite dark:bg-accent/60 mr-4 mt-4">
                   <Clock size={22} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-text_dark">
+                  <h3 className="text-lg font-semibold text-text_dark dark:text-text_white">
                     Hours
                   </h3>
-                  <div className="text-text_gray_600">
+                  <div className="text-text_gray_600 dark:text-text_white text-sm">
                     <p>Monday - Friday: 9:00 AM - 10:00 PM</p>
                     <p>Saturday - Sunday: 10:00 AM - 11:00 PM</p>
                   </div>
@@ -176,7 +180,7 @@ const Contact = () => {
             </div>
 
             <div className="mt-8">
-              <h3 className="text-xl font-semibold text-text_dark mb-4">
+              <h3 className="text-xl font-semibold text-text_dark mb-4 dark:text-text_white">
                 Follow Us
               </h3>
               <div className="flex space-x-4">
@@ -198,7 +202,7 @@ const Contact = () => {
                   <a
                     key={social.name}
                     href="#"
-                    className="bg-amber-100 w-10 h-10 flex items-center justify-center rounded-full text-primary_lite hover:bg-amber-200 transition-colors"
+                    className="bg-amber-100 w-10 h-10 flex items-center justify-center rounded-full text-primary_lite hover:bg-amber-200 transition-colors dark:bg-accent/60 dark:hover:bg-accent/80"
                   >
                     <span className="sr-only">{social.name}</span>
                     <social.icon />
@@ -314,7 +318,7 @@ const Contact = () => {
         </div>
 
         <div className="mt-16">
-          <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center dark:text-text_white">
             Frequently Asked Questions
           </h2>
           <div className="grid md:grid-cols-2 gap-6">
@@ -327,7 +331,7 @@ const Contact = () => {
                   onClick={() => toggleItem(index)}
                   className="w-full px-6 py-4 flex items-center justify-between text-left focus:outline-none"
                 >
-                  <h3 className="text-lg font-semibold text-gray-800">
+                  <h3 className="text-lg font-semibold text-gray-800 text-md">
                     {faq.question}
                   </h3>
                   <ChevronDown
@@ -345,7 +349,9 @@ const Contact = () => {
                       : "max-h-0 opacity-0"
                   }`}
                 >
-                  <p className="px-6 pb-4 text-gray-600">{faq.answer}</p>
+                  <p className="px-6 pb-4 text-gray-600 text-sm">
+                    {faq.answer}
+                  </p>
                 </div>
               </div>
             ))}
