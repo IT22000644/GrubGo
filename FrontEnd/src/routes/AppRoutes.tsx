@@ -14,6 +14,7 @@ import NotFound from "../pages/common/NotFound";
 import Contact from "../pages/main/ContactUs";
 import { AllRestaurants } from "../pages/restaurent/allRestaurants/AllRestaurants";
 import RestaurantDetails from "../pages/restaurent/restaurantDetails/restaurantDetails";
+import RestaurantAdminMain from "../pages/user/restaurantAdmin/restaurantAdminMain";
 
 // import DeliveryTracking from "../pages/delivery/DeliveryTracking";
 
@@ -31,6 +32,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/delivery-temp" element={<TempDelivery />} />
         <Route path="*" element={<NotFound />} />
       </Route>
+
+      <Route path="/admin/restaurant" element={<RestaurantAdminMain />} />
 
       <Route
         path="/profile"
