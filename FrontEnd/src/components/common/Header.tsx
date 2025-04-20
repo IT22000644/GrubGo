@@ -68,13 +68,13 @@ const Header = () => {
     },
     {
       name: "Restaurants",
-      path: "/restaurants",
+      path: "/allRestaurants",
       hasDropdown: true,
       dropdownContent: [
         { name: "Nearby", path: "/restaurants/nearby" },
         { name: "Popular", path: "/restaurants/popular" },
         { name: "New Partners", path: "/restaurants/new" },
-        { name: "All Restaurants", path: "/restaurants/all" },
+        { name: "All Restaurants", path: "/allRestaurants" },
       ],
     },
     {
