@@ -97,7 +97,7 @@ const getOrdersByCustomer = async (req, res) => {
     const query = { customerId };
 
     if (status) {
-      const validStatuses = ['completed', 'cancelled', 'pending'];
+      const validStatuses = ['completed', 'cancelled', 'pending', 'done'];
       if (!validStatuses.includes(status)) {
         return res.status(400).json({
           message: 'Invalid status value',
@@ -178,14 +178,15 @@ const checkout = async (req, res) => {
           currency: 'usd',
           product_data: {
             name: `Item ${item.foodItemId}`,
+            description: `RESTAURANT: ${order.restaurantId}\n CUSTOMER: ${order.customerId}`,
           },
           unit_amount: Math.round(item.price * 100),
         },
         quantity: item.quantity,
       })),
       mode: 'payment',
-      success_url: `${process.env.CLIENT_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}&order_id=${order._id}`,
-      cancel_url: `${process.env.CLIENT_URL}/payment-cancel`,
+      success_url: `${process.env.CLIENT_URL}`,
+      cancel_url: `${process.env.CLIENT_URL}`,
       metadata: {
         orderId: order._id.toString(),
         customerId: order.customerId,
@@ -237,7 +238,7 @@ const setOrderCompleted = async (req, res) => {
     order.status = 'completed';
     order.updatedAt = Date.now();
     await order.save();
-    
+
     await publishToQueue('deliveryqueue', {
       orderId: order._id,
       customerId: order.customerId,

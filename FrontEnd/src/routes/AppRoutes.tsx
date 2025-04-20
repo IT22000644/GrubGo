@@ -14,6 +14,7 @@ import NotFound from "../pages/common/NotFound";
 import Contact from "../pages/main/ContactUs";
 import { AllRestaurants } from "../pages/restaurent/allRestaurants/AllRestaurants";
 import RestaurantDetails from "../pages/restaurent/restaurantDetails/restaurantDetails";
+import CartPage from "../pages/order/CartPage";
 
 // import DeliveryTracking from "../pages/delivery/DeliveryTracking";
 
@@ -29,6 +30,8 @@ const AppRoutes: React.FC = () => {
 
         <Route path="/delivery" element={<DeliveryAssign />} />
         <Route path="/delivery-temp" element={<TempDelivery />} />
+
+        <Route path="/cart" element={<CartPage customerId="customer123" />} />
         <Route path="*" element={<NotFound />} />
       </Route>
 
