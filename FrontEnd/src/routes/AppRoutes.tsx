@@ -14,7 +14,6 @@ import DeliveryTracking from "../pages/delivery/DeliveryTracking";
 import CustomerTracking from "../pages/delivery/CustomerTracking";
 import NotFound from "../pages/common/NotFound";
 import Contact from "../pages/main/ContactUs";
-// import DeliveryTracking from "../pages/delivery/DeliveryTracking";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -28,6 +27,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/delivery-temp" element={<TempDelivery />} />
         <Route path="/delivery-tracking" element={<DeliveryTracking />} />
         <Route path="/customer-tracking" element={<CustomerTracking />} />
+
         <Route path="*" element={<NotFound />} />
       </Route>
 

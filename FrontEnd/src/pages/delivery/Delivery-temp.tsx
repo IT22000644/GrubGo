@@ -7,12 +7,30 @@ export default function DeliveryTemp() {
   const [deliveryId, setDeliveryId] = useState("");
   const navigate = useNavigate();
 
-  const handleTrackCustomerOrder = () => {
+  const handleTrackCustomerOrder = async () => {
     const id = deliveryId.trim();
     if (!id) return alert("Please enter a Delivery ID.");
-    navigate("/customer-tracking", {
-      state: { mode: "track", deliveryId: id },
-    });
+
+    try {
+      const response = await axios.get(
+        `http://localhost:5005/api/deliveries/status/${id}`
+      );
+
+      const data = response.data;
+
+      navigate("/customer-tracking", {
+        state: {
+          mode: "track",
+          deliveryId: id,
+          vehicleType: data.vehicleType || "bike",
+          vehicleColor: data.vehicleColor || "red",
+          vehicleNumber: data.vehicleNumber || "XT-9988",
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching delivery details:", error);
+      alert("Failed to fetch delivery details. Please try again.");
+    }
   };
 
   const getCoordinates = async (address: string) => {
@@ -44,7 +62,7 @@ export default function DeliveryTemp() {
       restaurantLocation: restaurantCoords,
       customerLocation: customerCoords,
       vehicleType: "bike",
-      vehicleColor: "red",
+      vehicleColor: "black",
       vehicleNumber: "XT-9988",
     };
 
@@ -79,7 +97,7 @@ export default function DeliveryTemp() {
       </button>
 
       <h2 className="text-base font-semibold text-center">
-        Restaurant and Driver Tracking Delievery
+        Restaurant and Driver Tracking Delivery
       </h2>
 
       <div className="flex space-x-2">
@@ -99,7 +117,7 @@ export default function DeliveryTemp() {
       </div>
 
       <h2 className="text-base font-semibold text-center">
-        Customer Tracking Delievery
+        Customer Tracking Delivery
       </h2>
 
       <div className="flex space-x-2">

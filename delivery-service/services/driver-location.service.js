@@ -10,7 +10,7 @@ function calculateProgress(startTime, endTime) {
   return Math.min(1, elapsed / total);
 }
 
-export function startDriverLocationUpdater() {
+export function startDriverLocationUpdater(io) {
   cron.schedule("*/30 * * * * *", async () => {
     const now = new Date();
 
@@ -37,6 +37,11 @@ export function startDriverLocationUpdater() {
         { _id: d._id },
         { $set: { driverLocation: driverLoc } }
       );
+
+      io.emit(`delivery:${d.orderId}`, {
+        status: "In Transit",
+        timestamp: now,
+      });
 
       console.log(
         `[Location Update] Order - ${d.orderId} - Moving to Restaurant`
@@ -69,6 +74,11 @@ export function startDriverLocationUpdater() {
         { _id: d._id },
         { $set: { driverLocation: driverLoc } }
       );
+
+      io.emit(`delivery:${d.orderId}`, {
+        status: "In Transit - Picked Up",
+        timestamp: now,
+      });
 
       console.log(
         `[Location Update] Order - ${d.orderId} - Moving to Customer`

@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import Delivery from "../models/Delivery.js";
 
-export function startDeliveryScheduler() {
+export function startDeliveryScheduler(io) {
   cron.schedule("*/10 * * * * *", async () => {
     const now = new Date();
 
@@ -19,12 +19,23 @@ export function startDeliveryScheduler() {
           },
         }
       );
-      if (r1.nModified)
-        console.log(
-          `[Scheduler] Order - ${r1.nModified} - Status Updated ( Assigned → In Transit ) `
-        );
+      if (r1.modifiedCount > 0) {
+        const updatedDeliveries = await Delivery.find({
+          status: "In Transit",
+          assignedAt: { $lte: now },
+        });
+
+        updatedDeliveries.forEach((d) => {
+          io.emit(`delivery:${d.orderId}`, {
+            status: "In Transit",
+            timestamp: now,
+          });
+        });
+
+        console.log(`[Scheduler] ${r1.modifiedCount} updated to In Transit`);
+      }
     } catch (error) {
-      console.error("Error updating status to In Transit:", error);
+      console.error("Error updating to In Transit:", error);
     }
 
     try {
@@ -45,12 +56,16 @@ export function startDeliveryScheduler() {
             },
           },
         });
-        console.log(
-          `[Scheduler] Order - ${d.orderId} - Status Updated ( In Transit → Arrived Restaurant )`
-        );
+
+        io.emit(`delivery:${d.orderId}`, {
+          status: "Arrived Restaurant",
+          timestamp: now,
+        });
+
+        console.log(`[Scheduler] Order ${d.orderId} → Arrived Restaurant`);
       }
     } catch (error) {
-      console.error("Error updating status to Arrived Restaurant:", error);
+      console.error("Error updating to Arrived Restaurant:", error);
     }
 
     try {
@@ -67,12 +82,25 @@ export function startDeliveryScheduler() {
           },
         }
       );
-      if (r3.nModified)
+      if (r3.modifiedCount > 0) {
+        const updatedDeliveries = await Delivery.find({
+          status: "In Transit - Picked Up",
+          inTransitPickedUpAt: { $lte: now },
+        });
+
+        updatedDeliveries.forEach((d) => {
+          io.emit(`delivery:${d.orderId}`, {
+            status: "In Transit - Picked Up",
+            timestamp: now,
+          });
+        });
+
         console.log(
-          `[Scheduler] Order - ${r3.nModified} - Status Updated ( Picked Up → In Transit - Picked Up ) `
+          `[Scheduler] ${r3.modifiedCount} updated to In Transit - Picked Up`
         );
+      }
     } catch (error) {
-      console.error("Error updating status to In Transit - Picked Up:", error);
+      console.error("Error updating to In Transit - Picked Up:", error);
     }
 
     try {
@@ -93,12 +121,15 @@ export function startDeliveryScheduler() {
             },
           },
         });
-        console.log(
-          `[Scheduler] Order - ${d.orderId} - Status Updated ( In Transit - Picked Up → Arrived Customer )`
-        );
+        io.emit(`delivery:${d.orderId}`, {
+          status: "Arrived Customer",
+          timestamp: now,
+        });
+
+        console.log(`[Scheduler] Order ${d.orderId} → Arrived Customer`);
       }
     } catch (error) {
-      console.error("Error updating status to Arrived Customer:", error);
+      console.error("Error updating to Arrived Customer:", error);
     }
   });
 }

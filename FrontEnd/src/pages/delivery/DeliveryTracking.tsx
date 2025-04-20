@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import { io, Socket } from "socket.io-client";
 import DeliveryMap, {
   DeliveryRoute,
 } from "../../components/delivery/DeliveryMap";
@@ -23,6 +24,8 @@ interface DeliveryStatusResponse {
   nextDestination: string;
   expectedDeliveryTime: string;
   etaToNext: number;
+  estimatedTimeToRestaurant: number;
+  estimatedTimeToCustomer: number;
 }
 
 export default function DeliveryTracking() {
@@ -30,8 +33,10 @@ export default function DeliveryTracking() {
   const state = loc.state as TrackingState;
 
   const deliveryIdRef = useRef<string>(state.deliveryId);
+  const orderIdRef = useRef<string>("");
   const [route, setRoute] = useState<DeliveryRoute>();
   const [status, setStatus] = useState("Loading");
+  const socketRef = useRef<Socket | null>(null);
   const [etaToRestaurant, setEtaToRestaurant] = useState(0);
   const [etaToCustomer, setEtaToCustomer] = useState(0);
   const [expectedDeliveryTime, setExpectedDeliveryTime] = useState("");
@@ -39,6 +44,11 @@ export default function DeliveryTracking() {
   const [mapPathStage, setMapPathStage] = useState<
     "toRestaurant" | "toCustomer"
   >("toRestaurant");
+  const animationCancelledRef = useRef(false);
+  const connectedRef = useRef(false);
+  const subscribedRef = useRef(false);
+  const lastFetchedStatusRef = useRef<string | null>(null);
+  const lastFetchTimeRef = useRef<number>(0);
 
   function interpolate(
     start: google.maps.LatLngLiteral,
@@ -58,12 +68,14 @@ export default function DeliveryTracking() {
   ): Promise<void> => {
     const updatesPerSegment = 10;
     const segmentDuration = totalMs / ((path.length - 1) * updatesPerSegment);
+    animationCancelledRef.current = false;
 
     for (let i = 0; i < path.length - 1; i++) {
       const from = path[i];
       const to = path[i + 1];
 
       for (let step = 0; step <= updatesPerSegment; step++) {
+        if (animationCancelledRef.current) return;
         const t = step / updatesPerSegment;
         const interpolated = interpolate(from, to, t);
 
@@ -88,38 +100,35 @@ export default function DeliveryTracking() {
   };
 
   const fetchStatusAndResume = useCallback(async () => {
+    const now = Date.now();
+    if (now - lastFetchTimeRef.current < 5000) return;
+    lastFetchTimeRef.current = now;
+
     try {
       const res = await axios.get<DeliveryStatusResponse>(
         `http://localhost:5005/api/deliveries/status/${deliveryIdRef.current}`
       );
-
       const data = res.data;
+
+      if (data.status === lastFetchedStatusRef.current) return;
+      lastFetchedStatusRef.current = data.status;
+
+      orderIdRef.current = data.orderId;
 
       const deliveryRoute: DeliveryRoute = {
         driverLocation: data.driverLocation,
         restaurantLocation: data.restaurantLocation,
         customerLocation: data.customerLocation,
-        vehicleType: "bike",
-        vehicleColor: "red",
+        vehicleType: "car",
+        vehicleColor: "blue",
         vehicleNumber: "XT-9988",
       };
 
       setRoute(deliveryRoute);
-      setExpectedDeliveryTime(data.expectedDeliveryTime);
       setStatus(data.status);
-
-      if (data.status === "Assigned" || data.status === "In Transit") {
-        setEtaToRestaurant(data.etaToNext);
-        setMapPathStage("toRestaurant");
-      }
-
-      if (
-        data.status === "Picked Up" ||
-        data.status === "In Transit - Picked Up"
-      ) {
-        setEtaToCustomer(data.etaToNext);
-        setMapPathStage("toCustomer");
-      }
+      setExpectedDeliveryTime(data.expectedDeliveryTime);
+      setEtaToRestaurant(data.estimatedTimeToRestaurant);
+      setEtaToCustomer(data.estimatedTimeToCustomer);
 
       if (data.status === "In Transit") {
         const path = await fetchRoadPath(
@@ -132,12 +141,9 @@ export default function DeliveryTracking() {
             lng: data.restaurantLocation.longitude,
           }
         );
-        await animateAlong(path, data.etaToNext * 60_000, () => {
-          setStatus("Arrived Restaurant");
-        });
-      }
-
-      if (data.status === "In Transit - Picked Up") {
+        await animateAlong(path, data.estimatedTimeToRestaurant * 1000);
+      } else if (data.status === "In Transit - Picked Up") {
+        setMapPathStage("toCustomer");
         const path = await fetchRoadPath(
           {
             lat: data.driverLocation.latitude,
@@ -148,66 +154,92 @@ export default function DeliveryTracking() {
             lng: data.customerLocation.longitude,
           }
         );
-        await animateAlong(path, data.etaToNext * 60_000, () => {
-          setStatus("Arrived Customer");
-        });
+        await animateAlong(path, data.estimatedTimeToCustomer * 1000);
+      } else if (data.status === "Arrived Restaurant") {
+        animationCancelledRef.current = true;
+        setRoute((r) =>
+          r
+            ? {
+                ...r,
+                driverLocation: {
+                  latitude: data.restaurantLocation.latitude,
+                  longitude: data.restaurantLocation.longitude,
+                },
+              }
+            : r
+        );
+      } else if (data.status === "Arrived Customer") {
+        animationCancelledRef.current = true;
+        setRoute((r) =>
+          r
+            ? {
+                ...r,
+                driverLocation: {
+                  latitude: data.customerLocation.latitude,
+                  longitude: data.customerLocation.longitude,
+                },
+              }
+            : r
+        );
       }
     } catch (err) {
-      console.error("Error tracking delivery:", err);
-      setStatus("Failed to fetch");
+      console.error("Failed to resume tracking:", err);
     }
   }, []);
 
-  const handlePickedUp = useCallback(async () => {
-    if (!route) return;
+  useEffect(() => {
+    if (!connectedRef.current) {
+      socketRef.current = io("http://localhost:5005");
+      socketRef.current.on("connect", () => {
+        connectedRef.current = true;
+      });
 
-    setStatus("Picked Up");
-    setMapPathStage("toCustomer");
-
-    await axios.put("http://localhost:5005/api/deliveries/status/picked-up", {
-      deliveryId: deliveryIdRef.current,
-    });
-
-    const updated = await axios.get<DeliveryStatusResponse>(
-      `http://localhost:5005/api/deliveries/status/${deliveryIdRef.current}`
-    );
-
-    const path = await fetchRoadPath(
-      {
-        lat: route.restaurantLocation.latitude,
-        lng: route.restaurantLocation.longitude,
-      },
-      {
-        lat: route.customerLocation.latitude,
-        lng: route.customerLocation.longitude,
-      }
-    );
-
-    setExpectedDeliveryTime(updated.data.expectedDeliveryTime);
-    setEtaToCustomer(updated.data.etaToNext);
-    setRoute((r) =>
-      r ? { ...r, driverLocation: route.restaurantLocation } : r
-    );
-
-    await animateAlong(path, updated.data.etaToNext * 60_000, () => {
-      setStatus("Arrived Customer");
-    });
-  }, [route]);
-
-  const handleDelivered = useCallback(async () => {
-    setStatus("Delivered");
-    await axios.put("http://localhost:5005/api/deliveries/status/delivered", {
-      deliveryId: deliveryIdRef.current,
-    });
+      return () => {
+        socketRef.current?.off();
+        socketRef.current?.disconnect();
+        connectedRef.current = false;
+        subscribedRef.current = false;
+      };
+    }
   }, []);
 
   useEffect(() => {
-    fetchStatusAndResume();
+    if (!socketRef.current || subscribedRef.current) return;
+
+    fetchStatusAndResume().then(() => {
+      const evt = `delivery:${orderIdRef.current}`;
+      socketRef.current!.on(evt, async (_data: { status: string }) => {
+        await fetchStatusAndResume();
+      });
+      subscribedRef.current = true;
+    });
   }, [fetchStatusAndResume]);
+
+  const handlePickedUp = useCallback(async () => {
+    try {
+      await axios.put("http://localhost:5005/api/deliveries/status/picked-up", {
+        deliveryId: deliveryIdRef.current,
+      });
+      lastFetchedStatusRef.current = null;
+    } catch (error) {
+      console.error("Error marking picked up:", error);
+    }
+  }, []);
+
+  const handleDelivered = useCallback(async () => {
+    try {
+      await axios.put("http://localhost:5005/api/deliveries/status/delivered", {
+        deliveryId: deliveryIdRef.current,
+      });
+      lastFetchedStatusRef.current = null;
+    } catch (error) {
+      console.error("Error marking delivered:", error);
+    }
+  }, []);
 
   return (
     <div className="p-4 space-y-6">
-      <h1 className="text-2xl font-semibold">Delivery Tracking</h1>
+      <h1 className="text-2xl font-semibold">Tracking Delivery</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="col-span-2 h-96">
           <DeliveryMap
@@ -225,6 +257,7 @@ export default function DeliveryTracking() {
               expectedDeliveryTime={expectedDeliveryTime}
             />
           )}
+
           {route && (
             <ControlsPanel
               status={status}

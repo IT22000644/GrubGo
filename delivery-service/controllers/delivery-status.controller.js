@@ -28,6 +28,13 @@ const DeliveryStatusController = {
       d.status = "Picked Up";
       await d.save();
 
+      const io = req.app.get("io");
+      io.emit(`delivery:${d.orderId}`, {
+        status: "Picked Up",
+
+        timestamp: now,
+      });
+
       console.log(
         `[Update] Order ${d.orderId} - Status updated to 'Picked Up'`
       );
@@ -53,6 +60,13 @@ const DeliveryStatusController = {
       d.actualTimeElapsed = Math.round((now - d.createdAt) / ONE_SECOND);
       d.status = "Delivered";
       await d.save();
+
+      const io = req.app.get("io");
+      io.emit(`delivery:${d.orderId}`, {
+        status: "Delivered",
+
+        timestamp: now,
+      });
 
       console.log(
         `[Update] Order ${d.orderId} - Status updated to 'Delivered' `

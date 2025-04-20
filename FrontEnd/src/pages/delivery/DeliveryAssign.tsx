@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import { io, Socket } from "socket.io-client";
 import DeliveryMap, {
   DeliveryRoute,
 } from "../../components/delivery/DeliveryMap";
@@ -48,6 +49,7 @@ interface DeliveryStatusResponse {
 type LocationState = { mode: "assign"; initialRoute: DeliveryRoute };
 
 export default function DeliveryAssign() {
+  const ORDER_ID = "41ga21e5624f2dfbc4126h22";
   const loc = useLocation();
   const state = (loc.state as LocationState) || undefined;
 
@@ -57,12 +59,81 @@ export default function DeliveryAssign() {
   const [etaToCustomer, setEtaToCustomer] = useState(0);
   const [expectedDeliveryTime, setExpectedDeliveryTime] = useState("");
   const [pathCoords, setPathCoords] = useState<google.maps.LatLngLiteral[]>([]);
-
-  const deliveryIdRef = useRef<string>("");
-  const assignCalledRef = useRef(false);
   const [mapPathStage, setMapPathStage] = useState<
     "toRestaurant" | "toCustomer"
   >("toRestaurant");
+
+  const deliveryIdRef = useRef<string>("");
+  const assignCalledRef = useRef(false);
+  const animationCancelledRef = useRef(false);
+  const socketRef = useRef<Socket | null>(null);
+
+  useEffect(() => {
+    socketRef.current = io("http://localhost:5005");
+
+    socketRef.current.on("connect", () => {
+      console.log("WebSocket connected with ID:", socketRef.current?.id);
+    });
+
+    socketRef.current.on(
+      `delivery:${ORDER_ID}`,
+      async (data: { status: string; timestamp: string }) => {
+        setStatus(data.status);
+
+        const { initialRoute } = state!;
+
+        if (data.status === "In Transit") {
+          const path = await fetchRoadPath(
+            {
+              lat: initialRoute.driverLocation.latitude,
+              lng: initialRoute.driverLocation.longitude,
+            },
+            {
+              lat: initialRoute.restaurantLocation.latitude,
+              lng: initialRoute.restaurantLocation.longitude,
+            }
+          );
+          await animateAlong(path, etaToRestaurant * 1000);
+        }
+
+        if (data.status === "Arrived Restaurant") {
+          animationCancelledRef.current = true;
+          setRoute((r) =>
+            r
+              ? {
+                  ...r,
+                  driverLocation: {
+                    latitude: initialRoute.restaurantLocation.latitude,
+                    longitude: initialRoute.restaurantLocation.longitude,
+                  },
+                }
+              : r
+          );
+        }
+
+        if (data.status === "Arrived Customer") {
+          animationCancelledRef.current = true;
+          setRoute((r) =>
+            r
+              ? {
+                  ...r,
+                  driverLocation: {
+                    latitude: initialRoute.customerLocation.latitude,
+                    longitude: initialRoute.customerLocation.longitude,
+                  },
+                }
+              : r
+          );
+        }
+      }
+    );
+
+    return () => {
+      socketRef.current?.off(`delivery:${ORDER_ID}`);
+      socketRef.current?.off("connect");
+      socketRef.current?.disconnect();
+    };
+  }, [etaToRestaurant, state]);
 
   function interpolate(
     start: google.maps.LatLngLiteral,
@@ -83,11 +154,14 @@ export default function DeliveryAssign() {
     const updatesPerSegment = 10;
     const segmentDuration = totalMs / ((path.length - 1) * updatesPerSegment);
 
+    animationCancelledRef.current = false;
+
     for (let i = 0; i < path.length - 1; i++) {
       const from = path[i];
       const to = path[i + 1];
 
       for (let step = 0; step <= updatesPerSegment; step++) {
+        if (animationCancelledRef.current) return;
         const t = step / updatesPerSegment;
         const interpolated = interpolate(from, to, t);
 
@@ -119,42 +193,23 @@ export default function DeliveryAssign() {
       const res = await axios.post<AssignPayload>(
         "http://localhost:5005/api/deliveries/assign",
         {
-          orderId: "41ga21e5624f2dfbc4126h22",
+          orderId: ORDER_ID,
           driverId: "34ga21e5624f2dfbc3284h65",
           driverLocation: initialRoute.driverLocation,
           restaurantLocation: initialRoute.restaurantLocation,
           customerLocation: initialRoute.customerLocation,
         }
       );
+
       const { delivery } = res.data;
-      const etd = delivery.expectedDeliveryTime;
-
-      console.log("AssignDelivery - expectedDeliveryTime from backend:", etd);
-      console.log("Type of etd:", typeof etd);
-
       deliveryIdRef.current = delivery._id;
+
       setEtaToRestaurant(delivery.estimatedTimeToRestaurant);
       setEtaToCustomer(delivery.estimatedTimeToCustomer);
-      setExpectedDeliveryTime(etd);
+      setExpectedDeliveryTime(delivery.expectedDeliveryTime);
       setRoute(initialRoute);
       setStatus("Assigned");
       setMapPathStage("toRestaurant");
-
-      setTimeout(async () => {
-        setStatus("In Transit");
-        const path = await fetchRoadPath(
-          {
-            lat: initialRoute.driverLocation.latitude,
-            lng: initialRoute.driverLocation.longitude,
-          },
-          {
-            lat: initialRoute.restaurantLocation.latitude,
-            lng: initialRoute.restaurantLocation.longitude,
-          }
-        );
-        await animateAlong(path, delivery.estimatedTimeToRestaurant * 1000);
-        setStatus("Arrived Restaurant");
-      }, 10_000);
     } catch (e) {
       console.error("Assign error:", e);
     }
@@ -175,12 +230,9 @@ export default function DeliveryAssign() {
     const updated = await axios.get<DeliveryStatusResponse>(
       `http://localhost:5005/api/deliveries/status/${deliveryIdRef.current}`
     );
-
     const updatedDelivery = updated.data;
-
     setStatus("Picked Up");
     setExpectedDeliveryTime(updatedDelivery.expectedDeliveryTime);
-
     setMapPathStage("toCustomer");
 
     setTimeout(async () => {
@@ -236,12 +288,15 @@ export default function DeliveryAssign() {
               expectedDeliveryTime={expectedDeliveryTime}
             />
           )}
+
           {route && (
-            <ControlsPanel
-              status={status}
-              onPickedUp={handlePickedUp}
-              onDelivered={handleDelivered}
-            />
+            <>
+              <ControlsPanel
+                status={status}
+                onPickedUp={handlePickedUp}
+                onDelivered={handleDelivered}
+              />
+            </>
           )}
         </div>
       </div>

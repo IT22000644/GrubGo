@@ -145,6 +145,12 @@ const AssignDeliveryController = {
 
       console.log(`Order ${orderId} Assigned`);
 
+      const io = req.app.get("io");
+      io.emit(`delivery:${orderId}`, {
+        status: "Assigned",
+        timestamp: now,
+      });
+
       res.status(201).json({ message: "Delivery assigned", delivery });
     } catch (err) {
       console.error("Error in assignDelivery:", err);
