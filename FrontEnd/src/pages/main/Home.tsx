@@ -8,6 +8,7 @@ import {
   Search,
   DoorOpen,
   DoorClosed,
+  UtensilsCrossed,
 } from "lucide-react";
 import api from "../../api/axios";
 import { Restaurant } from "../restaurent/allRestaurants/AllRestaurants.types";
@@ -200,67 +201,74 @@ const Home = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {restaurants.map((restaurant) => (
-              <Link
-                key={restaurant._id}
-                to={`/restaurant/${restaurant._id}`}
-                className="bg-white dark:bg-black rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow group"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={restaurant.images[0]}
-                    alt={restaurant.name}
-                    className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute top-0 right-0 m-2 px-2 py-1 bg-white dark:bg-gray-800 rounded text-sm font-medium flex items-center">
-                    <Star
-                      size={14}
-                      className="text-yellow-400 mr-1"
-                      fill="#facc15"
+            {restaurants && restaurants.length > 0 ? (
+              restaurants.map((restaurant) => (
+                <Link
+                  key={restaurant._id}
+                  to={`/restaurant/${restaurant._id}`}
+                  className="bg-white dark:bg-black rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow group"
+                >
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={restaurant.images[0]}
+                      alt={restaurant.name}
+                      className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
                     />
-                    {/* {restaurant.status} */} 4.7
-                  </div>
-                </div>
-
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-1">
-                    {restaurant.name}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
-                    {restaurant.address.shopNumber}, {restaurant.address.street}
-                    , {restaurant.address.town}
-                  </p>
-
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {restaurant.menus.map((tag, i) => (
-                      <span
-                        key={i}
-                        className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded"
-                      >
-                        {tag.title}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex flex-row justify-between mt-4">
-                    <div className="flex items-center text-gray-600 dark:text-gray-400 text-sm">
-                      <Clock size={14} className="mr-1" />
-                      30-40 min
-                    </div>
-                    <div className="mt-2 inline-block px-2 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-md dark:bg-green-800 dark:text-green-100">
-                      {restaurant.status === "open" ? (
-                        <span className="flex items-center text-success">
-                          <DoorOpen className="mr-1" /> Open
-                        </span>
-                      ) : (
-                        <span className="flex items-center text-accent">
-                          <DoorClosed className="mr-1" /> Closed
-                        </span>
-                      )}
+                    <div className="absolute top-0 right-0 m-2 px-2 py-1 bg-white dark:bg-gray-800 rounded text-sm font-medium flex items-center">
+                      <Star
+                        size={14}
+                        className="text-yellow-400 mr-1"
+                        fill="#facc15"
+                      />
+                      {/* {restaurant.status} */} 4.7
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                      {restaurant.name}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
+                      {restaurant.address.shopNumber},{" "}
+                      {restaurant.address.street}, {restaurant.address.town}
+                    </p>
+
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {restaurant.menus.map((tag, i) => (
+                        <span
+                          key={i}
+                          className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded"
+                        >
+                          {tag.title}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex flex-row justify-between mt-4">
+                      <div className="flex items-center text-gray-600 dark:text-gray-400 text-sm">
+                        <Clock size={14} className="mr-1" />
+                        30-40 min
+                      </div>
+                      <div className="mt-2 inline-block px-2 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-md dark:bg-green-800 dark:text-green-100">
+                        {restaurant.status === "open" ? (
+                          <span className="flex items-center text-success">
+                            <DoorOpen className="mr-1" /> Open
+                          </span>
+                        ) : (
+                          <span className="flex items-center text-accent">
+                            <DoorClosed className="mr-1" /> Closed
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center">
+                <UtensilsCrossed className="mb-4 text-accent" size={48} />
+                <p className="text-primary">No Restaurants available.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
