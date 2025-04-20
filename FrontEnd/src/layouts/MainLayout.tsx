@@ -5,7 +5,7 @@ import "../index.css";
 
 const MainLayout = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white transition-colors duration-300">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-dark_bg text-black dark:text-white transition-colors duration-300">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-6">
         <Outlet />

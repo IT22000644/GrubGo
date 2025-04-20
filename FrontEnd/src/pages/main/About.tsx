@@ -17,14 +17,14 @@ const About = () => {
           />
         </div>
 
-        <div className="absolute inset-0 bg-gradient-to-r from-neutral via-neutral/80 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-neutral via-neutral/80 dark:from-dark_bg dark:via-dark_bg/80 to-transparent"></div>
 
         <div className="container mx-auto px-6 relative z-10 flex items-center h-full">
           <div className="max-w-xl">
-            <h1 className="text-4xl md:text-5xl font-bold text-text_dark mb-4">
+            <h1 className="text-3xl md:text-5xl font-bold text-text_dark mb-4 dark:text-text_white">
               About Us
             </h1>
-            <p className="text-xl text-text_dark">
+            <p className="text-md text-text_dark dark:text-text_white">
               Bringing delicious meals right to your doorstep
             </p>
           </div>
@@ -34,21 +34,21 @@ const About = () => {
       <div className="container mx-auto px-6 py-12">
         <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
           <div>
-            <h2 className="text-3xl font-bold text-text_dark mb-6">
+            <h2 className="text-3xl font-bold text-text_dark mb-6 dark:text-text_white">
               Our Story
             </h2>
-            <p className="text-text_gray_600 mb-4">
+            <p className="text-text_gray_600 mb-4 dark:text-text_white/80 text-sm">
               Founded in 2020, we started with a simple mission: to connect
               people with their favorite restaurants and deliver exceptional
               food experiences right to their homes.
             </p>
-            <p className="text-text_gray_600 mb-4">
+            <p className="text-text_gray_600 mb-4 dark:text-text_white/80 text-sm">
               What began as a small team of food enthusiasts has grown into a
               dedicated network of delivery professionals, customer service
               experts, and tech innovators all working together to transform how
               people enjoy their favorite meals.
             </p>
-            <p className="text-text_gray_600">
+            <p className="text-text_gray_600 dark:text-text_white/80 text-sm">
               Today, we partner with hundreds of restaurants across the city,
               ensuring that quality food is just a few clicks away from your
               doorstep.
@@ -71,7 +71,7 @@ const About = () => {
         </div>
 
         <div className="mb-16">
-          <h2 className="text-3xl font-bold text-text_dark mb-8 text-center">
+          <h2 className="text-3xl font-bold text-text_dark mb-8 text-center dark:text-text_white">
             What Sets Us Apart
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -103,22 +103,24 @@ const About = () => {
             ].map((item, index) => (
               <div
                 key={index}
-                className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow dark:bg-dark dark:hover:scale-105 transition-transform dark:hover:shadow-accent/20"
               >
-                <div className="inline-block p-3 bg-amber-100 rounded-full text-primary mb-4">
+                <div className="inline-block p-3 bg-amber-100 rounded-full text-primary mb-4 dark:bg-accent/20">
                   {item.icon}
                 </div>
-                <h3 className="text-xl font-semibold mb-2 text-text_dark">
+                <h3 className="text-md font-semibold mb-2 text-text_dark dark:text-text_white">
                   {item.title}
                 </h3>
-                <p className="text-text_gray_600">{item.description}</p>
+                <p className="text-text_gray_600 dark:text-text_white/80 text-sm">
+                  {item.description}
+                </p>
               </div>
             ))}
           </div>
         </div>
 
         <div>
-          <h2 className="text-3xl font-bold text-text_dark mb-8 text-center">
+          <h2 className="text-3xl font-bold text-text_dark mb-8 text-center dark:text-text_white">
             Meet Our Team
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
@@ -144,7 +146,7 @@ const About = () => {
             ].map((member, index) => (
               <div
                 key={index}
-                className="bg-white p-6 rounded-lg shadow-md text-center"
+                className="bg-white p-6 rounded-lg shadow-md text-center dark:bg-dark hover:shadow-lg dark:hover:scale-105 transition-transform dark:hover:shadow-accent/20"
               >
                 <div className="w-32 h-32 mx-auto bg-gray-200 rounded-full mb-4 overflow-hidden">
                   <img
@@ -153,18 +155,22 @@ const About = () => {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h3 className="text-xl font-semibold mb-1 text-text_dark">
+                <h3 className="text-xl font-semibold mb-1 text-text_dark dark:text-text_white">
                   {member.name}
                 </h3>
-                <p className="text-primary font-medium mb-3">{member.role}</p>
-                <p className="text-text_gray_600">{member.bio}</p>
+                <p className="text-primary font-medium mb-3 dark:text-accent">
+                  {member.role}
+                </p>
+                <p className="text-text_gray_600 dark:text-text_white/60 text-sm font-semibold">
+                  {member.bio}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="bg-primary_lite py-16 mt-12">
+      <div className="bg-primary_lite py-16 mt-12 dark:bg-accent/70">
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold text-text_white mb-4">
             Ready to Order?
@@ -173,7 +179,7 @@ const About = () => {
             Discover the best restaurants in your area and enjoy delicious meals
             delivered to your door.
           </p>
-          <button className="bg-white text-primary font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition-colors">
+          <button className="bg-white text-primary font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition-colors dark:text-accent">
             Order Now
           </button>
         </div>
