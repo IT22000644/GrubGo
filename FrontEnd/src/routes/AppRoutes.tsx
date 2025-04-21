@@ -23,7 +23,6 @@ import CartPage from "../pages/order/CartPage";
 
 import RestaurantAdminMain from "../pages/user/restaurantAdmin/restaurantAdminMain";
 
-
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
@@ -35,7 +34,6 @@ const AppRoutes: React.FC = () => {
         <Route path="/restaurant/:id" element={<RestaurantDetails />} />
 
         <Route path="/delivery" element={<DeliveryAssign />} />
-        <Route path="/delivery-temp" element={<TempDelivery />} />
 
         <Route path="/cart" element={<CartPage customerId="customer123" />} />
 
@@ -43,7 +41,6 @@ const AppRoutes: React.FC = () => {
         <Route path="/delivery-control" element={<DeliveryControl />} />
         <Route path="/delivery-tracking" element={<DeliveryTracking />} />
         <Route path="/customer-tracking" element={<CustomerTracking />} />
-
 
         <Route path="*" element={<NotFound />} />
       </Route>
