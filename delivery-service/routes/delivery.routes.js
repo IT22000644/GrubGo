@@ -7,8 +7,6 @@ const router = express.Router();
 
 router.post("/assign", AssignDeliveryController.assignDelivery);
 
-router.post("/driver", AssignDeliveryController.findClosestDriver);
-
 router.put(
   "/status/picked-up",
   DeliveryStatusController.updateStatusToPickedUp

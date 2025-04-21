@@ -35,9 +35,12 @@ export default function DeliveryControl() {
 
   const getCoordinates = async (address: string) => {
     try {
-      const response = await axios.post("http://localhost:5004/api/map/", {
-        address,
-      });
+      const response = await axios.post(
+        "http://localhost:5004/api/map/coordinate",
+        {
+          address,
+        }
+      );
       return response.data;
     } catch (error) {
       console.error("Error fetching coordinates:", error);
