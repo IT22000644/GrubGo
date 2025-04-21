@@ -16,6 +16,7 @@ const consumePaymentDoneQueue = async () => {
             if (order) {
                 order.Paymentstatus = data.Paymentstatus;
                 order.status = data.status;
+                order.address
                 await order.save();
 
                 console.log(`Order updated in DB. Paymentstatus: ${order.Paymentstatus}, status: ${order.status}`);
