@@ -20,7 +20,7 @@ import { RootState } from "../../../app/store";
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const role = useSelector((state: RootState) => state.user.role);
@@ -183,6 +183,17 @@ const Header = () => {
                         {item.name}
                       </Link>
                     ))}
+                  </div>
+                </div>
+              )}
+              {activeDropdown === "" && (
+                <div
+                  className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50"
+                  onMouseEnter={() => setActiveDropdown(userRole)}
+                  onMouseLeave={closeDropdowns}
+                >
+                  <div className="p-2 text-sm text-gray-700 font-semibold dark:text-gray-300">
+                    Please Login to see your account
                   </div>
                 </div>
               )}

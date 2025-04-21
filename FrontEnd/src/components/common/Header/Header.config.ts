@@ -67,6 +67,11 @@ export const adminLinks = {
       onClick: () => console.log("Nearby clicked"),
     },
     {
+      name: "Orders",
+      path: "/restaurants/nearby",
+      onClick: () => console.log("Nearby clicked"),
+    },
+    {
       name: "Settings",
       onClick: () => console.log("New Partners clicked"),
     },

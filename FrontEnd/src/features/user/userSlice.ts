@@ -6,7 +6,7 @@ const userSlice = createSlice({
   initialState: {
     isLoggedIn: false,
     userInfo: null,
-    role: null as string | null,
+    role: "user" as string | null,
   },
   reducers: {
     login(state, action) {
