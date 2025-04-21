@@ -1,19 +1,153 @@
 import mapService from "../services/map.service.js";
+import GeoService from "../services/geo.service.js";
 
-const convertAddress = async (req, res) => {
-  const { address } = req.body;
+const MapController = {
+  // Convert full address OR address parts to coordinates
+  async addressToCoordinates(req, res) {
+    const { address, addressParts } = req.body;
 
-  if (!address) {
-    return res.status(400).json({ error: "Address is required" });
-  }
+    try {
+      let fullAddress = address;
+      if (addressParts) {
+        fullAddress = mapService.formatAddressParts(addressParts);
+      }
 
-  try {
-    const coordinates = await mapService.getCoordinates(address);
-    res.json(coordinates);
-  } catch (error) {
-    console.error("Error converting address:", error.message);
-    res.status(500).json({ error: "Server error", message: error.message });
-  }
+      if (!fullAddress) {
+        return res.status(400).json({ error: "Address is required" });
+      }
+
+      const coordinates = await mapService.getCoordinates(fullAddress);
+
+      if (!coordinates) {
+        return res.status(404).json({ error: "Address not found" });
+      }
+
+      return res.json(coordinates);
+    } catch (error) {
+      console.error("Error converting address:", error.message);
+      return res
+        .status(500)
+        .json({ error: "Server error", message: error.message });
+    }
+  },
+
+  // Convert coordinates to an Address
+  async coordinatesToAddress(req, res) {
+    const { latitude, longitude } = req.body;
+
+    if (latitude == null || longitude == null) {
+      return res
+        .status(400)
+        .json({ error: "Latitude and longitude are required" });
+    }
+
+    try {
+      const address = await mapService.getAddressFromCoordinates(
+        latitude,
+        longitude
+      );
+
+      if (!address) {
+        return res
+          .status(404)
+          .json({ error: "No address found for these coordinates" });
+      }
+
+      return res.json({ address });
+    } catch (error) {
+      console.error("Error converting coordinates:", error.message);
+      return res
+        .status(500)
+        .json({ error: "Server error", message: error.message });
+    }
+  },
+
+  // Combine address parts into one string
+  combineAddressParts(req, res) {
+    const { addressParts } = req.body;
+
+    if (!addressParts) {
+      return res.status(400).json({ error: "Address parts are required" });
+    }
+
+    const fullAddress = mapService.formatAddressParts(addressParts);
+    return res.json({ fullAddress });
+  },
+
+  // Find the closest address to the Base Address
+  async findClosestAddress(req, res) {
+    const { baseAddress, addresses } = req.body;
+
+    if (
+      !baseAddress ||
+      !addresses ||
+      !Array.isArray(addresses) ||
+      addresses.length === 0
+    ) {
+      return res
+        .status(404)
+        .json({ error: "Base address and list of addresses are required" });
+    }
+
+    try {
+      const baseFullAddress =
+        baseAddress.address ||
+        mapService.formatAddressParts(baseAddress.addressParts);
+
+      const baseCoords = await mapService.getCoordinates(baseFullAddress);
+      if (!baseCoords) {
+        return res
+          .status(404)
+          .json({ error: "Base address could not be geocoded" });
+      }
+
+      let closest = null;
+      let minDistance = Infinity;
+
+      for (const addr of addresses) {
+        try {
+          const full =
+            addr.address || mapService.formatAddressParts(addr.addressParts);
+
+          const coords = await mapService.getCoordinates(full);
+          if (!coords) continue;
+
+          const distance = GeoService.calculateHaversineDistance(
+            baseCoords.latitude,
+            baseCoords.longitude,
+            coords.latitude,
+            coords.longitude
+          );
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            closest = {
+              id: addr.id,
+              address: full,
+              coordinates: coords,
+              distance,
+            };
+          }
+        } catch (innerErr) {
+          console.warn(`Skipping address due to error: ${innerErr.message}`);
+          continue; // skip bad address
+        }
+      }
+
+      if (!closest) {
+        return res
+          .status(404)
+          .json({ error: "No valid addresses could be geocoded" });
+      }
+
+      return res.json(closest);
+    } catch (error) {
+      console.error("Error finding closest address:", error.message);
+      return res
+        .status(500)
+        .json({ error: "Server error", message: error.message });
+    }
+  },
 };
 
-export default { convertAddress };
+export default MapController;

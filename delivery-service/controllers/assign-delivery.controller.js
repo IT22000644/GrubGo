@@ -3,61 +3,12 @@ import { getDirections } from "../services/google-maps.service.js";
 import {
   calculateEstimatedTimeFromRoute,
   calculateExpectedDeliveryTime,
-  calculateHaversineDistance,
 } from "../utils/time-calculator.util.js";
 
 const TEN_SECONDS = 10 * 1000;
 const ONE_SECOND = 1 * 1000;
 
 const AssignDeliveryController = {
-  //Selecting Closest Driver Function
-  async findClosestDriver(req, res) {
-    try {
-      const { drivers, restaurantLocation } = req.body;
-
-      if (!drivers || !restaurantLocation) {
-        return res.status(400).json({
-          message: "Missing required data: drivers or restaurant location",
-        });
-      }
-
-      let closestDriver = null;
-      let minDistance = Number.POSITIVE_INFINITY;
-
-      drivers.forEach((driver) => {
-        const distance = calculateHaversineDistance(
-          driver.latitude,
-          driver.longitude,
-          restaurantLocation.latitude,
-          restaurantLocation.longitude
-        );
-        console.log(
-          `Driver ${driver.driverId} - Distance to restaurant: ${distance.toFixed(2)} km`
-        );
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestDriver = driver;
-        }
-      });
-
-      if (!closestDriver) {
-        return res.status(404).json({ message: "No drivers found" });
-      }
-
-      console.log(
-        `Closest driver is ${closestDriver.driverId} at a distance of ${minDistance.toFixed(2)} km`
-      );
-      res.status(200).json({
-        message: "Closest driver found",
-        driver: closestDriver,
-        distance: minDistance,
-      });
-    } catch (error) {
-      console.error("Error finding closest driver:", error);
-      res.status(500).json({ message: "Error finding closest driver", error });
-    }
-  },
-
   //Delivery Assigning Function
   async assignDelivery(req, res) {
     try {
