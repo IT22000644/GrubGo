@@ -9,7 +9,7 @@ const { publishToQueue } = require('../utils/messageQueue');
 // Create an order
 const createOrder = async (req, res) => {
   try {
-    const { customerId, restaurantId } = req.body;
+    const { customerId, restaurantId, address } = req.body;
 
     const cart = await Cart.findOne({ customerId, restaurantId });
 
@@ -28,6 +28,7 @@ const createOrder = async (req, res) => {
       totalAmount,
       status: 'pending',
       PaymentStatus: 'pending',
+      address
     });
 
     await newOrder.save();
@@ -193,6 +194,7 @@ const checkout = async (req, res) => {
         restaurantId: order.restaurantId,
         status: order.status,
         Paymentstatus: order.Paymentstatus,
+        address: order.address,
       }
     });
 
@@ -244,6 +246,7 @@ const setOrderCompleted = async (req, res) => {
       customerId: order.customerId,
       restaurantId: order.restaurantId,
       status: 'delivering',
+      address: order.address,
     });
 
     return res.status(200).json({ message: 'Order status set to completed', order });

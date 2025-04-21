@@ -24,6 +24,7 @@ exports.stripeWebhook = async (req, res) => {
     const orderId = metadata.orderId;
     const customerId = metadata.customerId;
     const restaurantId = metadata.restaurantId;
+    const address = metadata.address;
 
     if (!orderId) {
       console.error('Missing orderId in metadata');
@@ -39,7 +40,7 @@ exports.stripeWebhook = async (req, res) => {
         status: 'process',
       });
   
-      console.log(`Payment verified for order: ${orderId}, customer: ${customerId}, restaurant: ${restaurantId}. Pushed to paymentdoneQueue`);
+      console.log(`Payment verified for order: ${orderId}, customer: ${customerId}, restaurant: ${restaurantId} address: ${address}. Pushed to paymentdoneQueue`);
     }
 
   res.json({ received: true });

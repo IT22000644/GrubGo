@@ -73,20 +73,21 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
         }
     };
 
-    const handlePlaceOrder = async () => {
+    const handlePlaceOrder = async (address: string) => {
         if (!selectedCart) return;
-
+    
         try {
             const orderRes = await axios.post('http://localhost:5000/api/orders', {
                 customerId,
                 restaurantId: selectedCart.restaurantId,
+                address, 
             });
-
+    
             const order = orderRes.data.order;
-
+    
             const checkoutRes = await axios.post(`http://localhost:5000/api/orders/${order._id}/checkout/`);
             const { url } = checkoutRes.data;
-
+    
             window.location.href = url;
         } catch (error) {
             console.error('Error placing order:', error);
@@ -121,7 +122,7 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
     
         {selectedTab === 'cart' ? (
             <>
-                {error && <p className="text-red-500">{error}</p>}
+                {error && <p className="text-red-500 text-center font-medium">{error}</p>}
                 {carts.map((cart) => (
                     <CartCard
                         key={cart._id}
