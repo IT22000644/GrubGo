@@ -33,7 +33,14 @@ const AppRoutes: React.FC = () => {
         <Route path="*" element={<NotFound />} />
       </Route>
 
-      <Route path="/admin/restaurant" element={<RestaurantAdminMain />} />
+      <Route
+        path="/admin/restaurant"
+        element={
+          <ProtectedRoute>
+            <RestaurantAdminMain />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/profile"
