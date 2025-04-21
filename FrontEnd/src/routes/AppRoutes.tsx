@@ -9,14 +9,14 @@ import Profile from "../pages/user/Profile";
 import MainLayout from "../layouts/MainLayout";
 
 import DeliveryAssign from "../pages/delivery/DeliveryAssign";
-import TempDelivery from "../pages/delivery/Delivery-temp";
+import DeliveryControl from "../pages/delivery/DeliveryControl";
+import DeliveryTracking from "../pages/delivery/DeliveryTracking";
+import CustomerTracking from "../pages/delivery/CustomerTracking";
 import NotFound from "../pages/common/NotFound";
 import Contact from "../pages/main/ContactUs";
 import { AllRestaurants } from "../pages/restaurent/allRestaurants/AllRestaurants";
 import RestaurantDetails from "../pages/restaurent/restaurantDetails/restaurantDetails";
 import RestaurantAdminMain from "../pages/user/restaurantAdmin/restaurantAdminMain";
-
-// import DeliveryTracking from "../pages/delivery/DeliveryTracking";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -28,8 +28,11 @@ const AppRoutes: React.FC = () => {
         <Route path="/allRestaurants" element={<AllRestaurants />} />
         <Route path="/restaurant/:id" element={<RestaurantDetails />} />
 
-        <Route path="/delivery" element={<DeliveryAssign />} />
-        <Route path="/delivery-temp" element={<TempDelivery />} />
+        <Route path="/delivery-assign" element={<DeliveryAssign />} />
+        <Route path="/delivery-control" element={<DeliveryControl />} />
+        <Route path="/delivery-tracking" element={<DeliveryTracking />} />
+        <Route path="/customer-tracking" element={<CustomerTracking />} />
+
         <Route path="*" element={<NotFound />} />
       </Route>
 

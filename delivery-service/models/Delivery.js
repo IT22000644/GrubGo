@@ -11,6 +11,11 @@ const LatLngSchema = new mongoose.Schema(
 const deliverySchema = new mongoose.Schema({
   orderId: { type: String, required: true },
   driverId: { type: String, required: true },
+
+  driverAddress: { type: String, required: true },
+  restaurantAddress: { type: String, required: true },
+  customerAddress: { type: String, required: true },
+
   driverLocation: { type: LatLngSchema, required: true },
   restaurantLocation: { type: LatLngSchema, required: true },
   customerLocation: { type: LatLngSchema, required: true },

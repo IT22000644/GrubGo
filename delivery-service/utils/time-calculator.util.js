@@ -2,7 +2,7 @@
 
 export const calculateEstimatedTimeFromRoute = (route) => {
   const duration = route.legs[0].duration.value;
-  return Math.round(duration / 60);
+  return duration;
 };
 
 // Calculate expected delivery time based on current time including delay (in minutes)

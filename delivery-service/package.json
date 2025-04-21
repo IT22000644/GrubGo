@@ -14,11 +14,13 @@
   "description": "",
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.1",
+    "@googlemaps/polyline-codec": "^1.0.28",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "mongoose": "^8.13.2",
-    "node-cron": "^3.0.3"
+    "node-cron": "^3.0.3",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

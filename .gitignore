@@ -11,8 +11,7 @@
 # Docker
 docker-compose.override.yml
 
-.env
-.env.*
+
 
 **/*.test.js
 **/*.test.ts
@@ -26,3 +25,4 @@ docker-compose.override.yml
 **/*.d.ts
 **/*.d.tsx
 
+.vscode

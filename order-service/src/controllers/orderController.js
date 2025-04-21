@@ -1,5 +1,8 @@
 const Order = require('../models/orderModel');
 const Cart = require('../models/cartModel');
+const dotenv = require('dotenv');
+dotenv.config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const { publishToQueue } = require('../utils/messageQueue');
 
@@ -23,18 +26,23 @@ const createOrder = async (req, res) => {
       restaurantId,
       items: cart.items,
       totalAmount,
-      status: 'pending'
+      status: 'pending',
+      PaymentStatus: 'pending',
     });
 
     await newOrder.save();
 
     await Cart.deleteOne({ _id: cart._id });
 
-    await publishToQueue('orderQueue', {
-      orderId: newOrder._id,
-      customerId,
-      amount: totalAmount
-    });
+    // await publishToQueue('orderQueue', {
+    //   orderId: newOrder._id,
+    //   customerId,
+    //   amount: totalAmount,
+    //   restaurantId,
+    //   items: cart.items,
+    //   PaymentStatus: 'pending',
+    //   status: 'pending',
+    // });
 
 
     res.status(201).json({
@@ -149,10 +157,129 @@ const cancelOrder = async (req, res) => {
   }
 };
 
+const checkout = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    if (order.Paymentstatus === 'completed') {
+      return res.status(400).json({ message: 'Payment already completed for this order' });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: order.items.map(item => ({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: `Item ${item.foodItemId}`,
+          },
+          unit_amount: Math.round(item.price * 100),
+        },
+        quantity: item.quantity,
+      })),
+      mode: 'payment',
+      success_url: `${process.env.CLIENT_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}&order_id=${order._id}`,
+      cancel_url: `${process.env.CLIENT_URL}/payment-cancel`,
+      metadata: {
+        orderId: order._id.toString(),
+        customerId: order.customerId,
+        restaurantId: order.restaurantId,
+        status: order.status,
+        Paymentstatus: order.Paymentstatus,
+      }
+    });
+
+    return res.status(200).json({ url: session.url });
+  } catch (error) {
+    console.error('Error during Stripe checkout:', error);
+    return res.status(500).json({ message: 'Stripe checkout error', error: error.message });
+  }
+};
+
+const setOrderPreparing = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    if (order.status !== 'process') {
+      return res.status(400).json({ message: 'Order must be in process state to prepare' });
+    }
+
+    order.status = 'preparing';
+    order.updatedAt = Date.now();
+    await order.save();
+
+    return res.status(200).json({ message: 'Order status set to preparing', order });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to set order to preparing', error: error.message });
+  }
+};
+
+const setOrderCompleted = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    if (order.status !== 'preparing') {
+      return res.status(400).json({ message: 'Order must be in preparing state to complete' });
+    }
+
+    order.status = 'completed';
+    order.updatedAt = Date.now();
+    await order.save();
+    
+    await publishToQueue('deliveryqueue', {
+      orderId: order._id,
+      customerId: order.customerId,
+      restaurantId: order.restaurantId,
+      status: 'delivering',
+    });
+
+    return res.status(200).json({ message: 'Order status set to completed', order });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to set order to completed', error: error.message });
+  }
+};
+
+const setOrderDelivered = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    if (order.status !== 'completed') {
+      return res.status(400).json({ message: 'Order must be in completed state to deliver' });
+    }
+
+    order.status = 'done';
+    order.updatedAt = Date.now();
+    await order.save();
+
+    return res.status(200).json({ message: 'Order status set to delivered', order });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to set order to delivered', error: error.message });
+  }
+};
+
 module.exports = {
   createOrder,
   getOrderById,
   updateOrder,
   getOrdersByCustomer,
-  cancelOrder
+  cancelOrder,
+  checkout,
+  setOrderPreparing,
+  setOrderCompleted,
+  setOrderDelivered
 }
