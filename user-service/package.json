@@ -1,0 +1,15 @@
+{
+  "name": "user-service",
+  "version": "1.0.0",
+  "description": "Handles all the user related functions ",
+  "license": "ISC",
+  "author": "Manilka Dikkumbura",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "mongoose": "^8.13.2"
+  }
+}
