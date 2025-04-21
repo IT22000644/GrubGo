@@ -38,7 +38,6 @@ export const RestaurantDetails = () => {
         setLoading(true);
         const response = await api.get(`/restaurants/${id}`);
         setRestaurant(response.data.restaurant);
-        console.log(response);
         if (response.data.restaurant?.menus?.length > 0) {
           setSelectedMenu(response.data.restaurant.menus[0]._id);
         }

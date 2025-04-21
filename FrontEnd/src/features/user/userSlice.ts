@@ -6,15 +6,18 @@ const userSlice = createSlice({
   initialState: {
     isLoggedIn: false,
     userInfo: null,
+    role: null as string | null,
   },
   reducers: {
     login(state, action) {
       state.isLoggedIn = true;
       state.userInfo = action.payload;
+      state.role = "user";
     },
     logout(state) {
       state.isLoggedIn = false;
       state.userInfo = null;
+      state.role = null;
     },
   },
 });
