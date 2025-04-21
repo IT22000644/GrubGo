@@ -19,7 +19,7 @@ const StatusTracker: React.FC<StatusTrackerProps> = ({ currentStatus }) => {
   const currentIndex = STATUSES.indexOf(currentStatus);
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2 bg-white shadow-md p-4 rounded-2xl overflow-x-auto border-4 border-blue-800">
+    <div className="flex flex-wrap items-center justify-between gap-2 bg-blue-50 shadow-md p-4 rounded-2xl overflow-x-auto border-4 border-blue-800 border-double">
       {STATUSES.map((status, index) => {
         const isCompleted = index < currentIndex;
         const isActive = index === currentIndex;

@@ -47,7 +47,7 @@ const DriverInfoCard: React.FC<DriverInfoCardProps> = ({
   const vehicleIconUrl = getVehicleIconUrl(safeType, safeColor);
 
   return (
-    <div className="flex items-center justify-between p-6 bg-blue-50 rounded-3xl shadow-lg border-4 border-blue-500 max-w-xl w-full">
+    <div className="flex items-center justify-between p-6 bg-blue-50 rounded-3xl shadow-lg border-double border-4 border-blue-800 max-w-xl w-full">
       {/* Avatar + Vehicle Icon */}
       <div className="relative flex flex-col items-center gap-3">
         <img

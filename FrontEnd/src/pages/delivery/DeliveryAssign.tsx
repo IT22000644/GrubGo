@@ -6,8 +6,10 @@ import DeliveryMap, {
   DeliveryRoute,
 } from "../../components/delivery/DeliveryMap";
 import StatusPanel from "../../components/delivery/StatusPanel";
-import ControlsPanel from "../../components/delivery/ControlsPanel";
 import { fetchRoadPath } from "../../utils/delivery/mapHelpers";
+import StatusTracker from "../../components/delivery/StatusTracker";
+import DriverInfoCard from "../../components/delivery/DriverInfoCard";
+import PickupDropInfo from "../../components/delivery/PickupDropInfo";
 
 interface AssignPayload {
   message: string;
@@ -20,38 +22,20 @@ interface AssignPayload {
   };
 }
 
-interface DeliveryStatusResponse {
-  _id: string;
-  orderId: string;
-  driverId: string;
-  driverLocation: {
-    latitude: number;
-    longitude: number;
-  };
-  restaurantLocation: {
-    latitude: number;
-    longitude: number;
-  };
-  customerLocation: {
-    latitude: number;
-    longitude: number;
-  };
-  status: string;
-  expectedDeliveryTime: string;
-  etaToNext: number;
-  pickedUpAt: string;
-  inTransitPickedUpAt: string;
-  arrivedCustomerAt: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-type LocationState = { mode: "assign"; initialRoute: DeliveryRoute };
+type LocationState = {
+  mode: "assign";
+  initialRoute: DeliveryRoute;
+  driverAddress: string;
+  restaurantAddress: string;
+  customerAddress: string;
+};
 
 export default function DeliveryAssign() {
   const ORDER_ID = "41ga21e5624f2dfbc4126h22";
   const loc = useLocation();
-  const state = (loc.state as LocationState) || undefined;
+  const state = loc.state as LocationState;
+  const { initialRoute, driverAddress, restaurantAddress, customerAddress } =
+    state;
 
   const [route, setRoute] = useState<DeliveryRoute>();
   const [status, setStatus] = useState("Not Assigned");
@@ -68,19 +52,61 @@ export default function DeliveryAssign() {
   const animationCancelledRef = useRef(false);
   const socketRef = useRef<Socket | null>(null);
 
+  function interpolate(
+    start: google.maps.LatLngLiteral,
+    end: google.maps.LatLngLiteral,
+    t: number
+  ): google.maps.LatLngLiteral {
+    return {
+      lat: start.lat + (end.lat - start.lat) * t,
+      lng: start.lng + (end.lng - start.lng) * t,
+    };
+  }
+
+  const animateAlong = async (
+    path: google.maps.LatLngLiteral[],
+    totalMs: number,
+    onFinish?: () => void
+  ): Promise<void> => {
+    const updatesPerSegment = 10;
+    const segmentDuration = totalMs / ((path.length - 1) * updatesPerSegment);
+    animationCancelledRef.current = false;
+
+    for (let i = 0; i < path.length - 1; i++) {
+      const from = path[i],
+        to = path[i + 1];
+      for (let step = 0; step <= updatesPerSegment; step++) {
+        if (animationCancelledRef.current) return;
+        const t = step / updatesPerSegment;
+        const interpolated = interpolate(from, to, t);
+        setRoute((r) =>
+          r
+            ? {
+                ...r,
+                driverLocation: {
+                  latitude: interpolated.lat,
+                  longitude: interpolated.lng,
+                },
+              }
+            : r
+        );
+        setPathCoords(path.slice(i + 1));
+        await new Promise((res) => setTimeout(res, segmentDuration));
+      }
+    }
+    onFinish?.();
+  };
+
   useEffect(() => {
     socketRef.current = io("http://localhost:5005");
-
     socketRef.current.on("connect", () => {
-      console.log("WebSocket connected with ID:", socketRef.current?.id);
+      console.log("WebSocket connected:", socketRef.current?.id);
     });
 
     socketRef.current.on(
       `delivery:${ORDER_ID}`,
       async (data: { status: string; timestamp: string }) => {
         setStatus(data.status);
-
-        const { initialRoute } = state!;
 
         if (data.status === "In Transit") {
           const path = await fetchRoadPath(
@@ -111,6 +137,21 @@ export default function DeliveryAssign() {
           );
         }
 
+        if (data.status === "In Transit - Picked Up") {
+          setMapPathStage("toCustomer");
+          const path = await fetchRoadPath(
+            {
+              lat: initialRoute.restaurantLocation.latitude,
+              lng: initialRoute.restaurantLocation.longitude,
+            },
+            {
+              lat: initialRoute.customerLocation.latitude,
+              lng: initialRoute.customerLocation.longitude,
+            }
+          );
+          await animateAlong(path, Math.max(etaToCustomer * 1000 - 5000, 1000));
+        }
+
         if (data.status === "Arrived Customer") {
           animationCancelledRef.current = true;
           setRoute((r) =>
@@ -133,77 +174,29 @@ export default function DeliveryAssign() {
       socketRef.current?.off("connect");
       socketRef.current?.disconnect();
     };
-  }, [etaToRestaurant, state]);
-
-  function interpolate(
-    start: google.maps.LatLngLiteral,
-    end: google.maps.LatLngLiteral,
-    t: number
-  ): google.maps.LatLngLiteral {
-    return {
-      lat: start.lat + (end.lat - start.lat) * t,
-      lng: start.lng + (end.lng - start.lng) * t,
-    };
-  }
-
-  const animateAlong = async (
-    path: google.maps.LatLngLiteral[],
-    totalMs: number,
-    onFinish?: () => void
-  ): Promise<void> => {
-    const updatesPerSegment = 10;
-    const segmentDuration = totalMs / ((path.length - 1) * updatesPerSegment);
-
-    animationCancelledRef.current = false;
-
-    for (let i = 0; i < path.length - 1; i++) {
-      const from = path[i];
-      const to = path[i + 1];
-
-      for (let step = 0; step <= updatesPerSegment; step++) {
-        if (animationCancelledRef.current) return;
-        const t = step / updatesPerSegment;
-        const interpolated = interpolate(from, to, t);
-
-        setRoute((r) =>
-          r
-            ? {
-                ...r,
-                driverLocation: {
-                  latitude: interpolated.lat,
-                  longitude: interpolated.lng,
-                },
-              }
-            : r
-        );
-
-        setPathCoords(path.slice(i + 1));
-
-        await new Promise((res) => setTimeout(res, segmentDuration));
-      }
-    }
-
-    onFinish?.();
-  };
+  }, [etaToRestaurant, etaToCustomer, initialRoute]);
 
   const assignDelivery = useCallback(async () => {
-    if (!state || state.mode !== "assign") return;
+    if (state.mode !== "assign") return;
+
     try {
-      const { initialRoute } = state;
-      const res = await axios.post<AssignPayload>(
-        "http://localhost:5005/api/deliveries/assign",
-        {
-          orderId: ORDER_ID,
-          driverId: "34ga21e5624f2dfbc3284h65",
-          driverLocation: initialRoute.driverLocation,
-          restaurantLocation: initialRoute.restaurantLocation,
-          customerLocation: initialRoute.customerLocation,
-        }
-      );
+      const { delivery } = (
+        await axios.post<AssignPayload>(
+          "http://localhost:5005/api/deliveries/assign",
+          {
+            orderId: ORDER_ID,
+            driverId: "34ga21e5624f2dfbc3284h65",
+            driverAddress,
+            restaurantAddress,
+            customerAddress,
+            driverLocation: initialRoute.driverLocation,
+            restaurantLocation: initialRoute.restaurantLocation,
+            customerLocation: initialRoute.customerLocation,
+          }
+        )
+      ).data;
 
-      const { delivery } = res.data;
       deliveryIdRef.current = delivery._id;
-
       setEtaToRestaurant(delivery.estimatedTimeToRestaurant);
       setEtaToCustomer(delivery.estimatedTimeToCustomer);
       setExpectedDeliveryTime(delivery.expectedDeliveryTime);
@@ -213,53 +206,13 @@ export default function DeliveryAssign() {
     } catch (e) {
       console.error("Assign error:", e);
     }
-  }, [state]);
-
-  const handlePickedUp = useCallback(async () => {
-    if (!route) return;
-
-    try {
-      await axios.put("http://localhost:5005/api/deliveries/status/picked-up", {
-        deliveryId: deliveryIdRef.current,
-      });
-    } catch (error) {
-      console.error("Error updating status to 'Picked Up':", error);
-      return;
-    }
-
-    const updated = await axios.get<DeliveryStatusResponse>(
-      `http://localhost:5005/api/deliveries/status/${deliveryIdRef.current}`
-    );
-    const updatedDelivery = updated.data;
-    setStatus("Picked Up");
-    setExpectedDeliveryTime(updatedDelivery.expectedDeliveryTime);
-    setMapPathStage("toCustomer");
-
-    setTimeout(async () => {
-      setStatus("In Transit - Picked Up");
-
-      const path = await fetchRoadPath(
-        {
-          lat: route.restaurantLocation.latitude,
-          lng: route.restaurantLocation.longitude,
-        },
-        {
-          lat: route.customerLocation.latitude,
-          lng: route.customerLocation.longitude,
-        }
-      );
-
-      await animateAlong(path, etaToCustomer * 1000);
-      setStatus("Arrived Customer");
-    }, 10_000);
-  }, [route, etaToCustomer]);
-
-  const handleDelivered = useCallback(async () => {
-    setStatus("Delivered");
-    await axios.put("http://localhost:5005/api/deliveries/status/delivered", {
-      deliveryId: deliveryIdRef.current,
-    });
-  }, []);
+  }, [
+    initialRoute,
+    driverAddress,
+    restaurantAddress,
+    customerAddress,
+    state.mode,
+  ]);
 
   useEffect(() => {
     if (!assignCalledRef.current) {
@@ -271,8 +224,9 @@ export default function DeliveryAssign() {
   return (
     <div className="p-4 space-y-6">
       <h1 className="text-2xl font-semibold">Delivery</h1>
+      <StatusTracker currentStatus={status} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="col-span-2 h-96">
+        <div className="col-span-2 h-96 border-4 border-blue-800 border-double">
           <DeliveryMap
             route={route}
             pathStage={mapPathStage}
@@ -280,6 +234,19 @@ export default function DeliveryAssign() {
           />
         </div>
         <div className="space-y-4">
+          <DriverInfoCard
+            name="Alex Rider"
+            imageUrl="https://images.pexels.com/photos/28955594/pexels-photo-28955594/free-photo-of-chimpanzee-at-zoo-in-natural-habitat.jpeg?auto=compress&cs=tinysrgb&w=600"
+            vehicleType={route?.vehicleType || "Car"}
+            vehicleColor={route?.vehicleColor || "Blue"}
+            vehicleNumber={route?.vehicleNumber || "XT-9988"}
+          />
+
+          <PickupDropInfo
+            restaurantAddress={restaurantAddress}
+            customerAddress={customerAddress}
+          />
+
           {route && (
             <StatusPanel
               status={status}
@@ -287,16 +254,6 @@ export default function DeliveryAssign() {
               etaToCustomer={etaToCustomer}
               expectedDeliveryTime={expectedDeliveryTime}
             />
-          )}
-
-          {route && (
-            <>
-              <ControlsPanel
-                status={status}
-                onPickedUp={handlePickedUp}
-                onDelivered={handleDelivered}
-              />
-            </>
           )}
         </div>
       </div>

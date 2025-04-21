@@ -38,11 +38,6 @@ export function startDriverLocationUpdater(io) {
         { $set: { driverLocation: driverLoc } }
       );
 
-      io.emit(`delivery:${d.orderId}`, {
-        status: "In Transit",
-        timestamp: now,
-      });
-
       console.log(
         `[Location Update] Order - ${d.orderId} - Moving to Restaurant`
       );
@@ -74,11 +69,6 @@ export function startDriverLocationUpdater(io) {
         { _id: d._id },
         { $set: { driverLocation: driverLoc } }
       );
-
-      io.emit(`delivery:${d.orderId}`, {
-        status: "In Transit - Picked Up",
-        timestamp: now,
-      });
 
       console.log(
         `[Location Update] Order - ${d.orderId} - Moving to Customer`

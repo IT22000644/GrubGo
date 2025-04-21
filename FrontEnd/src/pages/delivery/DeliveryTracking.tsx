@@ -8,6 +8,8 @@ import DeliveryMap, {
 import StatusPanel from "../../components/delivery/StatusPanel";
 import ControlsPanel from "../../components/delivery/ControlsPanel";
 import { fetchRoadPath } from "../../utils/delivery/mapHelpers";
+import NextLocationCard from "../../components/delivery/NextLocationCard";
+import StatusTracker from "../../components/delivery/StatusTracker";
 
 interface TrackingState {
   mode: "track";
@@ -154,7 +156,10 @@ export default function DeliveryTracking() {
             lng: data.customerLocation.longitude,
           }
         );
-        await animateAlong(path, data.estimatedTimeToCustomer * 1000);
+        await animateAlong(
+          path,
+          Math.max(data.estimatedTimeToCustomer * 1000 - 5000, 1000)
+        );
       } else if (data.status === "Arrived Restaurant") {
         animationCancelledRef.current = true;
         setRoute((r) =>
@@ -215,6 +220,13 @@ export default function DeliveryTracking() {
     });
   }, [fetchStatusAndResume]);
 
+  const restaurantStatuses = ["Assigned", "In Transit", "Arrived Restaurant"];
+  const customerStatuses = [
+    "Picked Up",
+    "In Transit - Picked Up",
+    "Arrived Customer",
+  ];
+
   const handlePickedUp = useCallback(async () => {
     try {
       await axios.put("http://localhost:5005/api/deliveries/status/picked-up", {
@@ -240,8 +252,9 @@ export default function DeliveryTracking() {
   return (
     <div className="p-4 space-y-6">
       <h1 className="text-2xl font-semibold">Tracking Delivery</h1>
+      <StatusTracker currentStatus={status} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="col-span-2 h-96">
+        <div className="col-span-2 h-96 border-4 border-blue-800 border-double">
           <DeliveryMap
             route={route}
             pathStage={mapPathStage}
@@ -255,6 +268,24 @@ export default function DeliveryTracking() {
               etaToRestaurant={etaToRestaurant}
               etaToCustomer={etaToCustomer}
               expectedDeliveryTime={expectedDeliveryTime}
+            />
+          )}
+
+          {restaurantStatuses.includes(status) && (
+            <NextLocationCard
+              imageUrl="https://images.pexels.com/photos/1458681/pexels-photo-1458681.jpeg?auto=compress&cs=tinysrgb&w=600"
+              fullName="Spar Supermarket"
+              address="Random Address Place Holder - Restaurant"
+              role="Restaurant"
+            />
+          )}
+
+          {customerStatuses.includes(status) && (
+            <NextLocationCard
+              imageUrl="https://images.pexels.com/photos/897817/pexels-photo-897817.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+              fullName="John Doe"
+              address="Random Address Place Holder - Customer"
+              role="Customer"
             />
           )}
 

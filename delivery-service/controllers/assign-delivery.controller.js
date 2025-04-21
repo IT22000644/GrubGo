@@ -66,6 +66,9 @@ const AssignDeliveryController = {
       const {
         orderId,
         driverId,
+        driverAddress,
+        restaurantAddress,
+        customerAddress,
         driverLocation,
         restaurantLocation,
         customerLocation,
@@ -74,6 +77,9 @@ const AssignDeliveryController = {
       if (
         !orderId ||
         !driverId ||
+        !driverAddress ||
+        !restaurantAddress ||
+        !customerAddress ||
         !driverLocation ||
         !restaurantLocation ||
         !customerLocation
@@ -135,6 +141,10 @@ const AssignDeliveryController = {
         assignedAt,
         inTransitAt,
         arrivedRestaurantAt,
+
+        driverAddress,
+        restaurantAddress,
+        customerAddress,
 
         estimatedTimeToRestaurant: etaRestSeconds,
         estimatedTimeToCustomer: etaCustSeconds,

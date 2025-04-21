@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { DeliveryRoute } from "../../components/delivery/DeliveryMap";
 import axios from "axios";
 
-export default function DeliveryTemp() {
+export default function DeliveryControl() {
   const [deliveryId, setDeliveryId] = useState("");
   const navigate = useNavigate();
 
@@ -12,19 +12,19 @@ export default function DeliveryTemp() {
     if (!id) return alert("Please enter a Delivery ID.");
 
     try {
-      const response = await axios.get(
+      const { data } = await axios.get(
         `http://localhost:5005/api/deliveries/status/${id}`
       );
 
-      const data = response.data;
+      const { driverAddress, restaurantAddress, customerAddress } = data;
 
       navigate("/customer-tracking", {
         state: {
           mode: "track",
           deliveryId: id,
-          vehicleType: data.vehicleType || "bike",
-          vehicleColor: data.vehicleColor || "red",
-          vehicleNumber: data.vehicleNumber || "XT-9988",
+          driverAddress,
+          restaurantAddress,
+          customerAddress,
         },
       });
     } catch (error) {
@@ -36,7 +36,7 @@ export default function DeliveryTemp() {
   const getCoordinates = async (address: string) => {
     try {
       const response = await axios.post("http://localhost:5004/api/map/", {
-        address: address,
+        address,
       });
       return response.data;
     } catch (error) {
@@ -66,7 +66,7 @@ export default function DeliveryTemp() {
       vehicleNumber: "XT-9988",
     };
 
-    navigate("/delivery", {
+    navigate("/delivery-assign", {
       state: {
         mode: "assign",
         initialRoute,
@@ -99,7 +99,6 @@ export default function DeliveryTemp() {
       <h2 className="text-base font-semibold text-center">
         Restaurant and Driver Tracking Delivery
       </h2>
-
       <div className="flex space-x-2">
         <input
           type="text"
@@ -119,7 +118,6 @@ export default function DeliveryTemp() {
       <h2 className="text-base font-semibold text-center">
         Customer Tracking Delivery
       </h2>
-
       <div className="flex space-x-2">
         <input
           type="text"

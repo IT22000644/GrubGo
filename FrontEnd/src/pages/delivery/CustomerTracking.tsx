@@ -9,16 +9,23 @@ import StatusPanel from "../../components/delivery/StatusPanel";
 import { fetchRoadPath } from "../../utils/delivery/mapHelpers";
 import StatusTracker from "../../components/delivery/StatusTracker";
 import DriverInfoCard from "../../components/delivery/DriverInfoCard";
+import PickupDropInfo from "../../components/delivery/PickupDropInfo";
 
 interface TrackingState {
   mode: "track";
   deliveryId: string;
+  driverAddress: string;
+  restaurantAddress: string;
+  customerAddress: string;
 }
 
 interface DeliveryStatusResponse {
   orderId: string;
   driverId: string;
   status: string;
+  driverAddress: string;
+  restaurantAddress: string;
+  customerAddress: string;
   driverLocation: { latitude: number; longitude: number };
   restaurantLocation: { latitude: number; longitude: number };
   customerLocation: { latitude: number; longitude: number };
@@ -32,6 +39,7 @@ interface DeliveryStatusResponse {
 export default function CustomerTracking() {
   const loc = useLocation();
   const state = loc.state as TrackingState;
+  const { restaurantAddress, customerAddress } = state;
 
   const deliveryIdRef = useRef<string>(state.deliveryId);
   const orderIdRef = useRef<string>("");
@@ -117,8 +125,22 @@ export default function CustomerTracking() {
         return;
       }
 
-      orderIdRef.current = data.orderId;
+      // Set the order ID
+      if (!orderIdRef.current) {
+        orderIdRef.current = data.orderId;
 
+        // 👇 Subscribe after orderId is available
+        if (socketRef.current && !subscribedRef.current) {
+          const evt = `delivery:${orderIdRef.current}`;
+          socketRef.current.on(evt, async (_data: { status: string }) => {
+            console.log("Received status update from server:", _data.status);
+
+            lastFetchedStatusRef.current = null;
+            await fetchStatusAndResume();
+          });
+          subscribedRef.current = true;
+        }
+      }
       const deliveryRoute: DeliveryRoute = {
         driverLocation: data.driverLocation,
         restaurantLocation: data.restaurantLocation,
@@ -158,7 +180,10 @@ export default function CustomerTracking() {
             lng: data.customerLocation.longitude,
           }
         );
-        await animateAlong(path, data.estimatedTimeToCustomer * 1000);
+        await animateAlong(
+          path,
+          Math.max(data.estimatedTimeToCustomer * 1000 - 5000, 1000)
+        );
       } else if (data.status === "Arrived Restaurant") {
         animationCancelledRef.current = true;
         setRoute((r) =>
@@ -211,16 +236,7 @@ export default function CustomerTracking() {
   useEffect(() => {
     if (!socketRef.current || subscribedRef.current) return;
 
-    fetchStatusAndResume().then(() => {
-      const evt = `delivery:${orderIdRef.current}`;
-      socketRef.current!.on(evt, async (_data: { status: string }) => {
-        console.log("Received status update from server:", _data.status);
-
-        lastFetchedStatusRef.current = null;
-        await fetchStatusAndResume();
-      });
-      subscribedRef.current = true;
-    });
+    fetchStatusAndResume();
   }, [fetchStatusAndResume]);
 
   return (
@@ -230,7 +246,7 @@ export default function CustomerTracking() {
       <StatusTracker currentStatus={status} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="col-span-2 h-96 border-4 border-blue-500">
+        <div className="col-span-2 h-96 border-4 border-blue-800 border-double">
           <DeliveryMap
             route={route}
             pathStage={mapPathStage}
@@ -244,6 +260,11 @@ export default function CustomerTracking() {
             vehicleType={route?.vehicleType || "Car"}
             vehicleColor={route?.vehicleColor || "Blue"}
             vehicleNumber={route?.vehicleNumber || "XT-9988"}
+          />
+
+          <PickupDropInfo
+            restaurantAddress={restaurantAddress}
+            customerAddress={customerAddress}
           />
 
           {route && (
