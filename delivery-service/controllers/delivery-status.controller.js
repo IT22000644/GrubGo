@@ -2,11 +2,10 @@ import Delivery from "../models/Delivery.js";
 import { calculateHaversineDistance } from "../utils/time-calculator.util.js";
 
 const TEN_SECONDS = 10 * 1000;
-const MS_PER_MINUTE = 60 * 1000;
+const ONE_SECOND = 1 * 1000;
 
 const DeliveryStatusController = {
   // Method to update the status to "Picked Up".
-
   async updateStatusToPickedUp(req, res) {
     try {
       const { deliveryId } = req.body;
@@ -19,20 +18,25 @@ const DeliveryStatusController = {
       d.pickedUpAt = now;
       d.inTransitPickedUpAt = new Date(now.getTime() + TEN_SECONDS);
       d.arrivedCustomerAt = new Date(
-        d.inTransitPickedUpAt.getTime() +
-          d.estimatedTimeToCustomer * MS_PER_MINUTE
+        d.inTransitPickedUpAt.getTime() + d.estimatedTimeToCustomer * ONE_SECOND
       );
 
       d.expectedDeliveryTime = new Date(
-        d.inTransitPickedUpAt.getTime() +
-          d.estimatedTimeToCustomer * MS_PER_MINUTE
+        d.inTransitPickedUpAt.getTime() + d.estimatedTimeToCustomer * ONE_SECOND
       );
 
       d.status = "Picked Up";
       await d.save();
 
+      const io = req.app.get("io");
+      io.emit(`delivery:${d.orderId}`, {
+        status: "Picked Up",
+
+        timestamp: now,
+      });
+
       console.log(
-        `Order ${d.orderId} - Status updated to 'Picked Up' @ ${now.toISOString()}`
+        `[Update] Order ${d.orderId} - Status updated to 'Picked Up'`
       );
       return res.json({ message: "Picked Up", delivery: d });
     } catch (err) {
@@ -41,6 +45,7 @@ const DeliveryStatusController = {
     }
   },
 
+  // Method to update the status to "Delivered".
   async updateStatusToDelivered(req, res) {
     try {
       const { deliveryId } = req.body;
@@ -49,15 +54,22 @@ const DeliveryStatusController = {
         return res.status(400).json({ message: "Cannot deliver yet" });
       }
 
-      const now = new Date(); // UTC
+      const now = new Date();
       d.deliveredAt = now;
       d.actualDeliveryTime = now;
-      d.actualTimeElapsed = Math.round((now - d.createdAt) / MS_PER_MINUTE);
+      d.actualTimeElapsed = Math.round((now - d.createdAt) / ONE_SECOND);
       d.status = "Delivered";
       await d.save();
 
+      const io = req.app.get("io");
+      io.emit(`delivery:${d.orderId}`, {
+        status: "Delivered",
+
+        timestamp: now,
+      });
+
       console.log(
-        `Order ${d.orderId} - Status updated to 'Delivered' @ ${now.toISOString()}`
+        `[Update] Order ${d.orderId} - Status updated to 'Delivered' `
       );
       return res.json({ message: "Delivered", delivery: d });
     } catch (err) {
@@ -66,16 +78,10 @@ const DeliveryStatusController = {
     }
   },
 
+  // Method to check the current status of the Delivery
   async getCurrentStatus(req, res) {
     try {
       const { deliveryId } = req.params;
-      const { driverLocation } = req.body;
-
-      if (!deliveryId || !driverLocation) {
-        return res.status(400).json({
-          message: "Missing delivery ID or driver location",
-        });
-      }
 
       const d = await Delivery.findById(deliveryId);
       if (!d) return res.status(404).json({ message: "Delivery not found" });
@@ -131,8 +137,8 @@ const DeliveryStatusController = {
           : d.customerLocation;
 
         distanceToNext = calculateHaversineDistance(
-          driverLocation.latitude,
-          driverLocation.longitude,
+          d.driverLocation.latitude,
+          d.driverLocation.longitude,
           nextLocation.latitude,
           nextLocation.longitude
         );
@@ -141,9 +147,8 @@ const DeliveryStatusController = {
           ? d.estimatedTimeToRestaurant
           : d.estimatedTimeToCustomer;
       } else {
-        // Final fallback for Delivered
         nextDestination = "None";
-        nextLocation = "N/A";
+        nextLocation = "None";
         distanceToNext = 0;
         etaToNext = 0;
       }
@@ -152,7 +157,10 @@ const DeliveryStatusController = {
         orderId: d.orderId,
         driverId: d.driverId,
         status: liveStatus,
-        driverLocation,
+        driverAddress: d.driverAddress,
+        restaurantAddress: d.restaurantAddress,
+        customerAddress: d.customerAddress,
+        driverLocation: d.driverLocation,
         restaurantLocation: d.restaurantLocation,
         customerLocation: d.customerLocation,
         nextDestination,
@@ -160,6 +168,8 @@ const DeliveryStatusController = {
         distanceToNext,
         etaToNext,
         expectedDeliveryTime: d.expectedDeliveryTime,
+        estimatedTimeToRestaurant: d.estimatedTimeToRestaurant,
+        estimatedTimeToCustomer: d.estimatedTimeToCustomer,
         createdAt: d.createdAt,
       });
     } catch (err) {

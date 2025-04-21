@@ -11,8 +11,8 @@ const ControlsPanel: React.FC<Props> = ({
   onPickedUp,
   onDelivered,
 }) => (
-  <div className="border rounded-lg p-4 shadow space-y-2">
-    <h2 className="text-lg font-medium">Actions</h2>
+  <div className="border-4 border-blue-800 border-double rounded-lg p-4 shadow space-y-2 bg-blue-50">
+    <h2 className="text-lg font-medium text-orange-600">Actions</h2>
 
     {status === "Arrived Restaurant" && (
       <button
@@ -28,17 +28,19 @@ const ControlsPanel: React.FC<Props> = ({
         onClick={onDelivered}
         className="w-full py-2 bg-green-600 text-white rounded hover:bg-green-700"
       >
-        Deliver
+        Delivered
       </button>
     )}
 
     {(status === "Assigned" ||
       status === "In Transit" ||
       status === "Picked Up") && (
-      <p className="text-gray-600">Waiting for next step…</p>
+      <p className="text-orange-600">Waiting for next step…</p>
     )}
 
-    {status === "Delivered" && <p className="text-green-600"> Done!</p>}
+    {status === "Delivered" && (
+      <p className="text-green-600"> No More Actions To Be Taken!</p>
+    )}
   </div>
 );
 

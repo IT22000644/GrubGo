@@ -1,4 +1,4 @@
-const amqp = require('amqplib');
+const amqp = require("amqplib");
 
 let channel = null;
 
@@ -16,4 +16,3 @@ async function publishToQueue(queueName, data) {
 }
 
 module.exports = { publishToQueue };
-
