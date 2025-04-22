@@ -3,7 +3,7 @@ const Order = require('../models/orderModel');
 const { publishToQueue } = require('../utils/messageQueue');
 
 const consumePaymentDoneQueue = async () => {
-    const conn = await amqp.connect('amqp://localhost');
+    const conn = await amqp.connect(process.env.RABBITMQ_URL || "amqp://localhost");
     const channel = await conn.createChannel();
     await channel.assertQueue('paymentdoneQueue');
 
