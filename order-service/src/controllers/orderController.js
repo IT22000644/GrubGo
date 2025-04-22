@@ -9,7 +9,7 @@ const { publishToQueue } = require('../utils/messageQueue');
 // Create an order
 const createOrder = async (req, res) => {
   try {
-    const { customerId, restaurantId } = req.body;
+    const { customerId, restaurantId, address } = req.body;
 
     const cart = await Cart.findOne({ customerId, restaurantId });
 
@@ -28,6 +28,7 @@ const createOrder = async (req, res) => {
       totalAmount,
       status: 'pending',
       PaymentStatus: 'pending',
+      address
     });
 
     await newOrder.save();
@@ -97,7 +98,7 @@ const getOrdersByCustomer = async (req, res) => {
     const query = { customerId };
 
     if (status) {
-      const validStatuses = ['completed', 'cancelled', 'pending'];
+      const validStatuses = ['completed', 'cancelled', 'pending', 'done'];
       if (!validStatuses.includes(status)) {
         return res.status(400).json({
           message: 'Invalid status value',
@@ -178,20 +179,22 @@ const checkout = async (req, res) => {
           currency: 'usd',
           product_data: {
             name: `Item ${item.foodItemId}`,
+            description: `RESTAURANT: ${order.restaurantId}\n CUSTOMER: ${order.customerId}`,
           },
           unit_amount: Math.round(item.price * 100),
         },
         quantity: item.quantity,
       })),
       mode: 'payment',
-      success_url: `${process.env.CLIENT_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}&order_id=${order._id}`,
-      cancel_url: `${process.env.CLIENT_URL}/payment-cancel`,
+      success_url: `${process.env.CLIENT_URL}`,
+      cancel_url: `${process.env.CLIENT_URL}`,
       metadata: {
         orderId: order._id.toString(),
         customerId: order.customerId,
         restaurantId: order.restaurantId,
         status: order.status,
         Paymentstatus: order.Paymentstatus,
+        address: order.address,
       }
     });
 
@@ -237,12 +240,13 @@ const setOrderCompleted = async (req, res) => {
     order.status = 'completed';
     order.updatedAt = Date.now();
     await order.save();
-    
+
     await publishToQueue('deliveryqueue', {
       orderId: order._id,
       customerId: order.customerId,
       restaurantId: order.restaurantId,
       status: 'delivering',
+      address: order.address,
     });
 
     return res.status(200).json({ message: 'Order status set to completed', order });

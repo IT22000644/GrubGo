@@ -3,12 +3,9 @@ import { useAppSelector } from "../../app/hooks";
 import { JSX } from "react";
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const isAuthenticated = useAppSelector(
-    (state: any) => state.auth.isAuthenticated
-  );
-
+  const isAuthenticated = useAppSelector((state: any) => state.user.isLoggedIn);
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return children;
