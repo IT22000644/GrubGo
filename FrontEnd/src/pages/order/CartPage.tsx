@@ -96,7 +96,7 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
     };
 
     return (
-        <div className="p-4 max-w-4xl mx-auto border border-black dark:border-slate-700 rounded-lg shadow-lg mt-20 bg-white dark:bg-slate-900">
+        <div className="p-4 max-w-4xl mx-auto border border-black dark:border-slate-700 rounded-lg shadow-lg mt-10 bg-white dark:bg-slate-900">
         <div className="flex justify-center mb-6">
             <button
                 onClick={() => setSelectedTab('cart')}

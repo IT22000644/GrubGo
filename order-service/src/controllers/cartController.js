@@ -6,6 +6,8 @@ const addToCart = async (req, res) => {
     const { customerId } = req.params;
     const { restaurantId, items } = req.body;
 
+    console.log("Restaurant ID:", restaurantId);
+
     if (!items || items.length === 0) {
       return res.status(400).json({ message: 'No items provided to add to the cart' });
     }
@@ -18,32 +20,27 @@ const addToCart = async (req, res) => {
 
     let cart = await Cart.findOne({ customerId, restaurantId });
 
-    let totalPrice = 0; 
+    let totalPrice = 0;
 
     if (!cart) {
       cart = new Cart({
         customerId,
         restaurantId,
-        items: items
+        items: items,
       });
     } else {
       for (let newItem of items) {
         const itemIndex = cart.items.findIndex(item => item.foodItemId === newItem.foodItemId);
 
         if (itemIndex !== -1) {
-          if (cart.items[itemIndex].quantity !== newItem.quantity) {
-            cart.items[itemIndex].quantity = newItem.quantity;
-          }
+          cart.items[itemIndex].quantity += newItem.quantity;
         } else {
           cart.items.push(newItem);
         }
       }
     }
-    cart.items.forEach(item => {
-      totalPrice += item.quantity * item.price;
-    });
 
-    cart.totalPrice = totalPrice;
+    cart.totalPrice = cart.items.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
     await cart.save();
 
