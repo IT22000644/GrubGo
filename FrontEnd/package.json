@@ -17,6 +17,7 @@
     "axios": "^1.8.4",
     "clsx": "^2.1.1",
     "firebase": "^11.6.0",
+    "framer-motion": "^12.7.4",
     "frontend": "file:",
     "lucide-react": "^0.488.0",
     "react": "^19.0.0",

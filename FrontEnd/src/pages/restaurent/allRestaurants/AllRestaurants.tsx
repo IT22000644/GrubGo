@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Restaurant } from "./AllRestaurants.types";
-import api from "../../../api/axios";
+import { api1 } from "../../../api/axios";
 import {
   Star,
   MapPin,
@@ -24,7 +24,7 @@ export const AllRestaurants = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await api.get("/restaurants/");
+        const response = await api1.get("/restaurants/");
         setRestaurants(response.data.restaurants);
       } catch (error) {
         console.error("Failed to fetch:", error);
