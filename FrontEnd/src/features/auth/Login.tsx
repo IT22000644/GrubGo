@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { auth, googleProvider } from "../../firebase/config";
 import { signInWithPopup } from "firebase/auth";
+import Google from "../../assets/Images/OIP (3).jpeg";
 
 interface LoginProps {
   switchToRegister: () => void;
@@ -46,15 +47,16 @@ export const Login = ({ switchToRegister }: LoginProps) => {
 
       <button
         type="submit"
-        className="w-full font-bold text-sm bg-neutral text-text_dark hover:bg-primary hover:text-neutral text-white py-2 rounded shadow-md border-1 mb-4"
+        className="w-full font-bold text-sm bg-neutral text-text_dark hover:shadow-lg hover:text-primary text-dark py-2 rounded shadow-md border-1 mb-4"
       >
         login
       </button>
 
       <button
         onClick={handleGoogleLogin}
-        className="w-full font-bold text-sm bg-neutral text-text_dark hover:bg-primary hover:text-neutral text-white py-2 rounded shadow-md border-1"
+        className="w-full font-bold text-sm bg-neutral text-text_dark hover:shadow-lg hover:text-primary text-dark py-2 rounded shadow-md border-1"
       >
+        <img src={Google} alt="Google logo" className="inline-block h-5 mr-2" />
         Sign in with Google
       </button>
       <p className="text-center text-sm mt-4 text-gray-600 dark:text-gray-400">
