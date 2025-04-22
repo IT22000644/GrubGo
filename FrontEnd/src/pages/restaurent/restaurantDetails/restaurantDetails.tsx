@@ -31,6 +31,12 @@ export const RestaurantDetails = () => {
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
   const [cart, setCart] = useState<{ item: Food; quantity: number }[]>([]);
+  const [cartLoading, setCartLoading] = useState<boolean>(false);
+  const [cartError, setCartError] = useState<string | null>(null);
+  const [cartSuccess, setCartSuccess] = useState<boolean>(false);
+
+  const customerId = localStorage.getItem('customerId') || "customer123";
+
 
   useEffect(() => {
     const fetchRestaurantDetails = async () => {
@@ -53,7 +59,7 @@ export const RestaurantDetails = () => {
     }
   }, [id]);
 
-  const addToCart = (item: Food) => {
+  const addItemToLocalCart = (item: Food) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find(
         (cartItem) => cartItem.item._id === item._id
@@ -70,10 +76,65 @@ export const RestaurantDetails = () => {
     });
   };
 
+  const addToCartAPI = async (item: Food) => {
+    try {
+      setCartLoading(true);
+      setCartError(null);
+      
+      // First add to local cart for immediate UI feedback
+      addItemToLocalCart(item);
+      
+      // Then sync with the server
+      const cartItems = [{
+        foodItemId: item._id,
+        name: item.name,
+        price: calculateFinalPrice(item.price, item.discount),
+        quantity: 1
+      }];
+      
+      const response = await api.post(
+        `http://localhost:5000/api/cart/${customerId}/items`, 
+        {
+          restaurantId: id,
+          items: cartItems
+        }
+      );
+      
+      // Show success feedback
+      setCartSuccess(true);
+      setTimeout(() => setCartSuccess(false), 2000);
+      
+      console.log("Item added to cart successfully:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to add item to cart:", error);
+      setCartError("Failed to add item to cart. Please try again.");
+      return null;
+    } finally {
+      setCartLoading(false);
+    }
+  };
+
+  // Replace the existing addToCart function with this one
+  const addToCart = (item: Food) => {
+    addToCartAPI(item);
+  };
+
   const calculateFinalPrice = (price: number, discount: number) => {
     if (!discount) return price;
     return price - price * (discount / 100);
   };
+
+  const CartNotification = () => {
+    if (!cartSuccess) return null;
+    
+    return (
+      <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in-out">
+        Item added to cart successfully!
+      </div>
+    );
+  };
+
 
   if (loading) {
     return <Loader />;
@@ -311,6 +372,13 @@ export const RestaurantDetails = () => {
           </div>
         </div>
       </div>
+      {cartSuccess && <CartNotification />}
+      {/* Show error if any */}
+      {cartError && (
+        <div className="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-md shadow-lg">
+          {cartError}
+        </div>
+      )}
 
       <div className="container mx-auto px-4 mt-8">
         <div className="border-b border-gray-300">

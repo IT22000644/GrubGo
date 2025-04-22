@@ -178,7 +178,7 @@ const checkout = async (req, res) => {
         price_data: {
           currency: 'usd',
           product_data: {
-            name: `Item ${item.foodItemId}`,
+            name: `Item ${item.name}`,
             description: `RESTAURANT: ${order.restaurantId}\n CUSTOMER: ${order.customerId}`,
           },
           unit_amount: Math.round(item.price * 100),
@@ -248,6 +248,8 @@ const setOrderCompleted = async (req, res) => {
       status: 'delivering',
       address: order.address,
     });
+
+    navigate("/delivery-assign", { state: { orderId: order._id}});
 
     return res.status(200).json({ message: 'Order status set to completed', order });
   } catch (error) {

@@ -29,12 +29,12 @@ interface OrderCardProps {
 
 const OrderCard: React.FC<OrderCardProps> = ({ order, onCheckout, formatDate, getStatusBadge }) => {
     return (
-        <div className="border-b pb-6 sm:pb-8">
-            <div className="flex flex-col sm:flex-row sm:items-start sm:gap-4">
+        <div className="border-b pb-6 sm:pb-8 w-full">
+            <div className=" flex-row sm:items-start sm:gap-4 ">
                 <div className="w-full sm:w-64 h-32 bg-gray-200 rounded-lg overflow-hidden relative flex-shrink-0 mb-4 sm:mb-0" />
 
                 <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex flex-col items-center justify-between mb-2">
                         <h2 className="text-xl sm:text-2xl font-bold mb-1">{order.restaurantId}</h2>
                         <span className={getStatusBadge(order.status)}>
                             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -53,7 +53,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onCheckout, formatDate, ge
                         {order.items.map((item) => (
                             <div key={item._id} className="flex items-center">
                                 <span className="mr-4 text-sm font-medium">{item.quantity}</span>
-                                <span className="text-sm truncate">{item.foodItemId}</span>
+                                <span className="text-sm truncate">{item.name}</span>
                             </div>
                         ))}
                     </div>
