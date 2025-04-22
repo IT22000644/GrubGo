@@ -233,6 +233,7 @@ export default function DeliveryTracking() {
         deliveryId: deliveryIdRef.current,
       });
       lastFetchedStatusRef.current = null;
+      setStatus("Picked Up");
     } catch (error) {
       console.error("Error marking picked up:", error);
     }
@@ -244,6 +245,7 @@ export default function DeliveryTracking() {
         deliveryId: deliveryIdRef.current,
       });
       lastFetchedStatusRef.current = null;
+      setStatus("Delivered");
     } catch (error) {
       console.error("Error marking delivered:", error);
     }

@@ -81,6 +81,13 @@ const AssignDeliveryController = {
         totalEtaSeconds / 60
       );
 
+      const existingDelivery = await Delivery.findOne({ orderId });
+      if (existingDelivery) {
+        return res.status(409).json({
+          message: `A delivery already exists for order ID: ${orderId}`,
+        });
+      }
+
       const delivery = await Delivery.create({
         orderId,
         driverId,

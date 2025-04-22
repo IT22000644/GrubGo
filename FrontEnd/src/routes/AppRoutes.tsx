@@ -12,14 +12,13 @@ import DeliveryAssign from "../pages/delivery/DeliveryAssign";
 import DeliveryControl from "../pages/delivery/DeliveryControl";
 import DeliveryTracking from "../pages/delivery/DeliveryTracking";
 import CustomerTracking from "../pages/delivery/CustomerTracking";
+import DriverView from "../pages/delivery/DriverView";
 import NotFound from "../pages/common/NotFound";
 import Contact from "../pages/main/ContactUs";
 import { AllRestaurants } from "../pages/restaurent/allRestaurants/AllRestaurants";
 import RestaurantDetails from "../pages/restaurent/restaurantDetails/restaurantDetails";
 
 import CartPage from "../pages/order/CartPage";
-
-// import DeliveryTracking from "../pages/delivery/DeliveryTracking";
 
 import RestaurantAdminMain from "../pages/user/restaurantAdmin/restaurantAdminMain";
 
@@ -41,6 +40,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/delivery-control" element={<DeliveryControl />} />
         <Route path="/delivery-tracking" element={<DeliveryTracking />} />
         <Route path="/customer-tracking" element={<CustomerTracking />} />
+        <Route path="/driver-home" element={<DriverView />} />
 
         <Route path="*" element={<NotFound />} />
       </Route>

@@ -8,27 +8,35 @@ export default function DeliveryControl() {
   const navigate = useNavigate();
 
   const handleTrackCustomerOrder = async () => {
-    const id = deliveryId.trim();
-    if (!id) return alert("Please enter a Delivery ID.");
+    const orderId = deliveryId.trim();
+    if (!orderId) return alert("Please enter an Order ID.");
 
     try {
       const { data } = await axios.get(
-        `http://localhost:5005/api/deliveries/status/${id}`
+        `http://localhost:5005/api/deliveries/order/${orderId}`
       );
 
-      const { driverAddress, restaurantAddress, customerAddress } = data;
+      const delivery = data.deliveries?.[0];
+      if (!delivery) return alert("No delivery found for this Order ID");
+
+      const {
+        _id: deliveryId,
+        driverAddress,
+        restaurantAddress,
+        customerAddress,
+      } = delivery;
 
       navigate("/customer-tracking", {
         state: {
           mode: "track",
-          deliveryId: id,
+          deliveryId,
           driverAddress,
           restaurantAddress,
           customerAddress,
         },
       });
     } catch (error) {
-      console.error("Error fetching delivery details:", error);
+      console.error("Error fetching delivery details by Order ID:", error);
       alert("Failed to fetch delivery details. Please try again.");
     }
   };
@@ -80,12 +88,38 @@ export default function DeliveryControl() {
     });
   };
 
-  const handleTrackOrder = () => {
-    const id = deliveryId.trim();
-    if (!id) return alert("Please enter a Delivery ID.");
-    navigate("/delivery-tracking", {
-      state: { mode: "track", deliveryId: id },
-    });
+  const handleTrackOrder = async () => {
+    const orderId = deliveryId.trim(); // deliveryId is now the Order ID
+    if (!orderId) return alert("Please enter an Order ID.");
+
+    try {
+      const { data } = await axios.get(
+        `http://localhost:5005/api/deliveries/order/${orderId}`
+      );
+
+      const delivery = data.deliveries?.[0];
+      if (!delivery) return alert("No delivery found for this Order ID");
+
+      const {
+        _id: deliveryId,
+        driverAddress,
+        restaurantAddress,
+        customerAddress,
+      } = delivery;
+
+      navigate("/delivery-tracking", {
+        state: {
+          mode: "track",
+          deliveryId,
+          driverAddress,
+          restaurantAddress,
+          customerAddress,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching delivery details by Order ID:", error);
+      alert("Failed to fetch delivery details. Please try again.");
+    }
   };
 
   return (
