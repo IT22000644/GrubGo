@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import ThemeToggle from "../../assets/Theme/ThemeToggle";
+import ThemeToggle from "../../../assets/Theme/ThemeToggle";
 import {
   ChevronDown,
   ShoppingBag,
@@ -10,18 +10,21 @@ import {
   X,
   LogIn,
 } from "lucide-react";
-import Modal from "../modal/Modal";
-import { Login } from "../../features/auth/Login";
-import { Register } from "../../features/auth/Register";
+import Modal from "../../modal/Modal";
+import { Login } from "../../../features/auth/Login";
+import { Register } from "../../../features/auth/Register";
+import { adminLinks, navLinks } from "./Header.config";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../app/store";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
-
-  // Handle scroll effect for sticky header
+  const role = useSelector((state: RootState) => state.user.role);
+  const [userRole, setUserRole] = useState(role);
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 10) {
@@ -46,48 +49,6 @@ const Header = () => {
   const closeDropdowns = () => {
     setActiveDropdown(null);
   };
-
-  // Navigation links with dropdown content
-  const navLinks = [
-    {
-      name: "Home",
-      path: "/",
-      hasDropdown: false,
-    },
-    {
-      name: "Menu",
-      path: "/menu",
-      hasDropdown: true,
-      dropdownContent: [
-        { name: "Pizza", path: "/menu/pizza" },
-        { name: "Burgers", path: "/menu/burgers" },
-        { name: "Sushi", path: "/menu/sushi" },
-        { name: "Vegan", path: "/menu/vegan" },
-        { name: "Desserts", path: "/menu/desserts" },
-      ],
-    },
-    {
-      name: "Restaurants",
-      path: "/allRestaurants",
-      hasDropdown: true,
-      dropdownContent: [
-        { name: "Nearby", path: "/restaurants/nearby" },
-        { name: "Popular", path: "/restaurants/popular" },
-        { name: "New Partners", path: "/restaurants/new" },
-        { name: "All Restaurants", path: "/allRestaurants" },
-      ],
-    },
-    {
-      name: "About Us",
-      path: "/about",
-      hasDropdown: false,
-    },
-    {
-      name: "Contact",
-      path: "/contact",
-      hasDropdown: false,
-    },
-  ];
 
   return (
     <header
@@ -161,12 +122,82 @@ const Header = () => {
               <Search size={20} />
             </button>
 
-            <Link
-              to="/account"
-              className="p-2 rounded-full hover:bg-light_hover dark:hover:bg-dark_hover transition-colors"
-            >
-              <User size={20} />
-            </Link>
+            <div className="relative">
+              <button
+                onClick={() => toggleDropdown(userRole)}
+                className="p-2 rounded-full hover:bg-light_hover dark:hover:bg-dark_hover transition-colors"
+              >
+                <User size={20} />
+              </button>
+              {activeDropdown === "user" && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
+                  <div className="py-1">
+                    {adminLinks.userDropdownContent.map((item) => (
+                      <Link
+                        key={item.name}
+                        to={item?.path || ""}
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-light_hover dark:hover:bg-dark_hover"
+                        onClick={() => {
+                          closeDropdowns();
+                          item.onClick();
+                        }}
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {activeDropdown === "restaurantOwner" && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
+                  <div className="py-1">
+                    {adminLinks.restaurantDropdownContent.map((item) => (
+                      <Link
+                        key={item.name}
+                        to={item?.path || ""}
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-light_hover dark:hover:bg-dark_hover"
+                        onClick={() => {
+                          closeDropdowns();
+                          item.onClick();
+                        }}
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {activeDropdown === "rider" && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
+                  <div className="py-1">
+                    {adminLinks.riderDropdownContent.map((item) => (
+                      <Link
+                        key={item.name}
+                        to={item?.path || ""}
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-light_hover dark:hover:bg-dark_hover"
+                        onClick={() => {
+                          closeDropdowns();
+                          item.onClick();
+                        }}
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {activeDropdown === "" && (
+                <div
+                  className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50"
+                  onMouseEnter={() => setActiveDropdown(userRole)}
+                  onMouseLeave={closeDropdowns}
+                >
+                  <div className="p-2 text-sm text-gray-700 font-semibold dark:text-gray-300">
+                    Please Login to see your account
+                  </div>
+                </div>
+              )}
+            </div>
 
             <Link
               to="/cart"
