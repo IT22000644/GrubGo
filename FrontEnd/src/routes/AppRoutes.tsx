@@ -43,12 +43,11 @@ const AppRoutes: React.FC = () => {
         <Route path="/delivery-control" element={<DeliveryControl />} />
         <Route path="/delivery-tracking" element={<DeliveryTracking />} />
         <Route path="/customer-tracking" element={<CustomerTracking />} />
-
         <Route path="*" element={<NotFound />} />
       </Route>
       <Route element={<AdminLayout />}>
-        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Route>
 
       <Route

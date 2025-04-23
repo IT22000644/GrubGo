@@ -34,7 +34,7 @@ const AdminHeader = () => {
     >
       <div className="container mx-auto px-4">
         <nav className="flex justify-between items-center">
-          <Link to="/" className="flex items-center space-x-2 group">
+          <Link to="/admin" className="flex items-center space-x-2 group">
             <div className="w-10 h-10 rounded-full bg-primary dark:bg-primary flex items-center justify-center transition-transform group-hover:scale-110 duration-300">
               <span className="text-white font-bold text-xl">G</span>
             </div>
