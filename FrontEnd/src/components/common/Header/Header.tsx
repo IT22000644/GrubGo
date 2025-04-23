@@ -16,6 +16,7 @@ import { Register } from "../../../features/auth/Register";
 import { adminLinks, navLinks } from "./Header.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
+import { api1 } from "../../../api/axios";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -24,7 +25,12 @@ const Header = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const role = useSelector((state: RootState) => state.user.role);
+  const restaurantId = useSelector(
+    (state: RootState) => state.user.restaurantId
+  );
   const [userRole, setUserRole] = useState(role);
+  const [isOpen, setIsOpen] = useState(true);
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 10) {
@@ -43,6 +49,17 @@ const Header = () => {
       setActiveDropdown(null);
     } else {
       setActiveDropdown(name);
+    }
+  };
+  const handleToggle = async () => {
+    setIsOpen(!isOpen);
+    const status = !isOpen ? "open" : "closed";
+    if (restaurantId) {
+      await api1.patch(`/restaurants/status/${restaurantId}`, {
+        status,
+      });
+    } else {
+      console.error("Restaurant ID is null");
     }
   };
 
@@ -149,20 +166,56 @@ const Header = () => {
                 </div>
               )}
               {activeDropdown === "restaurantOwner" && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
+                <div className="absolute right-0 mt-2 w-[280px] bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
                   <div className="py-1">
                     {adminLinks.restaurantDropdownContent.map((item) => (
-                      <Link
-                        key={item.name}
-                        to={item?.path || ""}
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-light_hover dark:hover:bg-dark_hover"
-                        onClick={() => {
-                          closeDropdowns();
-                          item.onClick();
-                        }}
-                      >
-                        {item.name}
-                      </Link>
+                      <div className="flex flex-row justify-between">
+                        {item.visible && item ? (
+                          <div className="flex flex-row justify-between">
+                            <div className="px-4 py-2">{item.name}</div>
+                            <div className="flex items-center space-x-3 px-4 py-2">
+                              <span className="text-sm font-medium text-gray-700">
+                                <span
+                                  className={
+                                    isOpen ? "text-green-600" : "text-red-600"
+                                  }
+                                >
+                                  {isOpen ? "Open" : "Close"}
+                                </span>
+                              </span>
+                              <button
+                                onClick={handleToggle}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${
+                                  isOpen ? "bg-green-500" : "bg-gray-400"
+                                }`}
+                                aria-pressed={isOpen}
+                                aria-labelledby="toggle-label"
+                              >
+                                <span className="sr-only">Toggle status</span>
+                                <span
+                                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                    isOpen ? "translate-x-6" : "translate-x-1"
+                                  }`}
+                                />
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <Link
+                            key={item.name}
+                            to={item?.path || ""}
+                            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-light_hover dark:hover:bg-dark_hover w-full"
+                            onClick={() => {
+                              closeDropdowns();
+                              if (typeof item?.onClick === "function") {
+                                item.onClick();
+                              }
+                            }}
+                          >
+                            {item.name}
+                          </Link>
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>

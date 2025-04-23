@@ -24,8 +24,9 @@ export const AllRestaurants = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await api1.get("/restaurants/");
+        const response = await api1.get("/restaurants/status/open");
         setRestaurants(response.data.restaurants);
+        console.log(response.data.restaurants);
       } catch (error) {
         console.error("Failed to fetch:", error);
       } finally {

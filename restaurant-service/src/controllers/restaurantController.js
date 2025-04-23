@@ -6,6 +6,7 @@ import {
   getAllRestaurantsService,
   toggleRestaurantStatusService,
   deleteRestaurantService,
+  getAllRestaurantsByStatusService,
 } from "../services/restaurantService.js";
 
 export const RestaurantController = {
@@ -138,6 +139,23 @@ export const RestaurantController = {
   getAllRestaurants: async (req, res) => {
     try {
       const restaurants = await getAllRestaurantsService();
+
+      if (!restaurants || restaurants.length === 0) {
+        return res.status(404).json({ message: "Restaurant not found" });
+      }
+
+      res.status(200).json({ restaurants });
+    } catch (error) {
+      res.status(500).json({
+        message: "Error fetching restaurants",
+        error: error.message,
+      });
+    }
+  },
+
+  getAllRestaurantsByStatus: async (req, res) => {
+    try {
+      const restaurants = await getAllRestaurantsByStatusService();
 
       if (!restaurants || restaurants.length === 0) {
         return res.status(404).json({ message: "Restaurant not found" });

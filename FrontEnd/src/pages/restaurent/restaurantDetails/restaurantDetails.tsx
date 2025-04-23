@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 import { Loader } from "../../common/loader";
 import { AnimatePresence, motion } from "framer-motion";
-import { a } from "framer-motion/client";
 type Review = {
   _id: string;
   user: string;
@@ -33,10 +32,6 @@ type Review = {
   rating: number;
   comment: string;
   createdAt: string;
-};
-
-type Props = {
-  reviews: Review[];
 };
 
 export const RestaurantDetails = () => {
@@ -785,7 +780,7 @@ export const RestaurantDetails = () => {
             What Our Customers Say
           </h2>
 
-          <div className="w-full bg-white rounded-xl shadow-md p-6 mb-8 relative min-h-64">
+          <div className="w-full relative min-h-40 mb-5">
             <div className="absolute -left-3 top-8 text-gray-300 opacity-20">
               <svg
                 width="40"
