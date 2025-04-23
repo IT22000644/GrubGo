@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Restaurant, Food } from "../allRestaurants/AllRestaurants.types";
 import api from "../../../api/axios";
+import api5011 from "../../../api/api5011";
 import {
   Star,
   MapPin,
@@ -92,8 +93,8 @@ export const RestaurantDetails = () => {
         quantity: 1
       }];
       
-      const response = await api.post(
-        `http://localhost:5000/api/cart/${customerId}/items`, 
+      const response = await api5011.post(
+        `/cart/${customerId}/items`, 
         {
           restaurantId: id,
           items: cartItems

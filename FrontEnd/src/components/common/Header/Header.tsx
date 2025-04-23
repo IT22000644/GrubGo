@@ -11,6 +11,7 @@ import {
   LogIn,
 } from "lucide-react";
 import Modal from "../../modal/Modal";
+import ModalCart from "../../Cart/Modalcart";
 import { Login } from "../../../features/auth/Login";
 import { Register } from "../../../features/auth/Register";
 import { adminLinks, navLinks } from "./Header.config";
@@ -232,9 +233,9 @@ const Header = () => {
             )}
           </Modal>
           
-          <Modal isOpen={showCart} onClose={() => setShowCart(false)}>
+          <ModalCart isOpen={showCart} onClose={() => setShowCart(false)}>
             <CartPage customerId="customer123" />
-          </Modal>
+          </ModalCart>
 
           <div className="flex items-center space-x-3 md:hidden">
             <Link to="/cart" className="p-2 relative">
