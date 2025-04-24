@@ -18,10 +18,11 @@ interface Order {
     items: OrderItem[];
     totalAmount: number;
     currency: string;
+    restaurantImage?: string;
 }
 
 interface OrderCardProps {
-    order: Order;
+    order: Order & { restaurantName?: string };
     onCheckout: (orderId: string) => void;
     formatDate: (dateString: string) => string;
     getStatusBadge: (status: string) => string;
@@ -31,11 +32,20 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onCheckout, formatDate, ge
     return (
         <div className="border-b pb-6 sm:pb-8 w-full">
             <div className=" flex-row sm:items-start sm:gap-4 ">
-                <div className="w-full sm:w-64 h-32 bg-gray-200 rounded-lg overflow-hidden relative flex-shrink-0 mb-4 sm:mb-0" />
-
+                <div className="w-full  h-40 bg-gray-200 rounded-lg overflow-hidden relative flex-shrink-0 mb-4 sm:mb-0">
+                    {order.restaurantImage ? (
+                        <img
+                            src={order.restaurantImage}
+                            alt={order.restaurantName}
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <div className="flex items-center justify-center w-full h-full text-gray-500">No Image</div>
+                    )}
+                </div>
                 <div className="flex-1">
                     <div className="flex flex-col items-center justify-between mb-2">
-                        <h2 className="text-xl sm:text-2xl font-bold mb-1">{order.restaurantId}</h2>
+                        <h2 className="text-xl sm:text-2xl font-bold mb-1">{order.restaurantName}</h2>
                         <span className={getStatusBadge(order.status)}>
                             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                         </span>

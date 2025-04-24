@@ -11,5 +11,6 @@ export interface Cart {
     customerId: string;
     restaurantId: string;
     restaurantName?: string;
+    restaurantImage?: string; 
     items: CartItem[];
 }
