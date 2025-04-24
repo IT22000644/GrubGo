@@ -19,9 +19,14 @@ import { AllRestaurants } from "../pages/restaurent/allRestaurants/AllRestaurant
 import RestaurantDetails from "../pages/restaurent/restaurantDetails/restaurantDetails";
 
 import CartPage from "../pages/order/CartPage";
+import { ManageRestaurant } from "../pages/restaurent/manageRestaurant/ManageResturant";
+import AdminLayout from "../layouts/AdminLayout";
+import { AdminDashboard } from "../pages/admin/adminDashboard";
 
-import RestaurantAdminMain from "../pages/user/restaurantAdmin/restaurantAdminMain";
+
+// import DeliveryTracking from "../pages/delivery/DeliveryTracking";
 import OrderPage from "../pages/restaurent/showingorders/Orderpage";
+
 
 const AppRoutes: React.FC = () => {
   return (
@@ -32,7 +37,11 @@ const AppRoutes: React.FC = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/allRestaurants" element={<AllRestaurants />} />
         <Route path="/restaurant/:id" element={<RestaurantDetails />} />
+
+        <Route path="/restaurant/manage" element={<ManageRestaurant />} />
+
         <Route path="/restaurant/orders" element={<OrderPage />} />
+
 
         <Route path="/delivery" element={<DeliveryAssign />} />
 
@@ -42,19 +51,14 @@ const AppRoutes: React.FC = () => {
         <Route path="/delivery-control" element={<DeliveryControl />} />
         <Route path="/delivery-tracking" element={<DeliveryTracking />} />
         <Route path="/customer-tracking" element={<CustomerTracking />} />
-        <Route path="/driver-home" element={<DriverView />} />
+<Route path="/driver-home" element={<DriverView />} />
+      </Route>
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
 
         <Route path="*" element={<NotFound />} />
       </Route>
-
-      <Route
-        path="/admin/restaurant"
-        element={
-          <ProtectedRoute>
-            <RestaurantAdminMain />
-          </ProtectedRoute>
-        }
-      />
 
       <Route
         path="/profile"
@@ -64,6 +68,7 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
