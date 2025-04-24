@@ -1,4 +1,6 @@
+import "dotenv/config.js";
 import express from "express";
+import connectDB from "./db/db-config.js";
 
 const app = express();
 
@@ -10,4 +12,5 @@ app.get("/", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`User service is running on http://localhost:${PORT}`);
+  connectDB();
 });

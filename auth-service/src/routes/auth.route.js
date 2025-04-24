@@ -21,3 +21,5 @@ router.post("/logout", (req, res) => {
 router.post("/verify-token", (req, res) => {
   // TODO
 });
+
+export default router;

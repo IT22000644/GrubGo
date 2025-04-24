@@ -22,10 +22,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: api-gateway-config
-          volumeMounts:
-            - name: config-volume
-              mountPath: /etc/api-gateway/config
-              readOnly: true
           resources:
             requests:
               memory: "128Mi"
@@ -33,7 +29,3 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "500m"
-      volumes:
-        - name: config-volume
-          configMap:
-            name: api-gateway-config

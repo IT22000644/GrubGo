@@ -1,6 +1,6 @@
 export default {
   userService: process.env.USER_SERVICE_URL || "http://localhost:5000",
-  authService: process.env.AUTH_SERVICE_URL || "http://localhost:5001",
+  AUTH_SERVICE_URL: process.env.AUTH_SERVICE_URL || "http://localhost:5001",
   restaurantService:
     process.env.RESTAURANT_SERVICE_URL || "http://localhost:5002",
   orderService: process.env.ORDER_SERVICE_URL || "http://localhost:5003",

@@ -7,4 +7,6 @@ export const {
   JWT_EXPIRATION, // 1h
   NOTIFICATION_QUEUE,
   USER_SERVICE_URL,
+  RESTAURANT_SERVICE_URL,
+  MONGODB_URI,
 } = process.env;
