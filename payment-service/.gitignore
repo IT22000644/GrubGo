@@ -11,7 +11,6 @@
 # Docker
 docker-compose.override.yml
 
-.env
 .env.*
 
 **/*.test.js
