@@ -1,31 +1,48 @@
 import React, { useEffect, useState } from 'react';
-import { ListFilter } from 'lucide-react';
-import OrderFilter from '../../components/Order/OrderFilter';
 import OrderCard from '../../components/Order/OrderCard';
 import api5011 from '../../api/api5011';
+import api from '../../api/axios';
 import type { Order } from '../../components/Order/types';
+
+const statusOptions = ['done', 'pending', 'completed'];
 
 const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
     const [orders, setOrders] = useState<Order[]>([]);
-    const [status, setStatus] = useState('pending');
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
+    const [status, setStatus] = useState('done');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [showFilters, setShowFilters] = useState(false);
 
     const fetchOrders = async () => {
         setLoading(true);
         setError('');
-
         try {
-            const params: any = {};
-            if (status) params.status = status;
-            if (startDate) params.startDate = startDate;
-            if (endDate) params.endDate = endDate;
+            const res = await api5011.get(`/orders/customer/${customerId}`, {
+                params: status ? { status } : {},
+            });
 
-            const res = await api5011.get(`/orders/customer/${customerId}`, { params });
-            setOrders(res.data);
+            const ordersWithDetails = await Promise.all(
+                res.data.map(async (order: Order) => {
+                    try {
+                        const restaurantRes = await api.get(`/restaurants/${order.restaurantId}`);
+                        const restaurantData = restaurantRes.data?.restaurant;
+
+                        return {
+                            ...order,
+                            restaurantName: restaurantData?.name || 'Unknown Restaurant',
+                            restaurantImage: restaurantData?.images?.[0] || null,
+                        };
+                    } catch (err) {
+                        console.error(`Failed to fetch restaurant ${order.restaurantId}`, err);
+                        return {
+                            ...order,
+                            restaurantName: 'Unknown Restaurant',
+                            restaurantImage: null,
+                        };
+                    }
+                })
+            );
+
+            setOrders(ordersWithDetails);
         } catch (err: any) {
             setOrders([]);
             if (err.response?.status === 404) {
@@ -40,15 +57,7 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
 
     useEffect(() => {
         fetchOrders();
-    }, []);
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        fetchOrders();
-        if (window.innerWidth < 768) {
-            setShowFilters(false);
-        }
-    };
+    }, [status]);
 
     const handleCheckout = async (orderId: string) => {
         try {
@@ -70,59 +79,42 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
         return `${month} ${day} at ${time}`;
     };
 
-    const toggleFilters = () => {
-        setShowFilters(!showFilters);
-    };
-
     const getStatusBadge = (status: string) => {
         const base = "text-xs font-semibold px-2.5 py-0.5 rounded inline-block";
         switch (status) {
-            case "pending":
-                return `${base} bg-yellow-100 text-yellow-800`;
-            case "process":
-                return `${base} bg-blue-100 text-blue-800`;
-            case "preparing":
-                return `${base} bg-indigo-100 text-indigo-800`;
-            case "delivering":
-                return `${base} bg-orange-100 text-orange-800`;
-            case "completed":
-            case "done":
-                return `${base} bg-green-100 text-green-800`;
-            case "cancelled":
-                return `${base} bg-red-100 text-red-800`;
-            default:
-                return `${base} bg-gray-100 text-gray-800`;
+            default: return `${base} bg-gray-100 text-gray-800`;
+            case "pending": return `${base} bg-yellow-100 text-yellow-800`;
+            case "completed": return `${base} bg-orange-100 text-orange-800`;
+            case "delivering": return `${base} bg-blue-100 text-blue-800`;
+            case "done": return `${base} bg-green-100 text-green-800`;
         }
     };
 
     return (
         <div className="max-w-4xl mx-auto px-4 py-6">
-            {!showFilters && (
-                <div className="flex justify-end items-center mb-6">
+            <div className="flex flex-wrap gap-2 mb-6 justify-center">
+                {statusOptions.map((option) => (
                     <button
-                        onClick={toggleFilters}
-                        className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-800 dark:text-white rounded-md transition-colors"
-                        aria-expanded={showFilters}
-                        aria-controls="filter-panel"
+                        key={option}
+                        onClick={() => setStatus(option)}
+                        className={`px-4 py-2 rounded-md text-sm font-medium border transition ${status === option
+                            ? 'bg-orange-400 text-white border-orange-500'
+                            : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600'
+                            }`}
                     >
-                        <ListFilter size={18} />
-                        <span className="hidden sm:inline">Filters</span>
+                        {option.charAt(0).toUpperCase() + option.slice(1)}
                     </button>
-                </div>
-            )}
-
-            {showFilters && (
-                <OrderFilter
-                    status={status}
-                    startDate={startDate}
-                    endDate={endDate}
-                    setStatus={setStatus}
-                    setStartDate={setStartDate}
-                    setEndDate={setEndDate}
-                    onSubmit={handleSubmit}
-                    onCancel={() => setShowFilters(false)}
-                />
-            )}
+                ))}
+                <button
+                    onClick={() => setStatus('')}
+                    className={`px-4 py-2 rounded-md text-sm font-medium border transition ${status === ''
+                        ? 'bg-orange-400 text-white border-orange-500'
+                        : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600'
+                        }`}
+                >
+                    All
+                </button>
+            </div>
 
             {loading && (
                 <div className="flex justify-center py-8">

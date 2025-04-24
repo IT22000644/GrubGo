@@ -20,4 +20,6 @@ router.put('/status/completed/:orderId', orderController.setOrderCompleted);
 
 router.put('/status/delivered/:orderId', orderController.setOrderDelivered);
 
+router.get('/getorders/:restaurantId', orderController.getOrdersByRestaurant);
+
 module.exports = router;

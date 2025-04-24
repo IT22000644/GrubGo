@@ -28,6 +28,7 @@ const createOrder = async (req, res) => {
       totalAmount,
       status: 'pending',
       PaymentStatus: 'pending',
+      iscompleted: false,
       address
     });
 
@@ -238,6 +239,7 @@ const setOrderCompleted = async (req, res) => {
     }
 
     order.status = 'completed';
+    order.iscompleted = true;
     order.updatedAt = Date.now();
     await order.save();
 
@@ -248,9 +250,6 @@ const setOrderCompleted = async (req, res) => {
       status: 'delivering',
       address: order.address,
     });
-
-    navigate("/delivery-assign", { state: { orderId: order._id}});
-
     return res.status(200).json({ message: 'Order status set to completed', order });
   } catch (error) {
     res.status(500).json({ message: 'Failed to set order to completed', error: error.message });
@@ -278,6 +277,54 @@ const setOrderDelivered = async (req, res) => {
   }
 };
 
+// Retrieve all orders by restaurant ID
+const getOrdersByRestaurant = async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+    const { status, startDate, endDate } = req.query;
+
+    const query = { restaurantId };
+
+    if (status) {
+      const validStatuses = ['completed', 'cancelled', 'pending', 'done', 'preparing', 'process'];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({
+          message: 'Invalid status value',
+          validStatuses
+        });
+      }
+      query.status = status;
+    }
+
+    if (startDate || endDate) {
+      query.createdAt = {};
+      if (startDate) {
+        query.createdAt.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        query.createdAt.$lte = new Date(endDate);
+      }
+    }
+
+    const orders = await Order.find(query).sort({ createdAt: -1 });
+
+    if (orders.length === 0) {
+      return res.status(404).json({
+        message: 'No orders found matching the criteria'
+      });
+    }
+
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error('Error retrieving orders by restaurant:', error);
+    res.status(500).json({
+      message: 'Error retrieving orders',
+      error: error.message
+    });
+  }
+};
+
+
 module.exports = {
   createOrder,
   getOrderById,
@@ -287,5 +334,6 @@ module.exports = {
   checkout,
   setOrderPreparing,
   setOrderCompleted,
-  setOrderDelivered
+  setOrderDelivered,
+  getOrdersByRestaurant
 }
