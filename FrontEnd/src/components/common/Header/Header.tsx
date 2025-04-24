@@ -11,12 +11,16 @@ import {
   LogIn,
 } from "lucide-react";
 import Modal from "../../modal/Modal";
+import ModalCart from "../../Cart/Modalcart";
 import { Login } from "../../../features/auth/Login";
 import { Register } from "../../../features/auth/Register";
 import { adminLinks, navLinks } from "./Header.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
+
 import { api1 } from "../../../api/axios";
+import CartPage from "../../../pages/order/CartPage";
+
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -30,6 +34,8 @@ const Header = () => {
   );
   const [userRole, setUserRole] = useState(role);
   const [isOpen, setIsOpen] = useState(true);
+  const [showCart, setShowCart] = useState(false);
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,11 +76,10 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled
+      className={`fixed w-full z-50 transition-all duration-300 ${isScrolled
           ? "py-3 bg-neutral dark:bg-dark backdrop-blur-sm shadow-md"
           : "py-6 bg-neutral dark:bg-dark"
-      } text-dark_hover dark:text-gray-200`}
+        } text-dark_hover dark:text-gray-200`}
     >
       <div className="container mx-auto px-4">
         <nav className="flex justify-between items-center">
@@ -253,15 +258,13 @@ const Header = () => {
               )}
             </div>
 
-            <Link
-              to="/cart"
-              className="p-2 rounded-full hover:bg-light_hover dark:hover:bg-dark_hover transition-colors relative"
-            >
+            <button onClick={() => setShowCart(true)} className="relative p-2">
               <ShoppingBag size={20} />
-              <span className="absolute -top-1 -right-1 bg-primary dark:bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+              <span className="absolute -top-1 -right-1 bg-primary dark:bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 3
               </span>
-            </Link>
+            </button>
+
 
             <ThemeToggle />
 
@@ -285,6 +288,10 @@ const Header = () => {
               <Register switchToLogin={() => setIsLogin(true)} />
             )}
           </Modal>
+          
+          <ModalCart isOpen={showCart} onClose={() => setShowCart(false)}>
+            <CartPage customerId="customer123" />
+          </ModalCart>
 
           <div className="flex items-center space-x-3 md:hidden">
             <Link to="/cart" className="p-2 relative">
@@ -312,9 +319,8 @@ const Header = () => {
       </div>
 
       <div
-        className={`md:hidden ${
-          mobileMenuOpen ? "block" : "hidden"
-        } transition-all duration-300`}
+        className={`md:hidden ${mobileMenuOpen ? "block" : "hidden"
+          } transition-all duration-300`}
       >
         <div className="px-4 pt-2 pb-3 space-y-1 bg-white dark:bg-gray-900 border-t dark:border-dark_hover">
           {navLinks.map((link) => (
@@ -328,9 +334,8 @@ const Header = () => {
                     {link.name}
                     <ChevronDown
                       size={16}
-                      className={`transition-transform duration-200 ${
-                        activeDropdown === link.name ? "rotate-180" : ""
-                      }`}
+                      className={`transition-transform duration-200 ${activeDropdown === link.name ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
 

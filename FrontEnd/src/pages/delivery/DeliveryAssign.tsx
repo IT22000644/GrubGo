@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
+import api5005 from "../../api/api5005";
 import { io, Socket } from "socket.io-client";
 import DeliveryMap, {
   DeliveryRoute,
@@ -31,7 +31,7 @@ type LocationState = {
 };
 
 export default function DeliveryAssign() {
-  const ORDER_ID = "41ga21e5624f2dfbc4126h22";
+  const ORDER_ID = "41ga21e5624f2dfbc4126h50";
   const loc = useLocation();
   const state = loc.state as LocationState;
   const { initialRoute, driverAddress, restaurantAddress, customerAddress } =
@@ -181,19 +181,16 @@ export default function DeliveryAssign() {
 
     try {
       const { delivery } = (
-        await axios.post<AssignPayload>(
-          "http://localhost:5005/api/deliveries/assign",
-          {
-            orderId: ORDER_ID,
-            driverId: "34ga21e5624f2dfbc3284h65",
-            driverAddress,
-            restaurantAddress,
-            customerAddress,
-            driverLocation: initialRoute.driverLocation,
-            restaurantLocation: initialRoute.restaurantLocation,
-            customerLocation: initialRoute.customerLocation,
-          }
-        )
+        await api5005.post<AssignPayload>("deliveries/assign", {
+          orderId: ORDER_ID,
+          driverId: "34ga21e5624f2dfbc3284h65",
+          driverAddress,
+          restaurantAddress,
+          customerAddress,
+          driverLocation: initialRoute.driverLocation,
+          restaurantLocation: initialRoute.restaurantLocation,
+          customerLocation: initialRoute.customerLocation,
+        })
       ).data;
 
       deliveryIdRef.current = delivery._id;

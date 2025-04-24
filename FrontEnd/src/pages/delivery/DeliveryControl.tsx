@@ -1,46 +1,50 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DeliveryRoute } from "../../components/delivery/DeliveryMap";
-import axios from "axios";
+import api5005 from "../../api/api5005";
+import api5004 from "../../api/api5004";
 
 export default function DeliveryControl() {
   const [deliveryId, setDeliveryId] = useState("");
   const navigate = useNavigate();
 
   const handleTrackCustomerOrder = async () => {
-    const id = deliveryId.trim();
-    if (!id) return alert("Please enter a Delivery ID.");
+    const orderId = deliveryId.trim();
+    if (!orderId) return alert("Please enter an Order ID.");
 
     try {
-      const { data } = await axios.get(
-        `http://localhost:5005/api/deliveries/status/${id}`
-      );
+      const { data } = await api5005.get(`deliveries/order/${orderId}`);
 
-      const { driverAddress, restaurantAddress, customerAddress } = data;
+      const delivery = data.deliveries?.[0];
+      if (!delivery) return alert("No delivery found for this Order ID");
+
+      const {
+        _id: deliveryId,
+        driverAddress,
+        restaurantAddress,
+        customerAddress,
+      } = delivery;
 
       navigate("/customer-tracking", {
         state: {
           mode: "track",
-          deliveryId: id,
+          deliveryId,
           driverAddress,
           restaurantAddress,
           customerAddress,
         },
       });
     } catch (error) {
-      console.error("Error fetching delivery details:", error);
+      console.error("Error fetching delivery details by Order ID:", error);
       alert("Failed to fetch delivery details. Please try again.");
     }
   };
 
   const getCoordinates = async (address: string) => {
     try {
-      const response = await axios.post(
-        "http://localhost:5004/api/map/coordinate",
-        {
-          address,
-        }
-      );
+      const response = await api5004.post("map/coordinate", {
+        address,
+      });
       return response.data;
     } catch (error) {
       console.error("Error fetching coordinates:", error);
@@ -80,12 +84,36 @@ export default function DeliveryControl() {
     });
   };
 
-  const handleTrackOrder = () => {
-    const id = deliveryId.trim();
-    if (!id) return alert("Please enter a Delivery ID.");
-    navigate("/delivery-tracking", {
-      state: { mode: "track", deliveryId: id },
-    });
+  const handleTrackOrder = async () => {
+    const orderId = deliveryId.trim(); // deliveryId is now the Order ID
+    if (!orderId) return alert("Please enter an Order ID.");
+
+    try {
+      const { data } = await api5005.get(`deliveries/order/${orderId}`);
+
+      const delivery = data.deliveries?.[0];
+      if (!delivery) return alert("No delivery found for this Order ID");
+
+      const {
+        _id: deliveryId,
+        driverAddress,
+        restaurantAddress,
+        customerAddress,
+      } = delivery;
+
+      navigate("/delivery-tracking", {
+        state: {
+          mode: "track",
+          deliveryId,
+          driverAddress,
+          restaurantAddress,
+          customerAddress,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching delivery details by Order ID:", error);
+      alert("Failed to fetch delivery details. Please try again.");
+    }
   };
 
   return (

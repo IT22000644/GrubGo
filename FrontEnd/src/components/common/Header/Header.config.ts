@@ -72,6 +72,11 @@ export const adminLinks = {
       onClick: () => console.log("Nearby clicked"),
     },
     {
+      name: "Cart",
+      path: "/cart",
+      onClick: () => console.log("Cart clicked"),
+    },
+    {
       name: "Settings",
       onClick: () => console.log("New Partners clicked"),
     },

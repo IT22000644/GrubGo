@@ -12,6 +12,7 @@ import DeliveryAssign from "../pages/delivery/DeliveryAssign";
 import DeliveryControl from "../pages/delivery/DeliveryControl";
 import DeliveryTracking from "../pages/delivery/DeliveryTracking";
 import CustomerTracking from "../pages/delivery/CustomerTracking";
+import DriverView from "../pages/delivery/DriverView";
 import NotFound from "../pages/common/NotFound";
 import Contact from "../pages/main/ContactUs";
 import { AllRestaurants } from "../pages/restaurent/allRestaurants/AllRestaurants";
@@ -22,7 +23,10 @@ import { ManageRestaurant } from "../pages/restaurent/manageRestaurant/ManageRes
 import AdminLayout from "../layouts/AdminLayout";
 import { AdminDashboard } from "../pages/admin/adminDashboard";
 
+
 // import DeliveryTracking from "../pages/delivery/DeliveryTracking";
+import OrderPage from "../pages/restaurent/showingorders/Orderpage";
+
 
 const AppRoutes: React.FC = () => {
   return (
@@ -33,7 +37,11 @@ const AppRoutes: React.FC = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/allRestaurants" element={<AllRestaurants />} />
         <Route path="/restaurant/:id" element={<RestaurantDetails />} />
+
         <Route path="/restaurant/manage" element={<ManageRestaurant />} />
+
+        <Route path="/restaurant/orders" element={<OrderPage />} />
+
 
         <Route path="/delivery" element={<DeliveryAssign />} />
 
@@ -43,10 +51,12 @@ const AppRoutes: React.FC = () => {
         <Route path="/delivery-control" element={<DeliveryControl />} />
         <Route path="/delivery-tracking" element={<DeliveryTracking />} />
         <Route path="/customer-tracking" element={<CustomerTracking />} />
+<Route path="/driver-home" element={<DriverView />} />
       </Route>
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="dashboard" element={<AdminDashboard />} />
+
         <Route path="*" element={<NotFound />} />
       </Route>
 

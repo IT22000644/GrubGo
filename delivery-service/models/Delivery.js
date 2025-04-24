@@ -9,7 +9,7 @@ const LatLngSchema = new mongoose.Schema(
 );
 
 const deliverySchema = new mongoose.Schema({
-  orderId: { type: String, required: true },
+  orderId: { type: String, required: true, unique: true },
   driverId: { type: String, required: true },
 
   driverAddress: { type: String, required: true },
