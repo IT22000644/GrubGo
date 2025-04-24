@@ -1,159 +1,188 @@
-import React, { useEffect, useState } from 'react';
-import OrderCard from '../../components/Order/OrderCard';
-import api5011 from '../../api/api5011';
-import api from '../../api/axios';
-import type { Order } from '../../components/Order/types';
+import React, { useEffect, useState } from "react";
+import OrderCard from "../../components/Order/OrderCard";
+import api5011 from "../../api/api5011";
+import api from "../../api/axios";
+import type { Order } from "../../components/Order/types";
 
-const statusOptions = ['done', 'pending', 'completed'];
+const statusOptions = ["done", "pending", "completed"];
 
 const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
-    const [orders, setOrders] = useState<Order[]>([]);
-    const [status, setStatus] = useState('done');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [status, setStatus] = useState("done");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-    const fetchOrders = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const res = await api5011.get(`/orders/customer/${customerId}`, {
-                params: status ? { status } : {},
-            });
+  const fetchOrders = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await api5011.get(`/orders/customer/${customerId}`, {
+        params: status ? { status } : {},
+      });
 
-            const ordersWithDetails = await Promise.all(
-                res.data.map(async (order: Order) => {
-                    try {
-                        const restaurantRes = await api.get(`/restaurants/${order.restaurantId}`);
-                        const restaurantData = restaurantRes.data?.restaurant;
-
-                        return {
-                            ...order,
-                            restaurantName: restaurantData?.name || 'Unknown Restaurant',
-                            restaurantImage: restaurantData?.images?.[0] || null,
-                        };
-                    } catch (err) {
-                        console.error(`Failed to fetch restaurant ${order.restaurantId}`, err);
-                        return {
-                            ...order,
-                            restaurantName: 'Unknown Restaurant',
-                            restaurantImage: null,
-                        };
-                    }
-                })
+      const ordersWithDetails = await Promise.all(
+        res.data.map(async (order: Order) => {
+          try {
+            const restaurantRes = await api.get(
+              `/restaurants/${order.restaurantId}`
             );
+            const restaurantData = restaurantRes.data?.restaurant;
 
-            setOrders(ordersWithDetails);
-        } catch (err: any) {
-            setOrders([]);
-            if (err.response?.status === 404) {
-                setError('No orders found.');
-            } else {
-                setError(err.response?.data?.message || 'Error fetching orders');
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
+            return {
+              ...order,
+              restaurantName: restaurantData?.name || "Unknown Restaurant",
+              restaurantImage: restaurantData?.images?.[0] || null,
+            };
+          } catch (err) {
+            console.error(
+              `Failed to fetch restaurant ${order.restaurantId}`,
+              err
+            );
+            return {
+              ...order,
+              restaurantName: "Unknown Restaurant",
+              restaurantImage: null,
+            };
+          }
+        })
+      );
 
-    useEffect(() => {
-        fetchOrders();
-    }, [status]);
+      setOrders(ordersWithDetails);
+    } catch (err: any) {
+      setOrders([]);
+      if (err.response?.status === 404) {
+        setError("No orders found.");
+      } else {
+        setError(err.response?.data?.message || "Error fetching orders");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleCheckout = async (orderId: string) => {
-        try {
-            const res = await api5011.post(`/orders/${orderId}/checkout/`);
-            if (res.data?.url) {
-                window.location.href = res.data.url;
-            }
-        } catch (error: any) {
-            console.error("Checkout error:", error);
-            alert("Failed to initiate checkout.");
-        }
-    };
+  useEffect(() => {
+    fetchOrders();
+  }, [status]);
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        const month = date.toLocaleString('default', { month: 'short' });
-        const day = date.getDate();
-        const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-        return `${month} ${day} at ${time}`;
-    };
+  const handleCheckout = async (orderId: string) => {
+    try {
+      const res = await api5011.post(`/orders/${orderId}/checkout/`);
+      if (res.data?.url) {
+        window.location.href = res.data.url;
+      }
+    } catch (error: any) {
+      console.error("Checkout error:", error);
+      alert("Failed to initiate checkout.");
+    }
+  };
 
-    const getStatusBadge = (status: string) => {
-        const base = "text-xs font-semibold px-2.5 py-0.5 rounded inline-block";
-        switch (status) {
-            default: return `${base} bg-gray-100 text-gray-800`;
-            case "pending": return `${base} bg-yellow-100 text-yellow-800`;
-            case "completed": return `${base} bg-orange-100 text-orange-800`;
-            case "delivering": return `${base} bg-blue-100 text-blue-800`;
-            case "done": return `${base} bg-green-100 text-green-800`;
-        }
-    };
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const month = date.toLocaleString("default", { month: "short" });
+    const day = date.getDate();
+    const time = date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+    return `${month} ${day} at ${time}`;
+  };
 
-    return (
-        <div className="max-w-4xl mx-auto px-4 py-6">
-            <div className="flex flex-wrap gap-2 mb-6 justify-center">
-                {statusOptions.map((option) => (
-                    <button
-                        key={option}
-                        onClick={() => setStatus(option)}
-                        className={`px-4 py-2 rounded-md text-sm font-medium border transition ${status === option
-                            ? 'bg-orange-400 text-white border-orange-500'
-                            : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600'
-                            }`}
-                    >
-                        {option.charAt(0).toUpperCase() + option.slice(1)}
-                    </button>
-                ))}
-                <button
-                    onClick={() => setStatus('')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium border transition ${status === ''
-                        ? 'bg-orange-400 text-white border-orange-500'
-                        : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600'
-                        }`}
-                >
-                    All
-                </button>
-            </div>
+  const getStatusBadge = (status: string) => {
+    const base = "text-xs font-semibold px-2.5 py-0.5 rounded inline-block";
+    switch (status) {
+      default:
+        return `${base} bg-gray-100 text-gray-800`;
+      case "pending":
+        return `${base} bg-yellow-100 text-yellow-800`;
+      case "completed":
+        return `${base} bg-orange-100 text-orange-800`;
+      case "delivering":
+        return `${base} bg-blue-100 text-blue-800`;
+      case "done":
+        return `${base} bg-green-100 text-green-800`;
+    }
+  };
 
-            {loading && (
-                <div className="flex justify-center py-8">
-                    <div className="animate-pulse text-gray-500">Loading your orders...</div>
-                </div>
-            )}
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="flex flex-wrap gap-2 mb-6 justify-center">
+        {statusOptions.map((option) => (
+          <button
+            key={option}
+            onClick={() => setStatus(option)}
+            className={`px-4 py-2 rounded-md text-sm font-medium border transition ${
+              status === option
+                ? "bg-orange-400 text-white border-orange-500"
+                : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600"
+            }`}
+          >
+            {option.charAt(0).toUpperCase() + option.slice(1)}
+          </button>
+        ))}
+        <button
+          onClick={() => setStatus("")}
+          className={`px-4 py-2 rounded-md text-sm font-medium border transition ${
+            status === ""
+              ? "bg-orange-400 text-white border-orange-500"
+              : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600"
+          }`}
+        >
+          All
+        </button>
+      </div>
 
-            {error && (
-                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-6 text-center font-medium">
-                    <p className="text-red-700">{error}</p>
-                </div>
-            )}
-
-            {!loading && orders.length === 0 && !error && (
-                <div className="bg-white shadow rounded-lg p-8 text-center">
-                    <div className="mb-4 flex justify-center">
-                        <svg className="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                    </div>
-                    <h3 className="text-lg font-medium text-gray-900">No orders found</h3>
-                    <p className="mt-2 text-gray-500">Try changing your filter settings or check back later.</p>
-                </div>
-            )}
-
-            <div className="h-[40vh] overflow-y-auto space-y-6 sm:space-y-8">
-                {orders.map((order) => (
-                    <OrderCard
-                        key={order._id}
-                        order={order}
-                        onCheckout={handleCheckout}
-                        formatDate={formatDate}
-                        getStatusBadge={getStatusBadge}
-                    />
-                ))}
-            </div>
+      {loading && (
+        <div className="flex justify-center py-8">
+          <div className="animate-pulse text-gray-500">
+            Loading your orders...
+          </div>
         </div>
-    );
+      )}
+
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-6 text-center font-medium">
+          <p className="text-red-700">{error}</p>
+        </div>
+      )}
+
+      {!loading && orders.length === 0 && !error && (
+        <div className="bg-white shadow rounded-lg p-8 text-center">
+          <div className="mb-4 flex justify-center">
+            <svg
+              className="h-16 w-16 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.5"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900">No orders found</h3>
+          <p className="mt-2 text-gray-500">
+            Try changing your filter settings or check back later.
+          </p>
+        </div>
+      )}
+
+      <div className="h-[40vh] overflow-y-auto space-y-6 sm:space-y-8">
+        {orders.map((order) => (
+          <OrderCard
+            key={order._id}
+            order={order}
+            onCheckout={handleCheckout}
+            formatDate={formatDate}
+            getStatusBadge={getStatusBadge}
+          />
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default OrderPage;

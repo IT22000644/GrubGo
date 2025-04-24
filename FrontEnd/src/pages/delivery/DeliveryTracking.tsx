@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
 import { io, Socket } from "socket.io-client";
 import DeliveryMap, {
   DeliveryRoute,
@@ -10,6 +9,7 @@ import ControlsPanel from "../../components/delivery/ControlsPanel";
 import { fetchRoadPath } from "../../utils/delivery/mapHelpers";
 import NextLocationCard from "../../components/delivery/NextLocationCard";
 import StatusTracker from "../../components/delivery/StatusTracker";
+import api5005 from "../../api/api5005";
 
 interface TrackingState {
   mode: "track";
@@ -107,8 +107,8 @@ export default function DeliveryTracking() {
     lastFetchTimeRef.current = now;
 
     try {
-      const res = await axios.get<DeliveryStatusResponse>(
-        `http://localhost:5005/api/deliveries/status/${deliveryIdRef.current}`
+      const res = await api5005.get<DeliveryStatusResponse>(
+        `deliveries/status/${deliveryIdRef.current}`
       );
       const data = res.data;
 
@@ -229,7 +229,7 @@ export default function DeliveryTracking() {
 
   const handlePickedUp = useCallback(async () => {
     try {
-      await axios.put("http://localhost:5005/api/deliveries/status/picked-up", {
+      await api5005.put("deliveries/status/picked-up", {
         deliveryId: deliveryIdRef.current,
       });
       lastFetchedStatusRef.current = null;
@@ -241,11 +241,15 @@ export default function DeliveryTracking() {
 
   const handleDelivered = useCallback(async () => {
     try {
-      await axios.put("http://localhost:5005/api/deliveries/status/delivered", {
+      await api5005.put("deliveries/status/delivered", {
         deliveryId: deliveryIdRef.current,
       });
       lastFetchedStatusRef.current = null;
       setStatus("Delivered");
+
+      // await api5011.put(`status/delivered/${id}`, {
+
+      // });
     } catch (error) {
       console.error("Error marking delivered:", error);
     }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import DeliveryCard from "../../components/delivery/DeliveryCard";
+import api5005 from "../../api/api5005";
 
 interface Delivery {
   _id: string;
@@ -23,9 +23,7 @@ const DriverView = () => {
   const fetchDriverDeliveries = async () => {
     try {
       const driverId = "34ga21e5624f2dfbc3284h65";
-      const { data } = await axios.get(
-        `http://localhost:5005/api/deliveries/driver/${driverId}`
-      );
+      const { data } = await api5005.get(`deliveries/driver/${driverId}`);
       setDeliveries(data.deliveries);
     } catch (error) {
       console.error("Error fetching deliveries:", error);
