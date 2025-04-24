@@ -18,7 +18,7 @@ export const signToken = (user, type) => {
   });
 };
 
-export const verifyToken = (token) => {
+export const verifyJwtToken = (token) => {
   try {
     return jwt.verify(token, JWT_SECRET);
   } catch (error) {

@@ -2,30 +2,36 @@ import { Router } from "express";
 
 const router = Router();
 
-router.get("/", (req, res) => {
+router.get("/health", (req, res) => {
   res.send("Hello from user service!");
 });
 
-router.get("/users", (req, res) => {
+router.get("/", (req, res) => {
   // TODO
 });
 
-router.get("/users/:id", (req, res) => {
+router.get("/:id", (req, res) => {
   // TODO
 });
 
-router.post("/users", (req, res) => {
+router.get("/email/:email", (req, res) => {
   // TODO
 });
 
-router.put("/users/:id", (req, res) => {
+router.post("/", (req, res) => {
   // TODO
 });
 
-router.patch("/users/update-location/:id", (req, res) => {
+router.put("/:id", (req, res) => {
   // TODO
 });
 
-router.delete("/users/active-riders", (req, res) => {
+router.patch("/update-location/:id", (req, res) => {
   // TODO
 });
+
+router.delete("/active-riders", (req, res) => {
+  // TODO
+});
+
+export default router;
