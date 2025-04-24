@@ -21,6 +21,7 @@ import RestaurantDetails from "../pages/restaurent/restaurantDetails/restaurantD
 import CartPage from "../pages/order/CartPage";
 
 import RestaurantAdminMain from "../pages/user/restaurantAdmin/restaurantAdminMain";
+import OrderPage from "../pages/restaurent/showingorders/Orderpage";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -31,6 +32,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/allRestaurants" element={<AllRestaurants />} />
         <Route path="/restaurant/:id" element={<RestaurantDetails />} />
+        <Route path="/restaurant/orders" element={<OrderPage />} />
 
         <Route path="/delivery" element={<DeliveryAssign />} />
 

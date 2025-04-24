@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DeliveryRoute } from "../../components/delivery/DeliveryMap";
-import axios from "axios";
+import api5005 from "../../api/api5005";
+import api5004 from "../../api/api5004";
 
 export default function DeliveryControl() {
   const [deliveryId, setDeliveryId] = useState("");
@@ -12,9 +13,7 @@ export default function DeliveryControl() {
     if (!orderId) return alert("Please enter an Order ID.");
 
     try {
-      const { data } = await axios.get(
-        `http://localhost:5005/api/deliveries/order/${orderId}`
-      );
+      const { data } = await api5005.get(`deliveries/order/${orderId}`);
 
       const delivery = data.deliveries?.[0];
       if (!delivery) return alert("No delivery found for this Order ID");
@@ -43,12 +42,9 @@ export default function DeliveryControl() {
 
   const getCoordinates = async (address: string) => {
     try {
-      const response = await axios.post(
-        "http://localhost:5004/api/map/coordinate",
-        {
-          address,
-        }
-      );
+      const response = await api5004.post("map/coordinate", {
+        address,
+      });
       return response.data;
     } catch (error) {
       console.error("Error fetching coordinates:", error);
@@ -93,9 +89,7 @@ export default function DeliveryControl() {
     if (!orderId) return alert("Please enter an Order ID.");
 
     try {
-      const { data } = await axios.get(
-        `http://localhost:5005/api/deliveries/order/${orderId}`
-      );
+      const { data } = await api5005.get(`deliveries/order/${orderId}`);
 
       const delivery = data.deliveries?.[0];
       if (!delivery) return alert("No delivery found for this Order ID");

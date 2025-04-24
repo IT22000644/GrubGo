@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
+import api5005 from "../../api/api5005";
 import { io, Socket } from "socket.io-client";
 import DeliveryMap, {
   DeliveryRoute,
@@ -114,8 +114,8 @@ export default function CustomerTracking() {
     lastFetchTimeRef.current = now;
 
     try {
-      const res = await axios.get<DeliveryStatusResponse>(
-        `http://localhost:5005/api/deliveries/status/${deliveryIdRef.current}`
+      const res = await api5005.get<DeliveryStatusResponse>(
+        `deliveries/status/${deliveryIdRef.current}`
       );
       const data = res.data;
 

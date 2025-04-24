@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-
-// navigate("/assign-driver", { state: { orderId: ORDER_ID } });
+import api5004 from "../../api/api5004";
+import api5011 from "../../api/api5011";
 
 type LocationState = {
   orderId: string;
@@ -17,9 +17,7 @@ export default function AssignDeliveryDataLoader() {
     const loadData = async () => {
       try {
         // 1. Get Order by ID
-        const orderRes = await axios.get(
-          `http://localhost:5001/api/order/${orderId}`
-        );
+        const orderRes = await api5011.get(`orders/${orderId}`);
         const { customerId, restaurantId } = orderRes.data;
 
         // 2. Get Customer Info
@@ -43,18 +41,12 @@ export default function AssignDeliveryDataLoader() {
         } = restaurantRes.data;
 
         // 4. Get Coordinates
-        const customerCoordRes = await axios.post(
-          `http://localhost:5004/api/map/coordinate`,
-          {
-            address: customerAddress,
-          }
-        );
-        const restaurantCoordRes = await axios.post(
-          `http://localhost:5004/api/map/coordinate`,
-          {
-            address: restaurantAddress,
-          }
-        );
+        const customerCoordRes = await api5004.post(`map/coordinate`, {
+          address: customerAddress,
+        });
+        const restaurantCoordRes = await api5004.post(`map/coordinate`, {
+          address: restaurantAddress,
+        });
 
         const customerLocation = customerCoordRes.data; // { latitude, longitude }
         const restaurantLocation = restaurantCoordRes.data; // { latitude, longitude }
@@ -74,13 +66,10 @@ export default function AssignDeliveryDataLoader() {
         }));
 
         // 6. Get Closest Driver
-        const closestDriverRes = await axios.post(
-          `http://localhost:5004/api/map/closest`,
-          {
-            target: restaurantAddress,
-            candidates: driversForSearch,
-          }
-        );
+        const closestDriverRes = await api5004.post(`map/closest`, {
+          target: restaurantAddress,
+          candidates: driversForSearch,
+        });
         const {
           id: driverId,
           address: driverAddress,
