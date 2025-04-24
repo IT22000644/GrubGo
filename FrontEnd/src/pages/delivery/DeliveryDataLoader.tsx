@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../../api/axios";
 import api5004 from "../../api/api5004";
 import api5011 from "../../api/api5011";
+import { Loader2 } from "lucide-react";
 
 type LocationState = {
   orderId: string;
@@ -14,26 +15,31 @@ export default function AssignDeliveryDataLoader() {
   const { orderId } = location.state as LocationState;
 
   useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      navigate("/error", {
+        state: { message: "Delivery assignment timed out." },
+      });
+    }, 60000);
+
     const loadData = async () => {
       try {
         // 1. Get Order by ID
         const orderRes = await api5011.get(`orders/${orderId}`);
-        const { customerId, restaurantId } = orderRes.data;
+        const {
+          customerId,
+          restaurantId,
+          address: customerAddress,
+        } = orderRes.data;
 
         // 2. Get Customer Info
         const customerRes = await axios.get(
           `http://localhost:5002/api/user/${customerId}`
         );
-        const {
-          fullName: customerName,
-          address: customerAddress,
-          image: customerImage,
-        } = customerRes.data;
+        const { fullName: customerName, image: customerImage } =
+          customerRes.data;
 
         // 3. Get Restaurant Info
-        const restaurantRes = await axios.get(
-          `http://localhost:5003/api/restaurant/${restaurantId}`
-        );
+        const restaurantRes = await axios.get(`restaurants/${restaurantId}`);
         const {
           fullName: restaurantName,
           address: restaurantAddress,
@@ -48,8 +54,8 @@ export default function AssignDeliveryDataLoader() {
           address: restaurantAddress,
         });
 
-        const customerLocation = customerCoordRes.data; // { latitude, longitude }
-        const restaurantLocation = restaurantCoordRes.data; // { latitude, longitude }
+        const customerLocation = customerCoordRes.data;
+        const restaurantLocation = restaurantCoordRes.data;
 
         // 5. Get All Available Drivers
         const allDriversRes = await axios.get(
@@ -92,8 +98,10 @@ export default function AssignDeliveryDataLoader() {
           vehicleColor,
         } = driverRes.data;
 
+        clearTimeout(timeoutId);
+
         // 8. Navigate to DeliveryAssign.tsx
-        navigate("/assign-driver/run", {
+        navigate("/delivery-assign", {
           state: {
             orderId,
             driverId,
@@ -117,6 +125,10 @@ export default function AssignDeliveryDataLoader() {
         });
       } catch (error) {
         console.error("Failed to gather delivery assignment data", error);
+        clearTimeout(timeoutId);
+        navigate("/error", {
+          state: { message: "Failed to assign delivery. Please try again." },
+        });
       }
     };
 
@@ -124,8 +136,9 @@ export default function AssignDeliveryDataLoader() {
   }, [orderId, navigate]);
 
   return (
-    <div className="p-8 text-center text-lg font-medium text-gray-700">
-      Preparing delivery assignment...
+    <div className="flex flex-col items-center justify-center h-screen text-gray-700">
+      <Loader2 className="w-10 h-10 animate-spin text-orange-500 mb-4" />
+      <p className="text-xl font-medium">Preparing delivery assignment...</p>
     </div>
   );
 }
