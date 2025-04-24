@@ -18,7 +18,7 @@ import { AllRestaurants } from "../pages/restaurent/allRestaurants/AllRestaurant
 import RestaurantDetails from "../pages/restaurent/restaurantDetails/restaurantDetails";
 
 import CartPage from "../pages/order/CartPage";
-import { ManageRestaurant } from "../pages/restaurent/manageRestaurant/manageResturant";
+import { ManageRestaurant } from "../pages/restaurent/manageRestaurant/ManageResturant";
 import AdminLayout from "../layouts/AdminLayout";
 import { AdminDashboard } from "../pages/admin/adminDashboard";
 
@@ -43,11 +43,11 @@ const AppRoutes: React.FC = () => {
         <Route path="/delivery-control" element={<DeliveryControl />} />
         <Route path="/delivery-tracking" element={<DeliveryTracking />} />
         <Route path="/customer-tracking" element={<CustomerTracking />} />
-        <Route path="*" element={<NotFound />} />
       </Route>
-      <Route element={<AdminLayout />}>
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="/admin" element={<AdminDashboard />} />
       </Route>
 
       <Route
@@ -58,6 +58,7 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };

@@ -58,6 +58,7 @@ const Header = () => {
       await api1.patch(`/restaurants/status/${restaurantId}`, {
         status,
       });
+      setIsOpen(!isOpen);
     } else {
       console.error("Restaurant ID is null");
     }

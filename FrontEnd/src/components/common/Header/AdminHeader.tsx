@@ -55,7 +55,7 @@ const AdminHeader = () => {
           <div className="flex items-center space-x-3 md:hidden lg:flex">
             <ThemeToggle />
             <Link
-              to="/login"
+              to="/admin/login"
               className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
             >
               <LogIn size={18} />

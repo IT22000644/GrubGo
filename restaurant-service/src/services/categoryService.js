@@ -12,3 +12,8 @@ export const deleteCategoryService = async (categoryId) => {
   await Category.findByIdAndDelete(categoryId);
   return category;
 };
+
+export const getAllCategory = async () => {
+  const categories = await Category.find({});
+  return categories;
+};
