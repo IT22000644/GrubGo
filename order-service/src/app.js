@@ -20,7 +20,7 @@ connectDB();
 app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 
-const PORT = process.env.PORT || 5005;
+const PORT = process.env.PORT || 5011;
 const startServer = async () => {
   await connectQueue();
   await consumePaymentDoneQueue();
