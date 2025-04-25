@@ -56,7 +56,7 @@ export const RestaurantDetails = () => {
   const [cartError, setCartError] = useState<string | null>(null);
   const [cartSuccess, setCartSuccess] = useState<boolean>(false);
 
-  const customerId = localStorage.getItem("customerId") || "customer123";
+  const customerId = localStorage.getItem("customerId") || "6611e8f4a1fbb93be88a1a5c";
 
   useEffect(() => {
     const fetchRestaurantDetails = async () => {
@@ -273,11 +273,10 @@ export const RestaurantDetails = () => {
               <button
                 key={index}
                 onClick={() => setActiveImageIndex(index)}
-                className={`w-12 h-12 rounded-md overflow-hidden border-2 transition-all ${
-                  index === activeImageIndex
+                className={`w-12 h-12 rounded-md overflow-hidden border-2 transition-all ${index === activeImageIndex
                     ? "border-primary/90 dark:border-accent/90 scale-110"
                     : "border-white/80"
-                }`}
+                  }`}
               >
                 <img
                   src={img}
@@ -454,31 +453,28 @@ export const RestaurantDetails = () => {
           <nav className="flex space-x-8 overflow-x-auto">
             <button
               onClick={() => handleTabChange("menu")}
-              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                activeTab === "menu"
+              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === "menu"
                   ? "border-dark text-dark dark:text-text_white dark:border-white"
                   : "border-transparent text-primary hover:text-text_gray_600 hover:border-gray-300 dark:text-accent dark:hover:text-white"
-              }`}
+                }`}
             >
               Menu
             </button>
             <button
               onClick={() => handleTabChange("photos")}
-              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                activeTab === "photos"
+              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === "photos"
                   ? "border-dark text-dark dark:text-text_white dark:border-white"
                   : "border-transparent text-primary hover:text-text_gray_600 hover:border-gray-300 dark:text-accent dark:hover:text-white"
-              }`}
+                }`}
             >
               Photos
             </button>
             <button
               onClick={() => handleTabChange("about")}
-              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                activeTab === "about"
+              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === "about"
                   ? "border-dark text-dark dark:text-text_white dark:border-white"
                   : "border-transparent text-primary hover:text-text_gray_600 hover:border-gray-300 dark:text-accent dark:hover:text-white"
-              }`}
+                }`}
             >
               Information
             </button>
@@ -494,11 +490,10 @@ export const RestaurantDetails = () => {
                     <button
                       key={menu._id}
                       onClick={() => setSelectedMenu(menu._id)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium ${
-                        selectedMenu === menu._id
+                      className={`px-4 py-2 rounded-full text-sm font-medium ${selectedMenu === menu._id
                           ? "bg-primary text-white dark:bg-accent"
                           : "bg-white text-gray-700 hover:bg-gray-100 dark:bg-dark dark:text-text_white dark:hover:bg-accent"
-                      } border border-gray-200 dark:border-black shadow-sm transition`}
+                        } border border-gray-200 dark:border-black shadow-sm transition`}
                     >
                       {menu.title}
                       {menu.offers && (
@@ -551,9 +546,8 @@ export const RestaurantDetails = () => {
                               >
                                 <img
                                   src={img}
-                                  alt={`${selectedMenuData.title} image ${
-                                    idx + 1
-                                  }`}
+                                  alt={`${selectedMenuData.title} image ${idx + 1
+                                    }`}
                                   className="w-full h-40 object-cover hover:opacity-90 transition-opacity"
                                 />
                               </div>
@@ -574,7 +568,7 @@ export const RestaurantDetails = () => {
                     </h3>
 
                     {selectedMenuData.items &&
-                    selectedMenuData.items.length > 0 ? (
+                      selectedMenuData.items.length > 0 ? (
                       <div className="space-y-6">
                         {Array.from(
                           new Set(
@@ -652,7 +646,7 @@ export const RestaurantDetails = () => {
                                         </div>
 
                                         <button
-                                          //onClick={() => addToCart(item)}
+                                          onClick={() => addToCart(item)}
                                           className="flex px-2 items-center text-text_dark hover:text-primary font-semibold dark:text-text_white dark:hover:text-accent hover:scale-105 transition-transform duration-200"
                                         >
                                           <span className="px-2 text-semibold text-md text-dark dark:text-text_white">
@@ -913,11 +907,10 @@ export const RestaurantDetails = () => {
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    index === currentIndex
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentIndex
                       ? "bg-primary w-6"
                       : "bg-gray-300 hover:bg-gray-400"
-                  }`}
+                    }`}
                   aria-label={`Go to review ${index + 1}`}
                 />
               ))}
@@ -934,11 +927,10 @@ export const RestaurantDetails = () => {
 
           <button
             onClick={toggleAutoplay}
-            className={`mt-4 text-sm px-3 py-1 rounded-full transition-colors duration-200 ${
-              autoplayEnabled
+            className={`mt-4 text-sm px-3 py-1 rounded-full transition-colors duration-200 ${autoplayEnabled
                 ? "bg-primary/30 text-primary/90"
                 : "bg-primary/20 text-primary/60"
-            }`}
+              }`}
           >
             {autoplayEnabled ? "Pause Autoplay" : "Enable Autoplay"}
           </button>

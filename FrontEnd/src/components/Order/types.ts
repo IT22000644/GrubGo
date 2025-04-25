@@ -11,6 +11,7 @@ export interface Order {
     customerId: string;
     restaurantId: string;
     restaurantName: string;
+    isreviewed: boolean;
     status: string;
     createdAt: string;
     items: OrderItem[];

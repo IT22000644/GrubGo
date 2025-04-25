@@ -68,7 +68,7 @@ export const adminLinks = {
     },
     {
       name: "Orders",
-      path: "/restaurants/nearby",
+      path: "/orders",
       onClick: () => console.log("Nearby clicked"),
     },
     {

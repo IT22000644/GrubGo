@@ -277,6 +277,24 @@ const setOrderDelivered = async (req, res) => {
   }
 };
 
+const Reviewdorder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    order.isreviewed = true;
+    order.updatedAt = new Date();
+    await order.save();
+
+    return res.status(200).json({ message: 'Order marked as reviewed', order });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to mark order as reviewed', error: error.message });
+  }
+};
+
+
 // Retrieve all orders by restaurant ID
 const getOrdersByRestaurant = async (req, res) => {
   try {
@@ -335,5 +353,6 @@ module.exports = {
   setOrderPreparing,
   setOrderCompleted,
   setOrderDelivered,
-  getOrdersByRestaurant
+  getOrdersByRestaurant,
+  Reviewdorder
 }
