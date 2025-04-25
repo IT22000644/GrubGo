@@ -130,7 +130,7 @@ const MapController = {
           }
         } catch (innerErr) {
           console.warn(`Skipping address due to error: ${innerErr.message}`);
-          continue; // skip bad address
+          continue;
         }
       }
 
@@ -143,6 +143,68 @@ const MapController = {
       return res.json(closest);
     } catch (error) {
       console.error("Error finding closest address:", error.message);
+      return res
+        .status(500)
+        .json({ error: "Server error", message: error.message });
+    }
+  },
+
+  // Find the closest rider to a base coordinate
+  async findClosestRider(req, res) {
+    const { baseLocation, data } = req.body;
+
+    if (
+      !baseLocation ||
+      typeof baseLocation.lat !== "number" ||
+      typeof baseLocation.lng !== "number" ||
+      !Array.isArray(data) ||
+      data.length === 0
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Base location and rider list are required" });
+    }
+
+    try {
+      let closest = null;
+      let minDistance = Infinity;
+
+      for (const rider of data) {
+        const coords = rider.currentLocation;
+        if (
+          !coords ||
+          typeof coords.lat !== "number" ||
+          typeof coords.lng !== "number"
+        ) {
+          continue;
+        }
+
+        const distance = GeoService.calculateHaversineDistance(
+          baseLocation.lat,
+          baseLocation.lng,
+          coords.lat,
+          coords.lng
+        );
+
+        if (distance < minDistance) {
+          minDistance = distance;
+          closest = {
+            id: rider.userId,
+            currentLocation: coords,
+            distance,
+          };
+        }
+      }
+
+      if (!closest) {
+        return res
+          .status(404)
+          .json({ error: "No valid rider locations found" });
+      }
+
+      return res.json(closest);
+    } catch (error) {
+      console.error("Error finding closest rider:", error.message);
       return res
         .status(500)
         .json({ error: "Server error", message: error.message });

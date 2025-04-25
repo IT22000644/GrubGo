@@ -60,13 +60,12 @@ const DriverView = () => {
         customerAddress={delivery.customerAddress}
         assignedAt={delivery.assignedAt}
         expectedDeliveryTime={delivery.expectedDeliveryTime}
-        onTrackOrder={() => handleTrackOrder(delivery)} // Pass the delivery to track order
+        onTrackOrder={() => handleTrackOrder(delivery)}
       />
     ));
   };
 
   const handleTrackOrder = (delivery: Delivery) => {
-    // Navigating to the delivery tracking page and passing the required state
     navigate("/delivery-tracking", {
       state: {
         mode: "track",
@@ -86,7 +85,7 @@ const DriverView = () => {
           onClick={() => handleTabClick("Ongoing")}
           className={`px-4 py-2 font-semibold rounded-md ${
             selectedTab === "Ongoing"
-              ? "bg-blue-600 text-white"
+              ? "bg-orange-600 text-white"
               : "bg-gray-200 text-gray-600"
           }`}
         >
@@ -96,7 +95,7 @@ const DriverView = () => {
           onClick={() => handleTabClick("Completed")}
           className={`px-4 py-2 font-semibold rounded-md ${
             selectedTab === "Completed"
-              ? "bg-blue-600 text-white"
+              ? "bg-orange-600 text-white"
               : "bg-gray-200 text-gray-600"
           }`}
         >
@@ -106,7 +105,7 @@ const DriverView = () => {
           onClick={() => handleTabClick("Cancelled")}
           className={`px-4 py-2 font-semibold rounded-md ${
             selectedTab === "Cancelled"
-              ? "bg-blue-600 text-white"
+              ? "bg-orange-600 text-white"
               : "bg-gray-200 text-gray-600"
           }`}
         >
@@ -114,7 +113,7 @@ const DriverView = () => {
         </button>
       </div>
 
-      {/* Deliveries based on selected tab */}
+      {/* Deliveries based tabs */}
       {selectedTab === "Ongoing" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {renderDeliveryCards([
@@ -123,7 +122,7 @@ const DriverView = () => {
             "Arrived Restaurant",
             "Picked Up",
             "In Transit - Picked Up",
-            "Arrived Customer", // Add the new status to the ongoing list
+            "Arrived Customer",
           ])}
         </div>
       )}
