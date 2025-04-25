@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "../../api/axios";
+import { api1 } from "../../api/axios";
 import api5004 from "../../api/api5004";
 import api5011 from "../../api/api5011";
 import { Loader2 } from "lucide-react";
+import axios from "axios";
 
 type LocationState = {
   orderId: string;
@@ -35,15 +36,15 @@ export default function AssignDeliveryDataLoader() {
         const customerRes = await axios.get(
           `http://localhost:5002/api/user/${customerId}`
         );
-        const { fullName: customerName, image: customerImage } =
+        const { username: customerName, profilePicture: customerImage } =
           customerRes.data;
 
         // 3. Get Restaurant Info
-        const restaurantRes = await axios.get(`restaurants/${restaurantId}`);
+        const restaurantRes = await api1.get(`restaurants/${restaurantId}`);
         const {
-          fullName: restaurantName,
+          name: restaurantName,
           address: restaurantAddress,
-          image: restaurantImage,
+          images: [restaurantImage],
         } = restaurantRes.data;
 
         // 4. Get Coordinates
@@ -57,33 +58,39 @@ export default function AssignDeliveryDataLoader() {
         const customerLocation = customerCoordRes.data;
         const restaurantLocation = restaurantCoordRes.data;
 
-        // 5. Get All Available Drivers
-        const allDriversRes = await axios.get(
-          "http://localhost:5002/api/user/",
-          {
-            params: { isavailable: true, role: "driver" },
-          }
-        );
-        const drivers = allDriversRes.data;
+        interface ActiveRider {
+          _id: string;
+          userId: string;
+          currentLocation: { lat: number; lng: number };
+        }
 
-        const driversForSearch = drivers.map((d: any) => ({
-          id: d._id,
-          address: d.address,
+        const allDriversRes = await axios.get<{
+          success: boolean;
+          data: ActiveRider[];
+        }>("http://localhost:5002/active-riders");
+
+        if (!allDriversRes.data.success) {
+          console.error("No active riders found");
+          return [];
+        }
+
+        const payloadRiders = allDriversRes.data.data.map((r) => ({
+          userId: r._id,
+          currentLocation: r.currentLocation,
         }));
 
-        // 6. Get Closest Driver
-        const closestDriverRes = await api5004.post(`map/closest`, {
-          target: restaurantAddress,
-          candidates: driversForSearch,
+        // 6. Find the closest driver
+        const closestDriverRes = await axios.post<{
+          id: string;
+          currentLocation: { lat: number; lng: number };
+          distance: number;
+        }>("http://localhost:5004/api/map/closest-rider", {
+          baseLocation: restaurantAddress,
+          data: payloadRiders,
         });
-        const {
-          id: driverId,
-          address: driverAddress,
-          latitude,
-          longitude,
-        } = closestDriverRes.data;
 
-        const driverLocation = { latitude, longitude };
+        const { id: driverId, currentLocation: driverLocation } =
+          closestDriverRes.data;
 
         // 7. Get Driver Info
         const driverRes = await axios.get(
@@ -100,12 +107,12 @@ export default function AssignDeliveryDataLoader() {
 
         clearTimeout(timeoutId);
 
-        // 8. Navigate to DeliveryAssign.tsx
+        // 9. Navigate to DeliveryAssign.tsx
         navigate("/delivery-assign", {
           state: {
             orderId,
             driverId,
-            driverAddress,
+            //            driverAddress,
             restaurantAddress,
             customerAddress,
             driverLocation,
