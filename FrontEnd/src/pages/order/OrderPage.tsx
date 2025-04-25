@@ -3,6 +3,7 @@ import OrderCard from "../../components/Order/OrderCard";
 import api5011 from "../../api/api5011";
 import { api1 } from "../../api/axios";
 import type { Order } from "../../components/Order/types";
+import ReviewForm from "../../components/Review/ReviewForm";
 
 const statusOptions = ["done", "pending", "completed"];
 
@@ -11,6 +12,8 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
   const [status, setStatus] = useState("done");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [reviewingOrder, setReviewingOrder] = useState<Order | null>(null);
+
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -74,6 +77,19 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
       console.error("Checkout error:", error);
       alert("Failed to initiate checkout.");
     }
+  };
+
+  const markOrderAsReviewed = async (orderId: string) => {
+    try {
+      await api5011.put(`/orders/isreviewed/${orderId}`);
+    } catch (error) {
+      console.error("Failed to mark order as reviewed:", error);
+    }
+  };
+
+  const handleReviewClick = (orderId: string) => {
+    const orderToReview = orders.find((o) => o._id === orderId);
+    if (orderToReview) setReviewingOrder(orderToReview);
   };
 
   const formatDate = (dateString: string) => {
@@ -187,8 +203,29 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
             onCheckout={handleCheckout}
             formatDate={formatDate}
             getStatusBadge={getStatusBadge}
+            onReview={handleReviewClick}
+            onMarkAsReviewed={markOrderAsReviewed}
           />
         ))}
+        {reviewingOrder && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+            <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-xl max-w-lg w-full relative">
+              <button
+                onClick={() => setReviewingOrder(null)}
+                className="absolute top-2 right-2 text-gray-600 dark:text-gray-300 hover:text-red-500"
+              >
+                ✕
+              </button>
+              <ReviewForm
+                restaurantId={reviewingOrder.restaurantId}
+                foodId={reviewingOrder.items[0]?.foodItemId}
+                userId={reviewingOrder.customerId}
+                onClose={() => setReviewingOrder(null)}
+                onReviewSubmit={() => markOrderAsReviewed(reviewingOrder._id)}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
