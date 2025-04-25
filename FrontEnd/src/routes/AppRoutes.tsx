@@ -17,14 +17,14 @@ import NotFound from "../pages/common/NotFound";
 import Contact from "../pages/main/ContactUs";
 import { AllRestaurants } from "../pages/restaurent/allRestaurants/AllRestaurants";
 import RestaurantDetails from "../pages/restaurent/restaurantDetails/restaurantDetails";
-
+import OrderPage from "../pages/order/OrderPage";
 import CartPage from "../pages/order/CartPage";
 import { ManageRestaurant } from "../pages/restaurent/manageRestaurant/ManageResturant";
 import AdminLayout from "../layouts/AdminLayout";
 import { AdminDashboard } from "../pages/admin/adminDashboard";
 
 // import DeliveryTracking from "../pages/delivery/DeliveryTracking";
-//import OrderPage from "../pages/restaurent/showingorders/Orderpage";
+import RestaurantOrderPage from "../pages/restaurent/showingorders/Orderpage";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -38,11 +38,13 @@ const AppRoutes: React.FC = () => {
 
         <Route path="/restaurant/manage" element={<ManageRestaurant />} />
 
-        {/* <Route path="/restaurant/orders" element={<OrderPage />} /> */}
+        <Route path="/restaurant/orders" element={<RestaurantOrderPage />} />
 
         <Route path="/delivery" element={<DeliveryAssign />} />
 
-        <Route path="/cart" element={<CartPage customerId="customer123" />} />
+        <Route path="/cart" element={<CartPage customerId="customer" />} />
+
+        <Route path="/orders" element={<OrderPage customerId="customer" />} />
 
         <Route path="/delivery-assign" element={<DeliveryAssign />} />
         <Route path="/delivery-control" element={<DeliveryControl />} />

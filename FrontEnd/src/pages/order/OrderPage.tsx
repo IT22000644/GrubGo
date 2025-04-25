@@ -89,68 +89,78 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
   };
 
   const getStatusBadge = (status: string) => {
-    const base = "text-xs font-semibold px-2.5 py-0.5 rounded inline-block";
+    const base = "text-xs font-medium px-3 py-1 rounded-full inline-block";
     switch (status) {
-      default:
-        return `${base} bg-gray-100 text-gray-800`;
       case "pending":
-        return `${base} bg-yellow-100 text-yellow-800`;
+        return `${base} bg-amber-100 text-amber-800`;
       case "completed":
-        return `${base} bg-orange-100 text-orange-800`;
-      case "delivering":
         return `${base} bg-blue-100 text-blue-800`;
       case "done":
-        return `${base} bg-green-100 text-green-800`;
+        return `${base} bg-emerald-100 text-emerald-800`;
+      default:
+        return `${base} bg-gray-100 text-gray-800`;
     }
   };
-
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      <div className="flex flex-wrap gap-2 mb-6 justify-center">
+    <div className="max-w-5xl mx-auto px-4 py-8 mt-20">
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+        Your Orders
+      </h1>
+      <div className="flex flex-wrap gap-2 mb-8 justify-center">
         {statusOptions.map((option) => (
           <button
             key={option}
             onClick={() => setStatus(option)}
-            className={`px-4 py-2 rounded-md text-sm font-medium border transition ${
-              status === option
-                ? "bg-orange-400 text-white border-orange-500"
-                : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600"
-            }`}
+            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${status === option
+              ? option === 'completed'
+                ? "bg-blue-100 text-blue-800"
+                : "bg-orange-400 hover:bg-orange-500 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30"
+              : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+              }`}
           >
-            {option.charAt(0).toUpperCase() + option.slice(1)}
+            {option === 'completed' ? 'Delivery' : option.charAt(0).toUpperCase() + option.slice(1)}
           </button>
         ))}
         <button
           onClick={() => setStatus("")}
-          className={`px-4 py-2 rounded-md text-sm font-medium border transition ${
-            status === ""
-              ? "bg-orange-400 text-white border-orange-500"
-              : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600"
-          }`}
+          className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${status === ""
+            ? "bg-orange-400 hover:bg-orange-500 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30"
+            : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+            }`}
         >
-          All
+          All Orders
         </button>
       </div>
 
       {loading && (
-        <div className="flex justify-center py-8">
-          <div className="animate-pulse text-gray-500">
-            Loading your orders...
-          </div>
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="w-12 h-12 rounded-full border-4 border-gray-200 border-t-orange-400 animate-spin mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400 font-medium">
+            Finding your orders...
+          </p>
         </div>
       )}
 
       {error && (
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-6 text-center font-medium">
-          <p className="text-red-700">{error}</p>
+        <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-5 rounded-lg mb-8">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-red-700 dark:text-red-400 font-medium">{error}</p>
+            </div>
+          </div>
         </div>
       )}
 
       {!loading && orders.length === 0 && !error && (
-        <div className="bg-white shadow rounded-lg p-8 text-center">
-          <div className="mb-4 flex justify-center">
+        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-8 text-center">
+          <div className="mb-5 flex justify-center">
             <svg
-              className="h-16 w-16 text-gray-400"
+              className="h-20 w-20 text-gray-400 dark:text-gray-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -163,14 +173,13 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900">No orders found</h3>
-          <p className="mt-2 text-gray-500">
-            Try changing your filter settings or check back later.
-          </p>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            No orders found
+          </h3>
         </div>
       )}
 
-      <div className="h-[40vh] overflow-y-auto space-y-6 sm:space-y-8">
+      <div className="h-[65vh] overflow-y-auto space-y-6 sm:space-y-8 pr-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
         {orders.map((order) => (
           <OrderCard
             key={order._id}
