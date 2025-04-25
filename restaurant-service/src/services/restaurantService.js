@@ -45,6 +45,12 @@ export const getAllRestaurantsService = async () => {
     .populate("menus");
 };
 
+export const getAllRestaurantsByStatusService = async () => {
+  return await Restaurant.find({ status: "open" })
+    .populate("restaurantOwner", "name email")
+    .populate("menus");
+};
+
 export const toggleRestaurantStatusService = async (
   restaurantId,
   newStatus

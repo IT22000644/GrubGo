@@ -1,6 +1,7 @@
 import {
   addCategoryService,
   deleteCategoryService,
+  getAllCategory,
 } from "../services/categoryService.js";
 
 export const categoryController = {
@@ -41,6 +42,21 @@ export const categoryController = {
     } catch (error) {
       res.status(500).json({
         message: "Error deleting category",
+        error: error.message,
+      });
+    }
+  },
+
+  getAllCategory: async (req, res) => {
+    try {
+      const categories = await getAllCategory();
+      res.status(200).json({
+        message: "Categories fetched successfully",
+        categories,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Error fetching categories",
         error: error.message,
       });
     }

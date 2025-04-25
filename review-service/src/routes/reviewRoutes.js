@@ -6,10 +6,10 @@ router.post("/", reviewsController.addReview);
 router.put("/:id", reviewsController.updateReview);
 router.get("/:id", reviewsController.getReviewById);
 router.get(
-  "/restaurant/:restaurantId",
+  "/restaurantreviews/:restaurantId",
   reviewsController.getReviewsByRestaurant
 );
-router.get("/food/:foodId", reviewsController.getReviewsByFood);
+router.get("/foodreviews/:foodId", reviewsController.getReviewsByFood);
 router.delete("/:id", reviewsController.deleteReview);
 
 export default router;

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Restaurant, Food } from "../allRestaurants/AllRestaurants.types";
-import api from "../../../api/axios";
+
+import { api1, api2 } from "../../../api/axios";
 import api5011 from "../../../api/api5011";
+
 import {
   Star,
   MapPin,
@@ -20,8 +22,20 @@ import {
   CookingPot,
   Images,
   ShoppingCart,
+  UserCircle,
+  ChevronRight,
 } from "lucide-react";
 import { Loader } from "../../common/loader";
+import { AnimatePresence, motion } from "framer-motion";
+type Review = {
+  _id: string;
+  user: string;
+  restaurant: string;
+  food: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+};
 
 export const RestaurantDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +46,12 @@ export const RestaurantDetails = () => {
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
   const [cart, setCart] = useState<{ item: Food; quantity: number }[]>([]);
+
+  const [current, setCurrent] = useState(0);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [autoplayEnabled, setAutoplayEnabled] = useState(true);
+  const [average, setAverage] = useState<number>(0);
+
   const [cartLoading, setCartLoading] = useState<boolean>(false);
   const [cartError, setCartError] = useState<string | null>(null);
   const [cartSuccess, setCartSuccess] = useState<boolean>(false);
@@ -43,22 +63,68 @@ export const RestaurantDetails = () => {
     const fetchRestaurantDetails = async () => {
       try {
         setLoading(true);
-        const response = await api.get(`/restaurants/${id}`);
+        const response = await api1.get(`/restaurants/${id}`);
+        const reviewsResponse = await api2.get(`/restaurantreviews/${id}`);
         setRestaurant(response.data.restaurant);
+        setReviews(reviewsResponse.data);
+        const averageRating = getAverageRating(reviewsResponse.data);
+        setAverage(averageRating);
+
         if (response.data.restaurant?.menus?.length > 0) {
           setSelectedMenu(response.data.restaurant.menus[0]._id);
         }
+        const interval = setInterval(() => {
+          setCurrent((prev) => (prev + 1) % reviewsResponse.data.length);
+        }, 5000);
+        return () => clearInterval(interval);
       } catch (error) {
         console.error("Failed to fetch restaurant details:", error);
       } finally {
         setLoading(false);
       }
+      if (!autoplayEnabled) return;
     };
 
     if (id) {
       fetchRestaurantDetails();
     }
   }, [id]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const currentReview = reviews[current];
+  const nextReview = () => setCurrent((prev) => (prev + 1) % reviews.length);
+  const prevReview = () =>
+    setCurrent((prev) => (prev - 1 + reviews.length) % reviews.length);
+  const toggleAutoplay = () => {
+    setAutoplayEnabled(!autoplayEnabled);
+  };
+
+  const renderStars = (rating: any) => {
+    return Array(5)
+      .fill(0)
+      .map((_, i) => (
+        <Star
+          key={i}
+          size={18}
+          className={
+            i < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+          }
+        />
+      ));
+  };
+
+  function getAverageRating(reviews: { rating: number }[]): number {
+    if (reviews.length === 0) return 0;
+    const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+    return parseFloat((total / reviews.length).toFixed(1));
+  }
+
+  const formatDate = (dateString: any) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   const addItemToLocalCart = (item: Food) => {
     setCart((prevCart) => {
@@ -240,7 +306,7 @@ export const RestaurantDetails = () => {
                   ))}
                 </div>
                 <span className="ml-2 text-gray-600 text-sm font-medium dark:text-text_white/80">
-                  4.5 (120 reviews)
+                  {average} ({reviews.length} reviews)
                 </span>
               </div>
               <div className="mt-2 inline-block px-2 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-md dark:bg-green-800 dark:text-green-100">
@@ -519,7 +585,10 @@ export const RestaurantDetails = () => {
                             <h4 className="text-lg font-medium mb-3 pb-1 border-b border-gray-200">
                               {categoryName}
                             </h4>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div
+                              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                              key={categoryName}
+                            >
                               {selectedMenuData.items
                                 .filter(
                                   (item) => item.category?.name === categoryName
@@ -530,7 +599,10 @@ export const RestaurantDetails = () => {
                                     className="bg-white dark:bg-dark_bg border border-gray-200 dark:border-black rounded-lg overflow-hidden hover:shadow-md transition-shadow"
                                   >
                                     {item.images && item.images.length > 0 ? (
-                                      <div className="w-80 h-60">
+                                      <div
+                                        className="w-80 h-60"
+                                        key={item.images[0]}
+                                      >
                                         <img
                                           src={item.images[0]}
                                           alt={item.name}
@@ -539,7 +611,7 @@ export const RestaurantDetails = () => {
                                       </div>
                                     ) : null}
 
-                                    <div className="p-3">
+                                    <div className="p-3" key={item.name}>
                                       <h5 className="font-medium text-sm truncate text-dark dark:text-text_white">
                                         {item.name}
                                       </h5>
@@ -547,7 +619,10 @@ export const RestaurantDetails = () => {
                                         {item.description}
                                       </p>
 
-                                      <div className="flex items-center justify-between mt-2">
+                                      <div
+                                        className="flex items-center justify-between mt-2"
+                                        key={item.price}
+                                      >
                                         <div>
                                           {item.discount > 0 ? (
                                             <>
@@ -772,6 +847,110 @@ export const RestaurantDetails = () => {
           )}
         </div>
       </div>
+      {currentReview ? (
+        <div className="w-full max-w-3xl mx-auto p-6 flex flex-col items-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-8">
+            What Our Customers Say
+          </h2>
+
+          <div className="w-full relative min-h-40 mb-5">
+            <div className="absolute -left-3 top-8 text-gray-300 opacity-20">
+              <svg
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M11.192 15.757c0-.88-.23-1.618-.69-2.217-.326-.412-.768-.683-1.327-.812-.55-.128-1.07-.137-1.54-.028-.16-.95.1-1.95.78-3 .53-.81 1.24-1.48 2.13-2.02l-1.65-2.88c-.62.38-1.24.88-1.86 1.5-.62.62-1.19 1.32-1.7 2.1-.51.78-.92 1.65-1.24 2.61-.32.96-.48 1.95-.48 2.97 0 1.43.28 2.6.84 3.51.56.91 1.26 1.58 2.1 2.01.85.43 1.72.65 2.64.65.92 0 1.78-.15 2.58-.45.8-.3 1.45-.75 1.96-1.35.51-.6.77-1.34.77-2.22v-.67h-4.41c.01 1.48.52 2.22 1.51 2.22.23 0 .48-.05.75-.15.27-.1.53-.25.78-.45l.72 1.78c-.21.23-.48.44-.81.63-.33.19-.67.33-1.02.42-.35.09-.7.13-1.05.13-.5 0-.95-.08-1.37-.25-.42-.17-.78-.39-1.08-.67-.29-.28-.52-.61-.67-.99-.15-.38-.22-.8-.22-1.26z" />
+                <path d="M22.442 15.757c0-.88-.23-1.618-.69-2.217-.326-.412-.768-.683-1.327-.812-.55-.128-1.07-.137-1.54-.028-.16-.95.1-1.95.78-3 .53-.81 1.24-1.48 2.13-2.02l-1.65-2.88c-.62.38-1.24.88-1.86 1.5-.62.62-1.19 1.32-1.7 2.1-.51.78-.92 1.65-1.24 2.61-.32.96-.48 1.95-.48 2.97 0 1.43.28 2.6.84 3.51.56.91 1.26 1.58 2.1 2.01.85.43 1.72.65 2.64.65.92 0 1.78-.15 2.58-.45.8-.3 1.45-.75 1.96-1.35.51-.6.77-1.34.77-2.22v-.67h-4.41c.01 1.48.52 2.22 1.51 2.22.23 0 .48-.05.75-.15.27-.1.53-.25.78-.45l.72 1.78c-.21.23-.48.44-.81.63-.33.19-.67.33-1.02.42-.35.09-.7.13-1.05.13-.5 0-.95-.08-1.37-.25-.42-.17-.78-.39-1.08-.67-.29-.28-.52-.61-.67-.99-.15-.38-.22-.8-.22-1.26z" />
+              </svg>
+            </div>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentReview._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                className="flex flex-col items-center text-center"
+              >
+                <div className="flex space-x-1 mb-4">
+                  {renderStars(currentReview.rating)}
+                </div>
+
+                <p className="text-gray-700 text-lg italic mb-6 font-light">
+                  "{currentReview.comment}"
+                </p>
+
+                <div className="flex items-center gap-2 mb-2">
+                  <UserCircle size={24} className="text-gray-400" />
+                  <p className="font-medium text-gray-800">
+                    {currentReview?.food}
+                  </p>
+                </div>
+
+                <p className="text-sm text-gray-400">
+                  {formatDate(currentReview.createdAt)}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button
+              onClick={prevReview}
+              className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors duration-200 flex items-center justify-center"
+              aria-label="Previous review"
+            >
+              <ChevronLeft size={20} className="text-gray-600" />
+            </button>
+
+            <div className="flex gap-2">
+              {reviews.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    index === currentIndex
+                      ? "bg-primary w-6"
+                      : "bg-gray-300 hover:bg-gray-400"
+                  }`}
+                  aria-label={`Go to review ${index + 1}`}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={nextReview}
+              className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors duration-200 flex items-center justify-center"
+              aria-label="Next review"
+            >
+              <ChevronRight size={20} className="text-gray-600" />
+            </button>
+          </div>
+
+          <button
+            onClick={toggleAutoplay}
+            className={`mt-4 text-sm px-3 py-1 rounded-full transition-colors duration-200 ${
+              autoplayEnabled
+                ? "bg-primary/30 text-primary/90"
+                : "bg-primary/20 text-primary/60"
+            }`}
+          >
+            {autoplayEnabled ? "Pause Autoplay" : "Enable Autoplay"}
+          </button>
+        </div>
+      ) : (
+        <div className="w-full max-w-3xl mx-auto p-6 bg-white rounded-2xl shadow-lg flex flex-col items-center">
+          <p className="text-xl font-semibold mb-2 text-gray-800">
+            No Reviews Yet
+          </p>
+          <p className="text-gray-600 italic mb-4">
+            Be the first to leave a review!
+          </p>
+        </div>
+      )}
     </div>
   );
 };
