@@ -3,4 +3,4 @@ import { NOTIFICATION_QUEUE } from "../../../auth-service/src/config";
 
 config();
 
-export const { NOTIFICATION_QUEUE } = process.env;
+export const { NOTIFICATION_QUEUEk, EMAIL_USER, EMAIL_PASS } = process.env;

@@ -76,7 +76,147 @@ export const createUser = async (req, res) => {
 };
 
 export const getUserById = async (req, res) => {
-  // TODO: user get by id
+  const { userId } = req.params;
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (user.role === "customer") {
+      const customer = await Customer.findOne({ userId: user._id });
+      if (customer) {
+        user.customerDetails = customer;
+      }
+    }
+    if (user.role === "driver") {
+      const rider = await Rider.findOne({ userId: user._id });
+      if (rider) {
+        user.riderDetails = rider;
+      }
+    }
+    if (user.role === "restaurant_admin") {
+      const restaurant = await axios.get(
+        `${RESTAURANT_SERVICE_URL}/owner/${user._id}`
+      );
+      if (restaurant) {
+        user.restaurantDetails = restaurant;
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
 };
 
 export const getAllUsers = async (req, res) => {};
+
+export const getActiveRiders = async (req, res) => {
+  try {
+    const activeRiders = await Rider.find({ isAvailable: true }).select(
+      "userId currentLocation"
+    );
+
+    if (!activeRiders || activeRiders.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No active riders found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      data: activeRiders,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const getUserByEmail = async (req, res) => {
+  const { email } = req.params;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (user.role === "customer") {
+      const customer = await Customer.findOne({ userId: user._id });
+      if (customer) {
+        user.customerDetails = customer;
+      }
+    }
+
+    if (user.role === "driver") {
+      const rider = await Rider.findOne({ userId: user._id });
+      if (rider) {
+        user.riderDetails = rider;
+      }
+    }
+
+    if (user.role === "restaurant_admin") {
+      const restaurant = await axios.get(
+        `${RESTAURANT_SERVICE_URL}/owner/${user._id}`
+      );
+      if (restaurant) {
+        user.restaurantDetails = restaurant;
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const updateRiderLocation = async (req, res) => {
+  const { id } = req.params;
+  const { currentLocation } = req.body;
+
+  try {
+    const rider = await Rider.findBy({ userId: id });
+
+    if (!rider) {
+      return res.status(404).json({
+        success: false,
+        message: "Rider not found",
+      });
+    }
+
+    rider.currentLocation = currentLocation;
+    await rider.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Rider location updated successfully",
+      data: rider,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};

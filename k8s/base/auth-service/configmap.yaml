@@ -8,4 +8,4 @@ data:
   RESTAURANT_SERVICE_URL: "http://restaurant-service:4003"
   NOTIFICATION_QUEUE: "rabbitmq://rabbitmq:5672"
   JWT_EXPIRATION: "1h"
-  MONGODB_URI: "mongodb://auth-mongo:27017/authdb"
+  MONGODB_URI: "mongodb://mongo-auth:27017/authdb"

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: delivery-config
+data:
+  PORT: "4006"
+  MONGODB_URL: "mongodb://delivery-mongo:27017/deliverydb"

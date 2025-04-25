@@ -44,16 +44,16 @@ export const adminLinks = {
     {
       name: "Restaurant Status",
       path: "/restaurants/nearby",
-      onClick: () => console.log("Nearby clicked"),
+      onClick: () => {},
+      visible: true,
     },
     {
       name: "Manage Restaurant",
-      path: "/restaurants/popular",
-      onClick: () => console.log("Popular clicked"),
+      path: "/restaurant/manage",
     },
     {
       name: "Settings",
-      onClick: () => console.log("New Partners clicked"),
+      path: "/",
     },
     {
       name: "Logout",

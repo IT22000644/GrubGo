@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { JWT_SECRET, JWT_EXPIRATION } from "../config.js";
+import { JWT_SECRET, JWT_EXPIRATION } from "../config/index.js";
 
 export const signToken = (user, type) => {
   const payload = {
@@ -18,7 +18,7 @@ export const signToken = (user, type) => {
   });
 };
 
-export const verifyToken = (token) => {
+export const verifyJwtToken = (token) => {
   try {
     return jwt.verify(token, JWT_SECRET);
   } catch (error) {

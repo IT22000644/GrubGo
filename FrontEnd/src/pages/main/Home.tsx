@@ -10,7 +10,7 @@ import {
   DoorClosed,
   UtensilsCrossed,
 } from "lucide-react";
-import api from "../../api/axios";
+import { api1, api2 } from "../../api/axios";
 import { Restaurant } from "../restaurent/allRestaurants/AllRestaurants.types";
 import image1 from "../../assets/Images/daniel-T_PbUhfwd0U-unsplash.jpg";
 import image2 from "../../assets/Images/daniel-eUhCKM0ntrg-unsplash.jpg";
@@ -27,8 +27,7 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res1 = await api.get("/restaurants/");
-        console.log(res1.data.restaurants);
+        const res1 = await api1.get("/restaurants/status/open");
         setRestaurants(res1.data.restaurants);
       } catch (error) {
         console.error("Failed to fetch:", error);
@@ -199,7 +198,6 @@ const Home = () => {
               View All <ArrowRight size={16} className="ml-1" />
             </Link>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {restaurants && restaurants.length > 0 ? (
               restaurants.map((restaurant) => (
@@ -264,9 +262,9 @@ const Home = () => {
                 </Link>
               ))
             ) : (
-              <div className="flex flex-col items-center justify-center text-center">
+              <div className="flex flex-col items-center justify-center text-center py-8">
                 <UtensilsCrossed className="mb-4 text-accent" size={48} />
-                <p className="text-primary">No Restaurants available.</p>
+                <p className="text-accent">No Restaurants available.</p>
               </div>
             )}
           </div>

@@ -6,7 +6,8 @@ const userSlice = createSlice({
   initialState: {
     isLoggedIn: false,
     userInfo: null,
-    role: "" as string | null,
+    role: "restaurantOwner" as string | null,
+    restaurantId: "68032121df9599360636551f" as string | null,
   },
   reducers: {
     login(state, action) {

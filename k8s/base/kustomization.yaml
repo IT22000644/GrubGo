@@ -1,4 +1,3 @@
 resources:
   - api-gateway
   - auth-service
-  - user-service
