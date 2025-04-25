@@ -30,7 +30,7 @@ interface OrderCardProps {
 
 const OrderCard: React.FC<OrderCardProps> = ({ order, onCheckout, formatDate, getStatusBadge }) => {
     return (
-        <div className="bg-white dark:bg-gray-800 h-40 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 h-52 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
             <div className="flex h-full">
                 <div className="w-32 h-full bg-gray-100 dark:bg-gray-700 relative flex-shrink-0">
                     {order.restaurantImage ? (

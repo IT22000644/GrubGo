@@ -652,7 +652,7 @@ export const RestaurantDetails = () => {
                                         </div>
 
                                         <button
-                                          //onClick={() => addToCart(item)}
+                                          onClick={() => addToCart(item)}
                                           className="flex px-2 items-center text-text_dark hover:text-primary font-semibold dark:text-text_white dark:hover:text-accent hover:scale-105 transition-transform duration-200"
                                         >
                                           <span className="px-2 text-semibold text-md text-dark dark:text-text_white">
