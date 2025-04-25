@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Restaurant, Food } from "../allRestaurants/AllRestaurants.types";
 
 import { api1, api2 } from "../../../api/axios";
-import api5011 from "../../../api/api5011";
 
 import {
   Star,
@@ -42,6 +41,7 @@ export const RestaurantDetails = () => {
   const navigate = useNavigate();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [reviewLoading, setReviewLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<string>("menu");
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
@@ -56,27 +56,17 @@ export const RestaurantDetails = () => {
   const [cartError, setCartError] = useState<string | null>(null);
   const [cartSuccess, setCartSuccess] = useState<boolean>(false);
 
-  const customerId = localStorage.getItem('customerId') || "customer123";
-
+  const customerId = localStorage.getItem("customerId") || "customer123";
 
   useEffect(() => {
     const fetchRestaurantDetails = async () => {
       try {
         setLoading(true);
         const response = await api1.get(`/restaurants/${id}`);
-        const reviewsResponse = await api2.get(`/restaurantreviews/${id}`);
         setRestaurant(response.data.restaurant);
-        setReviews(reviewsResponse.data);
-        const averageRating = getAverageRating(reviewsResponse.data);
-        setAverage(averageRating);
-
         if (response.data.restaurant?.menus?.length > 0) {
           setSelectedMenu(response.data.restaurant.menus[0]._id);
         }
-        const interval = setInterval(() => {
-          setCurrent((prev) => (prev + 1) % reviewsResponse.data.length);
-        }, 5000);
-        return () => clearInterval(interval);
       } catch (error) {
         console.error("Failed to fetch restaurant details:", error);
       } finally {
@@ -85,8 +75,27 @@ export const RestaurantDetails = () => {
       if (!autoplayEnabled) return;
     };
 
+    const fetchReview = async () => {
+      try {
+        setReviewLoading(true);
+        const reviewsResponse = await api2.get(`/restaurantreviews/${id}`);
+        setReviews(reviewsResponse.data);
+        const averageRating = getAverageRating(reviewsResponse.data);
+        setAverage(averageRating);
+        const interval = setInterval(() => {
+          setCurrent((prev) => (prev + 1) % reviewsResponse.data.length);
+        }, 5000);
+        return () => clearInterval(interval);
+      } catch (err) {
+        console.log("Review fetching error", err);
+      } finally {
+        setReviewLoading(false);
+      }
+    };
+
     if (id) {
       fetchRestaurantDetails();
+      fetchReview();
     }
   }, [id]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -143,49 +152,48 @@ export const RestaurantDetails = () => {
     });
   };
 
-  const addToCartAPI = async (item: Food) => {
-    try {
-      setCartLoading(true);
-      setCartError(null);
-      
-      // First add to local cart for immediate UI feedback
-      addItemToLocalCart(item);
-      
-      // Then sync with the server
-      const cartItems = [{
-        foodItemId: item._id,
-        name: item.name,
-        price: calculateFinalPrice(item.price, item.discount),
-        quantity: 1
-      }];
-      
-      const response = await api5011.post(
-        `/cart/${customerId}/items`, 
-        {
-          restaurantId: id,
-          items: cartItems
-        }
-      );
-      
-      // Show success feedback
-      setCartSuccess(true);
-      setTimeout(() => setCartSuccess(false), 2000);
-      
-      console.log("Item added to cart successfully:", response.data);
-      return response.data;
-    } catch (error) {
-      console.error("Failed to add item to cart:", error);
-      setCartError("Failed to add item to cart. Please try again.");
-      return null;
-    } finally {
-      setCartLoading(false);
-    }
-  };
+  // const addToCartAPI = async (item: Food) => {
+  //   try {
+  //     setCartLoading(true);
+  //     setCartError(null);
+
+  //     // First add to local cart for immediate UI feedback
+  //     addItemToLocalCart(item);
+
+  //     // Then sync with the server
+  //     const cartItems = [
+  //       {
+  //         foodItemId: item._id,
+  //         name: item.name,
+  //         price: calculateFinalPrice(item.price, item.discount),
+  //         quantity: 1,
+  //       },
+  //     ];
+
+  //     const response = await api5011.post(`/cart/${customerId}/items`, {
+  //       restaurantId: id,
+  //       items: cartItems,
+  //     });
+
+  //     // Show success feedback
+  //     setCartSuccess(true);
+  //     setTimeout(() => setCartSuccess(false), 2000);
+
+  //     console.log("Item added to cart successfully:", response.data);
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error("Failed to add item to cart:", error);
+  //     setCartError("Failed to add item to cart. Please try again.");
+  //     return null;
+  //   } finally {
+  //     setCartLoading(false);
+  //   }
+  // };
 
   // Replace the existing addToCart function with this one
-  const addToCart = (item: Food) => {
-    addToCartAPI(item);
-  };
+  // const addToCart = (item: Food) => {
+  //   addToCartAPI(item);
+  // };
 
   const calculateFinalPrice = (price: number, discount: number) => {
     if (!discount) return price;
@@ -194,14 +202,13 @@ export const RestaurantDetails = () => {
 
   const CartNotification = () => {
     if (!cartSuccess) return null;
-    
+
     return (
       <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in-out">
         Item added to cart successfully!
       </div>
     );
   };
-
 
   if (loading) {
     return <Loader />;
@@ -650,7 +657,7 @@ export const RestaurantDetails = () => {
                                         </div>
 
                                         <button
-                                          onClick={() => addToCart(item)}
+                                          //onClick={() => addToCart(item)}
                                           className="flex px-2 items-center text-text_dark hover:text-primary font-semibold dark:text-text_white dark:hover:text-accent hover:scale-105 transition-transform duration-200"
                                         >
                                           <span className="px-2 text-semibold text-md text-dark dark:text-text_white">
@@ -852,97 +859,102 @@ export const RestaurantDetails = () => {
           <h2 className="text-2xl font-bold text-gray-800 mb-8">
             What Our Customers Say
           </h2>
-
-          <div className="w-full relative min-h-40 mb-5">
-            <div className="absolute -left-3 top-8 text-gray-300 opacity-20">
-              <svg
-                width="40"
-                height="40"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M11.192 15.757c0-.88-.23-1.618-.69-2.217-.326-.412-.768-.683-1.327-.812-.55-.128-1.07-.137-1.54-.028-.16-.95.1-1.95.78-3 .53-.81 1.24-1.48 2.13-2.02l-1.65-2.88c-.62.38-1.24.88-1.86 1.5-.62.62-1.19 1.32-1.7 2.1-.51.78-.92 1.65-1.24 2.61-.32.96-.48 1.95-.48 2.97 0 1.43.28 2.6.84 3.51.56.91 1.26 1.58 2.1 2.01.85.43 1.72.65 2.64.65.92 0 1.78-.15 2.58-.45.8-.3 1.45-.75 1.96-1.35.51-.6.77-1.34.77-2.22v-.67h-4.41c.01 1.48.52 2.22 1.51 2.22.23 0 .48-.05.75-.15.27-.1.53-.25.78-.45l.72 1.78c-.21.23-.48.44-.81.63-.33.19-.67.33-1.02.42-.35.09-.7.13-1.05.13-.5 0-.95-.08-1.37-.25-.42-.17-.78-.39-1.08-.67-.29-.28-.52-.61-.67-.99-.15-.38-.22-.8-.22-1.26z" />
-                <path d="M22.442 15.757c0-.88-.23-1.618-.69-2.217-.326-.412-.768-.683-1.327-.812-.55-.128-1.07-.137-1.54-.028-.16-.95.1-1.95.78-3 .53-.81 1.24-1.48 2.13-2.02l-1.65-2.88c-.62.38-1.24.88-1.86 1.5-.62.62-1.19 1.32-1.7 2.1-.51.78-.92 1.65-1.24 2.61-.32.96-.48 1.95-.48 2.97 0 1.43.28 2.6.84 3.51.56.91 1.26 1.58 2.1 2.01.85.43 1.72.65 2.64.65.92 0 1.78-.15 2.58-.45.8-.3 1.45-.75 1.96-1.35.51-.6.77-1.34.77-2.22v-.67h-4.41c.01 1.48.52 2.22 1.51 2.22.23 0 .48-.05.75-.15.27-.1.53-.25.78-.45l.72 1.78c-.21.23-.48.44-.81.63-.33.19-.67.33-1.02.42-.35.09-.7.13-1.05.13-.5 0-.95-.08-1.37-.25-.42-.17-.78-.39-1.08-.67-.29-.28-.52-.61-.67-.99-.15-.38-.22-.8-.22-1.26z" />
-              </svg>
-            </div>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentReview._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="flex flex-col items-center text-center"
-              >
-                <div className="flex space-x-1 mb-4">
-                  {renderStars(currentReview.rating)}
+          {!reviewLoading ? (
+            <div>
+              <div className="w-full relative min-h-40 mb-5">
+                <div className="absolute -left-3 top-8 text-gray-300 opacity-20">
+                  <svg
+                    width="40"
+                    height="40"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M11.192 15.757c0-.88-.23-1.618-.69-2.217-.326-.412-.768-.683-1.327-.812-.55-.128-1.07-.137-1.54-.028-.16-.95.1-1.95.78-3 .53-.81 1.24-1.48 2.13-2.02l-1.65-2.88c-.62.38-1.24.88-1.86 1.5-.62.62-1.19 1.32-1.7 2.1-.51.78-.92 1.65-1.24 2.61-.32.96-.48 1.95-.48 2.97 0 1.43.28 2.6.84 3.51.56.91 1.26 1.58 2.1 2.01.85.43 1.72.65 2.64.65.92 0 1.78-.15 2.58-.45.8-.3 1.45-.75 1.96-1.35.51-.6.77-1.34.77-2.22v-.67h-4.41c.01 1.48.52 2.22 1.51 2.22.23 0 .48-.05.75-.15.27-.1.53-.25.78-.45l.72 1.78c-.21.23-.48.44-.81.63-.33.19-.67.33-1.02.42-.35.09-.7.13-1.05.13-.5 0-.95-.08-1.37-.25-.42-.17-.78-.39-1.08-.67-.29-.28-.52-.61-.67-.99-.15-.38-.22-.8-.22-1.26z" />
+                    <path d="M22.442 15.757c0-.88-.23-1.618-.69-2.217-.326-.412-.768-.683-1.327-.812-.55-.128-1.07-.137-1.54-.028-.16-.95.1-1.95.78-3 .53-.81 1.24-1.48 2.13-2.02l-1.65-2.88c-.62.38-1.24.88-1.86 1.5-.62.62-1.19 1.32-1.7 2.1-.51.78-.92 1.65-1.24 2.61-.32.96-.48 1.95-.48 2.97 0 1.43.28 2.6.84 3.51.56.91 1.26 1.58 2.1 2.01.85.43 1.72.65 2.64.65.92 0 1.78-.15 2.58-.45.8-.3 1.45-.75 1.96-1.35.51-.6.77-1.34.77-2.22v-.67h-4.41c.01 1.48.52 2.22 1.51 2.22.23 0 .48-.05.75-.15.27-.1.53-.25.78-.45l.72 1.78c-.21.23-.48.44-.81.63-.33.19-.67.33-1.02.42-.35.09-.7.13-1.05.13-.5 0-.95-.08-1.37-.25-.42-.17-.78-.39-1.08-.67-.29-.28-.52-.61-.67-.99-.15-.38-.22-.8-.22-1.26z" />
+                  </svg>
                 </div>
 
-                <p className="text-gray-700 text-lg italic mb-6 font-light">
-                  "{currentReview.comment}"
-                </p>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentReview._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                    className="flex flex-col items-center text-center"
+                  >
+                    <div className="flex space-x-1 mb-4">
+                      {renderStars(currentReview.rating)}
+                    </div>
 
-                <div className="flex items-center gap-2 mb-2">
-                  <UserCircle size={24} className="text-gray-400" />
-                  <p className="font-medium text-gray-800">
-                    {currentReview?.food}
-                  </p>
-                </div>
+                    <p className="text-gray-700 text-lg italic mb-6 font-light">
+                      "{currentReview.comment}"
+                    </p>
 
-                <p className="text-sm text-gray-400">
-                  {formatDate(currentReview.createdAt)}
-                </p>
-              </motion.div>
-            </AnimatePresence>
-          </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <UserCircle size={24} className="text-gray-400" />
+                      <p className="font-medium text-gray-800">
+                        {currentReview?.food}
+                      </p>
+                    </div>
 
-          <div className="flex items-center gap-4">
-            <button
-              onClick={prevReview}
-              className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors duration-200 flex items-center justify-center"
-              aria-label="Previous review"
-            >
-              <ChevronLeft size={20} className="text-gray-600" />
-            </button>
+                    <p className="text-sm text-gray-400">
+                      {formatDate(currentReview.createdAt)}
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
 
-            <div className="flex gap-2">
-              {reviews.map((_, index) => (
+              <div className="flex items-center gap-4">
                 <button
-                  key={index}
-                  onClick={() => setCurrentIndex(index)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    index === currentIndex
-                      ? "bg-primary w-6"
-                      : "bg-gray-300 hover:bg-gray-400"
-                  }`}
-                  aria-label={`Go to review ${index + 1}`}
-                />
-              ))}
+                  onClick={prevReview}
+                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors duration-200 flex items-center justify-center"
+                  aria-label="Previous review"
+                >
+                  <ChevronLeft size={20} className="text-gray-600" />
+                </button>
+
+                <div className="flex gap-2">
+                  {reviews.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === currentIndex
+                          ? "bg-primary w-6"
+                          : "bg-gray-300 hover:bg-gray-400"
+                      }`}
+                      aria-label={`Go to review ${index + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <button
+                  onClick={nextReview}
+                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors duration-200 flex items-center justify-center"
+                  aria-label="Next review"
+                >
+                  <ChevronRight size={20} className="text-gray-600" />
+                </button>
+              </div>
+
+              <button
+                onClick={toggleAutoplay}
+                className={`mt-4 text-sm px-3 py-1 rounded-full transition-colors duration-200 ${
+                  autoplayEnabled
+                    ? "bg-primary/30 text-primary/90"
+                    : "bg-primary/20 text-primary/60"
+                }`}
+              >
+                {autoplayEnabled ? "Pause Autoplay" : "Enable Autoplay"}
+              </button>
             </div>
-
-            <button
-              onClick={nextReview}
-              className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors duration-200 flex items-center justify-center"
-              aria-label="Next review"
-            >
-              <ChevronRight size={20} className="text-gray-600" />
-            </button>
-          </div>
-
-          <button
-            onClick={toggleAutoplay}
-            className={`mt-4 text-sm px-3 py-1 rounded-full transition-colors duration-200 ${
-              autoplayEnabled
-                ? "bg-primary/30 text-primary/90"
-                : "bg-primary/20 text-primary/60"
-            }`}
-          >
-            {autoplayEnabled ? "Pause Autoplay" : "Enable Autoplay"}
-          </button>
+          ) : (
+            <Loader />
+          )}
         </div>
       ) : (
-        <div className="w-full max-w-3xl mx-auto p-6 bg-white rounded-2xl shadow-lg flex flex-col items-center">
+        <div className="w-full max-w-full mx-4 p-6 bg-white rounded-2xl shadow-lg flex flex-col items-center">
           <p className="text-xl font-semibold mb-2 text-gray-800">
             No Reviews Yet
           </p>
