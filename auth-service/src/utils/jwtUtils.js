@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { JWT_SECRET, JWT_EXPIRATION } from "../config.js";
+import { JWT_SECRET, JWT_EXPIRATION } from "../config/index.js";
 
 export const signToken = (user, type) => {
   const payload = {

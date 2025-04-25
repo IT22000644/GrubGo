@@ -4,4 +4,4 @@ metadata:
   name: user-config
 data:
   PORT: "4002"
-  MONGODB_URI: "mongodb://user-mongo:27017/userdb"
+  MONGODB_URI: "mongodb://mongo-user:27017/userdb"

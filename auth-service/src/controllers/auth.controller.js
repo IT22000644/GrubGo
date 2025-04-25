@@ -1,7 +1,7 @@
 import axios from "axios";
-import Session from "../models/session.model";
-import LoginAttempt from "../models/login.attempt";
-import { signToken, verifyJwtToken } from "../utils/jwtUtils";
+import Session from "../models/session.model.js";
+import LoginAttempt from "../models/loginAttempt.model.js";
+import { signToken, verifyJwtToken } from "../utils/jwtUtils.js";
 
 export const register = async (req, res) => {
   const {
@@ -196,5 +196,30 @@ export const logout = async (req, res) => {
 };
 
 export const verifyToken = async (req, res) => {
-  // TODO: Implement token verification logic
+  const { token } = req.body;
+
+  if (!token) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Token is required" });
+  }
+
+  try {
+    const decoded = verifyJwtToken(token);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        userId: decoded.userId,
+        role: decoded.role,
+        email: decoded.email,
+        username: decoded.username,
+      },
+    });
+  } catch (err) {
+    console.error("[❌] Token verification failed:", err.message);
+    return res
+      .status(401)
+      .json({ success: false, message: "Invalid or expired token" });
+  }
 };

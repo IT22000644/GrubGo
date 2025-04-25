@@ -191,3 +191,32 @@ export const getUserByEmail = async (req, res) => {
       .json({ success: false, message: "Internal server error" });
   }
 };
+
+export const updateRiderLocation = async (req, res) => {
+  const { id } = req.params;
+  const { currentLocation } = req.body;
+
+  try {
+    const rider = await Rider.findBy({ userId: id });
+
+    if (!rider) {
+      return res.status(404).json({
+        success: false,
+        message: "Rider not found",
+      });
+    }
+
+    rider.currentLocation = currentLocation;
+    await rider.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Rider location updated successfully",
+      data: rider,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};

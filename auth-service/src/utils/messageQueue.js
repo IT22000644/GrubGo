@@ -1,5 +1,5 @@
 import amqplib from "amqplib";
-import { NOTIFICATION_QUEUE } from "../config";
+import { NOTIFICATION_QUEUE } from "../config/index.js";
 
 let channel;
 
