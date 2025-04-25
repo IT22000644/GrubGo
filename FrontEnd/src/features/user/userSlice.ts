@@ -7,7 +7,7 @@ const userSlice = createSlice({
     isLoggedIn: false,
     userInfo: null,
     role: "restaurantOwner" as string | null,
-    restaurantId: "68032121df9599360636551f" as string | null,
+    restaurantId: "680ba32e123f14f2d7759f11" as string | null,
   },
   reducers: {
     login(state, action) {

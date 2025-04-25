@@ -4,7 +4,6 @@ import { Restaurant, Food } from "../allRestaurants/AllRestaurants.types";
 
 import { api1, api2 } from "../../../api/axios";
 import api5011 from "../../../api/api5011";
-
 import {
   Star,
   MapPin,
@@ -42,6 +41,7 @@ export const RestaurantDetails = () => {
   const navigate = useNavigate();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [reviewLoading, setReviewLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<string>("menu");
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
@@ -56,27 +56,17 @@ export const RestaurantDetails = () => {
   const [cartError, setCartError] = useState<string | null>(null);
   const [cartSuccess, setCartSuccess] = useState<boolean>(false);
 
-  const customerId = localStorage.getItem('customerId') || "customer123";
-
+  const customerId = localStorage.getItem("customerId") || "customer123";
 
   useEffect(() => {
     const fetchRestaurantDetails = async () => {
       try {
         setLoading(true);
         const response = await api1.get(`/restaurants/${id}`);
-        const reviewsResponse = await api2.get(`/restaurantreviews/${id}`);
         setRestaurant(response.data.restaurant);
-        setReviews(reviewsResponse.data);
-        const averageRating = getAverageRating(reviewsResponse.data);
-        setAverage(averageRating);
-
         if (response.data.restaurant?.menus?.length > 0) {
           setSelectedMenu(response.data.restaurant.menus[0]._id);
         }
-        const interval = setInterval(() => {
-          setCurrent((prev) => (prev + 1) % reviewsResponse.data.length);
-        }, 5000);
-        return () => clearInterval(interval);
       } catch (error) {
         console.error("Failed to fetch restaurant details:", error);
       } finally {
@@ -85,8 +75,27 @@ export const RestaurantDetails = () => {
       if (!autoplayEnabled) return;
     };
 
+    const fetchReview = async () => {
+      try {
+        setReviewLoading(true);
+        const reviewsResponse = await api2.get(`/restaurantreviews/${id}`);
+        setReviews(reviewsResponse.data);
+        const averageRating = getAverageRating(reviewsResponse.data);
+        setAverage(averageRating);
+        const interval = setInterval(() => {
+          setCurrent((prev) => (prev + 1) % reviewsResponse.data.length);
+        }, 5000);
+        return () => clearInterval(interval);
+      } catch (err) {
+        console.log("Review fetching error", err);
+      } finally {
+        setReviewLoading(false);
+      }
+    };
+
     if (id) {
       fetchRestaurantDetails();
+      fetchReview();
     }
   }, [id]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -147,30 +156,25 @@ export const RestaurantDetails = () => {
     try {
       setCartLoading(true);
       setCartError(null);
-      
-      // First add to local cart for immediate UI feedback
       addItemToLocalCart(item);
-      
-      // Then sync with the server
-      const cartItems = [{
-        foodItemId: item._id,
-        name: item.name,
-        price: calculateFinalPrice(item.price, item.discount),
-        quantity: 1
-      }];
-      
-      const response = await api5011.post(
-        `/cart/${customerId}/items`, 
+      const cartItems = [
         {
-          restaurantId: id,
-          items: cartItems
-        }
-      );
-      
+          foodItemId: item._id,
+          name: item.name,
+          price: calculateFinalPrice(item.price, item.discount),
+          quantity: 1,
+        },
+      ];
+
+      const response = await api5011.post(`/cart/${customerId}/items`, {
+        restaurantId: id,
+        items: cartItems,
+      });
+
       // Show success feedback
       setCartSuccess(true);
       setTimeout(() => setCartSuccess(false), 2000);
-      
+
       console.log("Item added to cart successfully:", response.data);
       return response.data;
     } catch (error) {
@@ -182,7 +186,6 @@ export const RestaurantDetails = () => {
     }
   };
 
-  // Replace the existing addToCart function with this one
   const addToCart = (item: Food) => {
     addToCartAPI(item);
   };
@@ -194,14 +197,13 @@ export const RestaurantDetails = () => {
 
   const CartNotification = () => {
     if (!cartSuccess) return null;
-    
+
     return (
       <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in-out">
         Item added to cart successfully!
       </div>
     );
   };
-
 
   if (loading) {
     return <Loader />;
@@ -650,7 +652,7 @@ export const RestaurantDetails = () => {
                                         </div>
 
                                         <button
-                                          onClick={() => addToCart(item)}
+                                          //onClick={() => addToCart(item)}
                                           className="flex px-2 items-center text-text_dark hover:text-primary font-semibold dark:text-text_white dark:hover:text-accent hover:scale-105 transition-transform duration-200"
                                         >
                                           <span className="px-2 text-semibold text-md text-dark dark:text-text_white">
@@ -942,7 +944,7 @@ export const RestaurantDetails = () => {
           </button>
         </div>
       ) : (
-        <div className="w-full max-w-3xl mx-auto p-6 bg-white rounded-2xl shadow-lg flex flex-col items-center">
+        <div className="w-full max-w-full mx-4 p-6 bg-white rounded-2xl shadow-lg flex flex-col items-center">
           <p className="text-xl font-semibold mb-2 text-gray-800">
             No Reviews Yet
           </p>
