@@ -6,3 +6,7 @@ resources:
   - map-service
   - order-service
   - payment-service
+  - restaurant-service
+  - review-service
+  - notification-service
+  - rabbitmq

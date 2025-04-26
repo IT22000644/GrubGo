@@ -1,5 +1,5 @@
 # Use official Node image
-FROM node:18
+FROM node:alpine3.21
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -11,8 +11,6 @@ RUN npm install
 # Bundle app source
 COPY . .
 
-# Expose the port
-EXPOSE 3000
 
 # Start the app
-CMD [ "npm", "run", "dev" ]
+CMD [ "npm", "start" ]

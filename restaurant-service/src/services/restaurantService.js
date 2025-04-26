@@ -80,3 +80,9 @@ export const deleteRestaurantService = async (restaurantId) => {
 
   return deletedRestaurant;
 };
+
+export const getRestaurantByOwnerId = async (ownerId) => {
+  return await Restaurant.find({ restaurantOwner: ownerId })
+    .populate("restaurantOwner", "name email")
+    .populate("menus");
+};

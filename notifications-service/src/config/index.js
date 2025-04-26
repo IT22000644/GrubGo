@@ -1,6 +1,12 @@
 import { config } from "dotenv";
-import { NOTIFICATION_QUEUE } from "../../../auth-service/src/config";
 
 config();
 
-export const { NOTIFICATION_QUEUEk, EMAIL_USER, EMAIL_PASS } = process.env;
+export const {
+  RABBITMQ_URL,
+  EMAIL_USER,
+  EMAIL_PASS,
+  TWILIO_ACCOUNT_SID,
+  TWILIO_AUTH_TOKEN,
+  TWILIO_PHONE_NUMBER,
+} = process.env;

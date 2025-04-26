@@ -1,5 +1,11 @@
-resources:
-  - deployment.yaml
-  - service.yaml
-  - configmap.yaml
-  - secret.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: default
+spec:
+  selector:
+    app: notification-service
+  ports:
+    - port: 4010
+      targetPort: 4010

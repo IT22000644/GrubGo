@@ -7,6 +7,7 @@ import {
   toggleRestaurantStatusService,
   deleteRestaurantService,
   getAllRestaurantsByStatusService,
+  getRestaurantByOwnerId,
 } from "../services/restaurantService.js";
 
 export const RestaurantController = {
@@ -225,6 +226,19 @@ export const RestaurantController = {
         error: error.message,
       });
     }
+  },
+
+  getbyOwnerId: async (req, res) => {
+    const { ownerId } = req.params;
+
+    const restaurant = await getRestaurantByOwnerId(ownerId);
+    if (!restaurant) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Restaurant not found" });
+    }
+
+    res.status(200).json({ success: true, restaurant });
   },
 };
 

@@ -1,22 +1,19 @@
 import User from "../models/user.model.js";
 import Rider from "../models/rider.model.js";
-import bcrypt from "bcrypt";
 import Customer from "../models/customer.model.js";
 
 export const createUser = async (req, res) => {
-  // TODO: user save
   const { email, username, passwordHash, phoneNumber, role } = req.body;
   try {
-    const existingUser = await User.find({ email });
+    const existingUser = await User.findOne({ email });
 
-    if (existingUser.length > 0) {
+    if (existingUser) {
       return res.status(400).json({
         success: false,
         message: "User with this email already exists",
       });
     }
 
-    //save user to db
     const newUser = new User({
       email,
       username,
@@ -26,9 +23,6 @@ export const createUser = async (req, res) => {
     });
 
     const savedUser = await newUser.save();
-
-    // need to add the customer and rider details
-    // if the user is customer or rider
     if (role === "customer") {
       const { fullName, address } = req.body.customerDetails;
 
@@ -88,32 +82,28 @@ export const getUserById = async (req, res) => {
       });
     }
 
+    let userData = user.toObject();
+
     if (user.role === "customer") {
       const customer = await Customer.findOne({ userId: user._id });
       if (customer) {
-        user.customerDetails = customer;
+        userData.customerDetails = customer;
       }
     }
+
     if (user.role === "driver") {
       const rider = await Rider.findOne({ userId: user._id });
       if (rider) {
-        user.riderDetails = rider;
-      }
-    }
-    if (user.role === "restaurant_admin") {
-      const restaurant = await axios.get(
-        `${RESTAURANT_SERVICE_URL}/owner/${user._id}`
-      );
-      if (restaurant) {
-        user.restaurantDetails = restaurant;
+        userData.riderDetails = rider;
       }
     }
 
     return res.status(200).json({
       success: true,
-      data: user,
+      data: userData,
     });
   } catch (error) {
+    console.error(error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
@@ -158,37 +148,32 @@ export const getUserByEmail = async (req, res) => {
       });
     }
 
+    let userData = user.toObject();
+
     if (user.role === "customer") {
       const customer = await Customer.findOne({ userId: user._id });
       if (customer) {
-        user.customerDetails = customer;
+        userData.customerDetails = customer;
       }
     }
 
     if (user.role === "driver") {
       const rider = await Rider.findOne({ userId: user._id });
       if (rider) {
-        user.riderDetails = rider;
-      }
-    }
-
-    if (user.role === "restaurant_admin") {
-      const restaurant = await axios.get(
-        `${RESTAURANT_SERVICE_URL}/owner/${user._id}`
-      );
-      if (restaurant) {
-        user.restaurantDetails = restaurant;
+        userData.riderDetails = rider;
       }
     }
 
     return res.status(200).json({
       success: true,
-      data: user,
+      data: userData,
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 
@@ -197,7 +182,7 @@ export const updateRiderLocation = async (req, res) => {
   const { currentLocation } = req.body;
 
   try {
-    const rider = await Rider.findBy({ userId: id });
+    const rider = await Rider.findOne({ userId: id });
 
     if (!rider) {
       return res.status(404).json({

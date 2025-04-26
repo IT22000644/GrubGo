@@ -1,12 +1,13 @@
 import amqplib from "amqplib";
-import { NOTIFICATION_QUEUE } from "../config";
+import { RABBITMQ_URL } from "../config/index.js";
 
 let channel = null;
+const queueName = "notification";
 
 export async function connectQueue() {
   try {
-    const conn = await amqplib.connect(NOTIFICATION_QUEUE);
-    channel = await conn.createChannel();
+    const conn = await amqplib.connect(RABBITMQ_URL);
+    const channel = await conn.createChannel();
     await channel.assertQueue(queueName, { durable: true });
 
     console.log(`[✅] Connected to RabbitMQ queue: ${queueName}`);
@@ -17,6 +18,8 @@ export async function connectQueue() {
         channel.ack(msg);
       }
     });
+
+    return channel;
   } catch (err) {
     console.error("[❌] RabbitMQ connection error:", err);
   }

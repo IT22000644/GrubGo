@@ -1,7 +1,4 @@
 import mongoose from "mongoose";
-import Food from "../../../restaurant-service/src/schema/Food.js";
-import Restaurant from "../../../restaurant-service/src/schema/Restaurant.js";
-//import User from "../../../user-service/src/models/user.model.js";
 
 const ReviewSchema = new mongoose.Schema(
   {
