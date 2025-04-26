@@ -17,7 +17,7 @@ app.use(express.json());
 
 connectDB();
 
-app.use("/order", orderRoutes);
+app.use("/orders", orderRoutes);
 app.use("/cart", cartRoutes);
 
 const PORT = process.env.PORT || 5011;

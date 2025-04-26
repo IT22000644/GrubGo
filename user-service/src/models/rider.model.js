@@ -33,8 +33,14 @@ const riderSchema = new mongoose.Schema({
     required: true,
   },
   currentLocation: {
-    lat: Number,
-    lng: Number,
+    lat: {
+      type: Number,
+      default: null,
+    },
+    lng: {
+      type: Number,
+      default: null,
+    },
   },
   isAvailable: {
     type: Boolean,

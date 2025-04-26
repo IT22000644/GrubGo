@@ -1,8 +1,12 @@
 import { Router } from "express";
-import { mapProxy } from "../proxies/map.js";
+import { authProxy } from "../proxies/auth.js";
+import authMiddleware from "../middlewares/auth.middleware.js";
+import addUserInfoToProxyRequest from "../middlewares/addUserInfo.js";
 
-const mapRoutes = Router();
+const authRoutes = Router();
 
-mapRoutes.use("/", mapProxy);
+authRoutes.use("/logout", authMiddleware, addUserInfoToProxyRequest);
 
-export default mapRoutes;
+authRoutes.use("/", authProxy);
+
+export default authRoutes;

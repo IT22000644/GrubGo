@@ -5,6 +5,7 @@ import {
   getUserById,
   getActiveRiders,
   updateRiderLocation,
+  updateRiderStatus,
 } from "../controllers/user.controller.js";
 
 const router = Router();
@@ -13,22 +14,16 @@ router.get("/health", (req, res) => {
   res.json({ success: true, message: "User service is healthy" });
 });
 
-router.get("/", (req, res) => {
-  res.json({ success: true, message: "Get All users" });
-});
-
-router.get("/:id", (req, res) => {
-  // TODO
-});
-
-router.get("/email/:email", getUserByEmail);
+router.get("/active-riders", getActiveRiders);
 
 router.post("/", createUser);
 
-router.put("/:id", getUserById);
+router.get("/:id", getUserById);
+
+router.get("/email/:email", getUserByEmail);
 
 router.patch("/update-location/:id", updateRiderLocation);
 
-router.get("/active-riders", getActiveRiders);
+router.patch("/rider-status/:id", updateRiderStatus);
 
 export default router;

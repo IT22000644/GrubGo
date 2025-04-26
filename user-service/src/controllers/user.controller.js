@@ -23,38 +23,52 @@ export const createUser = async (req, res) => {
     });
 
     const savedUser = await newUser.save();
-    if (role === "customer") {
-      const { fullName, address } = req.body.customerDetails;
 
-      const newCustomer = new Customer({
-        userId: savedUser._id,
-        fullName,
-        address,
+    try {
+      if (role === "customer") {
+        const { fullName, address } = req.body.customerDetails || {};
+
+        const newCustomer = new Customer({
+          userId: savedUser._id,
+          fullName,
+          address,
+        });
+
+        await newCustomer.save();
+        savedUser._doc.customerDetails = newCustomer;
+      } else if (role === "driver") {
+        const {
+          vehicleType,
+          vehicleNumber,
+          fullName,
+          licenseNumber,
+          vehicleModel,
+          vehicleColor,
+        } = req.body;
+
+        const newRider = new Rider({
+          userId: savedUser._id,
+          vehicleType,
+          vehicleNumber,
+          fullName,
+          licenseNumber,
+          vehicleModel,
+          vehicleColor,
+        });
+
+        await newRider.save();
+        savedUser._doc.riderDetails = newRider;
+      }
+    } catch (err) {
+      console.error("Error creating customer/rider:", err.message);
+
+      // 🧹 Rollback: Delete the user if customer/rider creation fails
+      await User.findByIdAndDelete(savedUser._id);
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create user details. User rolled back.",
       });
-
-      await newCustomer.save();
-      savedUser.customerDetails = newCustomer;
-    } else if (role === "driver") {
-      const {
-        vehicleType,
-        vehicleNumber,
-        fullName,
-        licenseNumber,
-        vehicleModel,
-        vehicleColor,
-      } = req.body;
-
-      const newRider = new Rider({
-        userId: savedUser._id,
-        vehicleType,
-        vehicleNumber,
-        fullName,
-        licenseNumber,
-        vehicleModel,
-        vehicleColor,
-      });
-      await newRider.save();
-      savedUser.riderDetails = newRider;
     }
 
     return res.status(201).json({
@@ -63,6 +77,7 @@ export const createUser = async (req, res) => {
       data: savedUser,
     });
   } catch (error) {
+    console.error("Error creating user:", error.message);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
@@ -70,10 +85,10 @@ export const createUser = async (req, res) => {
 };
 
 export const getUserById = async (req, res) => {
-  const { userId } = req.params;
+  const { id } = req.params;
 
   try {
-    const user = await User.findById(userId);
+    const user = await User.findById(id).select("-passwordHash");
 
     if (!user) {
       return res.status(404).json({
@@ -97,6 +112,8 @@ export const getUserById = async (req, res) => {
         userData.riderDetails = rider;
       }
     }
+
+    console.log("User Data:", userData);
 
     return res.status(200).json({
       success: true,
@@ -200,6 +217,44 @@ export const updateRiderLocation = async (req, res) => {
       data: rider,
     });
   } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const updateRiderStatus = async (req, res) => {
+  const { id } = req.params;
+  const { isAvailable, location } = req.body;
+  console.log(location);
+  try {
+    const rider = await Rider.findOneAndUpdate(
+      { userId: id },
+      {
+        $set: {
+          isAvailable,
+          currentLocation: location || undefined,
+        },
+      },
+      { new: true }
+    );
+
+    if (!rider) {
+      return res.status(404).json({
+        success: false,
+        message: "Rider not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Rider status updated to ${
+        isAvailable ? "available" : "not available"
+      }`,
+      data: rider,
+    });
+  } catch (error) {
+    console.error(error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });

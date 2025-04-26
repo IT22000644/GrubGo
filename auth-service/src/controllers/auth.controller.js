@@ -1,7 +1,10 @@
 import axios from "axios";
+import bcrypt from "bcrypt";
 import Session from "../models/session.model.js";
 import LoginAttempt from "../models/loginAttempt.model.js";
 import { signToken, verifyJwtToken } from "../utils/jwtUtils.js";
+import { USER_SERVICE_URL } from "../config/index.js";
+import { sendToQueue } from "../utils/messageQueue.js";
 
 export const register = async (req, res) => {
   const {
@@ -12,8 +15,20 @@ export const register = async (req, res) => {
     role,
     fullName,
     address,
-    riderDetails,
+    licenseNumber,
+    vehicleType,
+    vehicleModel,
+    vehicleColor,
+    vehicleNumber,
   } = req.body;
+
+  if (!email || !username || !password || !phoneNumber || !role) {
+    return res.status(400).json({
+      success: false,
+      message:
+        "Missing required fields: email, username, password, phoneNumber, or role",
+    });
+  }
 
   const ipAddress = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
   const userAgent = req.headers["user-agent"];
@@ -27,21 +42,17 @@ export const register = async (req, res) => {
       passwordHash,
       phoneNumber,
       role,
+      fullName,
+      address,
+      licenseNumber,
+      vehicleType,
+      vehicleModel,
+      vehicleColor,
+      vehicleNumber,
     };
 
-    if (role === "driver" && riderDetails) {
-      userPayload.riderDetails = riderDetails;
-    }
-
-    if (role === "customer" && fullName && address) {
-      userPayload.customerDetails = {
-        fullName,
-        address,
-      };
-    }
-
     const userServiceResponse = await axios.post(
-      `${USER_SERVICE_URL}/users`,
+      `${USER_SERVICE_URL}/`,
       userPayload
     );
 
@@ -51,7 +62,7 @@ export const register = async (req, res) => {
       return res.status(400).json({ success: false, message });
     }
 
-    // Sesions & Tokens
+    // Sessions & Tokens
     const accessToken = signToken(user);
     const refreshToken = signToken(user, "refresh");
 
@@ -60,13 +71,13 @@ export const register = async (req, res) => {
       refreshTokenHash: await bcrypt.hash(refreshToken, 10),
       deviceInfo: userAgent,
       ipAddress,
-      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
     });
 
     await session.save();
 
     // Notify
-    await sendToQueue("notifications", {
+    await sendToQueue("notification", {
       type: "EMAIL",
       payload: {
         to: user.email,
@@ -86,6 +97,15 @@ export const register = async (req, res) => {
     });
   } catch (err) {
     console.error("Error creating user in User-Service:", err.message);
+
+    if (err.response && err.response.data) {
+      const { message } = err.response.data;
+      return res.status(400).json({
+        success: false,
+        message: message || "Error from User-Service",
+      });
+    }
+
     return res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -99,10 +119,28 @@ export const login = async (req, res) => {
   const userAgent = req.headers["user-agent"];
 
   try {
-    const response = await axios.get(
-      `${process.env.USER_SERVICE_URL}/email/${email}`
-    );
-    const { success, data: user } = response.data;
+    let user;
+    let success = false;
+
+    try {
+      const response = await axios.get(`${USER_SERVICE_URL}/email/${email}`);
+      // Check if response contains success and data fields
+      if (
+        response.data &&
+        response.data.success !== undefined &&
+        response.data.data
+      ) {
+        success = response.data.success;
+        user = response.data.data;
+      } else {
+        throw new Error("Invalid response structure from user service");
+      }
+    } catch (err) {
+      console.error("[❌] Error from User Service:", err.message);
+      return res
+        .status(500)
+        .json({ success: false, message: "Error fetching user data" });
+    }
 
     if (!success || !user) {
       await LoginAttempt.create({ ipAddress, userAgent, success: false });
@@ -125,9 +163,23 @@ export const login = async (req, res) => {
         .json({ success: false, message: "Invalid email or password" });
     }
 
+    const existingSession = await Session.findOne({ userId: user._id });
+
+    if (existingSession) {
+      // Existing session found -> return the stored refreshToken
+      return res.status(200).json({
+        success: true,
+        message: "User already logged in",
+        data: {
+          refreshToken: existingSession.refreshTokenHash, // Send the existing refresh token
+          user,
+        },
+      });
+    }
+
     // Generate tokens
-    const accessToken = generateToken(user, "access");
-    const refreshToken = generateToken(user, "refresh");
+    const accessToken = signToken(user);
+    const refreshToken = signToken(user, "refresh");
 
     // Save session
     await Session.create({
@@ -147,7 +199,7 @@ export const login = async (req, res) => {
     });
 
     // Optionally send notification
-    await publishToQueue("notifications", {
+    await sendToQueue("notification", {
       type: "EMAIL",
       payload: {
         to: user.email,
@@ -173,10 +225,34 @@ export const login = async (req, res) => {
   }
 };
 
-export const logout = async (req, res) => {};
+export const logout = async (req, res) => {
+  let user = null;
+  const userInfo = req.headers["x-user-info"];
+  if (userInfo) {
+    user = JSON.parse(userInfo);
+    console.log("User Info:", user);
+  } else {
+    return res.status(400).json({ message: "No user info provided" });
+  }
+
+  const session = await Session.findOne({ userId: user._id });
+  if (!session) {
+    return res.status(400).json({ message: "No active session found" });
+  }
+
+  await Session.deleteOne({ userId: user._id });
+  console.log("Session deleted for user:", user._id);
+
+  return res.status(200).json({
+    success: true,
+    message: "Logout successful",
+  });
+};
 
 export const verifyToken = async (req, res) => {
   const { token } = req.body;
+
+  console.log("[🔑] Verifying token:", token);
 
   if (!token) {
     return res
@@ -186,11 +262,11 @@ export const verifyToken = async (req, res) => {
 
   try {
     const decoded = verifyJwtToken(token);
-
+    console.log("[🔑] Token decoded:", decoded);
     return res.status(200).json({
       success: true,
       data: {
-        userId: decoded.userId,
+        userId: decoded.id,
         role: decoded.role,
         email: decoded.email,
         username: decoded.username,
