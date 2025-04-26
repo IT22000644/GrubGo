@@ -772,16 +772,22 @@ export const ManageRestaurant = () => {
         {singleMenu ? (
           <div className="space-y-4">
             <h3 className="text-lg font-bold">{singleMenu.title}</h3>
-            <p className="text-sm text-gray-600">{singleMenu.description}</p>
             <p className="text-sm text-gray-600">
-              Available: {singleMenu.available ? "Yes" : "No"}
+              <span className="font-medium">Description:</span>{" "}
+              {singleMenu.description}
             </p>
             <p className="text-sm text-gray-600">
-              Offers: {singleMenu.offers ? "Yes" : "No"}
+              <span className="font-medium">Available:</span>{" "}
+              {singleMenu.available ? "Yes" : "No"}
+            </p>
+            <p className="text-sm text-gray-600">
+              <span className="font-medium">Offers: </span>
+              {singleMenu.offers ? "Yes" : "No"}
             </p>
             {singleMenu.offers && (
               <p className="text-sm text-gray-600">
-                Offer Discount: {singleMenu.offerDiscount}%
+                <span className="font-medium">Offer Discount: </span>{" "}
+                {singleMenu.offerDiscount}%
               </p>
             )}
             <div>

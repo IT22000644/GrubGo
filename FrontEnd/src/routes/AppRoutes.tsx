@@ -15,18 +15,18 @@ import CustomerTracking from "../pages/delivery/CustomerTracking";
 import DriverView from "../pages/delivery/DriverView";
 import NotFound from "../pages/common/NotFound";
 import Contact from "../pages/main/ContactUs";
-import { AllRestaurants } from "../pages/restaurent/allRestaurants/AllRestaurants";
-import RestaurantDetails from "../pages/restaurent/restaurantDetails/restaurantDetails";
+import { AllRestaurants } from "../pages/restaurant/allRestaurants/AllRestaurants";
+
 import OrderPage from "../pages/order/OrderPage";
 import CartPage from "../pages/order/CartPage";
-import { ManageRestaurant } from "../pages/restaurent/manageRestaurant/ManageResturant";
+import { ManageRestaurant } from "../pages/restaurant/manageRestaurant/ManageRestaurant";
 import AdminLayout from "../layouts/AdminLayout";
 import { AdminDashboard } from "../pages/admin/adminDashboard";
-import { AdminRestaurants } from "../pages/restaurent/adminRestaurants/AdminRestaurants";
-
+import { AdminRestaurants } from "../pages/restaurant/adminRestaurants/AdminRestaurants";
 
 // import DeliveryTracking from "../pages/delivery/DeliveryTracking";
-import RestaurantOrderPage from "../pages/restaurent/showingorders/Orderpage";
+import RestaurantOrderPage from "../pages/restaurant/showingorders/Orderpage";
+import RestaurantDetails from "../pages/restaurant/restaurantDetails/restaurantDetails";
 //import OrderPage from "../pages/restaurent/showingorders/Orderpage";
 
 const AppRoutes: React.FC = () => {
@@ -45,9 +45,15 @@ const AppRoutes: React.FC = () => {
 
         <Route path="/delivery" element={<DeliveryAssign />} />
 
-        <Route path="/cart" element={<CartPage customerId="6611e8f4a1fbb93be88a1a5c" />} />
+        <Route
+          path="/cart"
+          element={<CartPage customerId="6611e8f4a1fbb93be88a1a5c" />}
+        />
 
-        <Route path="/orders" element={<OrderPage customerId="6611e8f4a1fbb93be88a1a5c" />} />
+        <Route
+          path="/orders"
+          element={<OrderPage customerId="6611e8f4a1fbb93be88a1a5c" />}
+        />
 
         <Route path="/delivery-assign" element={<DeliveryAssign />} />
         <Route path="/delivery-control" element={<DeliveryControl />} />
