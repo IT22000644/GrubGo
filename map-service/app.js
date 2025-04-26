@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.use("/api/map", mapRoutes);
+app.use("/", mapRoutes);
 
 const PORT = process.env.PORT || 5004;
 app.listen(PORT, () => {

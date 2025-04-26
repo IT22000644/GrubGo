@@ -23,120 +23,147 @@ export default function AssignDeliveryDataLoader() {
     }, 60000);
 
     const loadData = async () => {
+      // 1. Get Order by ID
+      let orderRes;
       try {
-        // 1. Get Order by ID
-        const orderRes = await api5011.get(`orders/${orderId}`);
-        const {
-          customerId,
-          restaurantId,
-          address: customerAddress,
-        } = orderRes.data;
+        orderRes = await api5011.get(`orders/${orderId}`);
+      } catch (err) {
+        clearTimeout(timeoutId);
+        return navigate("/error", {
+          state: { message: "Order details cannot be found." },
+        });
+      }
+      const {
+        customerId,
+        restaurantId,
+        address: customerAddress,
+      } = orderRes.data;
 
-        // 2. Get Customer Info
-        const customerRes = await axios.get(
+      // 2. Get Customer Info
+      let customerRes;
+      try {
+        customerRes = await axios.get(
           `http://localhost:5002/api/user/${customerId}`
         );
-        const { username: customerName, profilePicture: customerImage } =
-          customerRes.data;
-
-        // 3. Get Restaurant Info
-        const restaurantRes = await api1.get(`restaurants/${restaurantId}`);
-        const {
-          name: restaurantName,
-          address: restaurantAddress,
-          images: [restaurantImage],
-        } = restaurantRes.data;
-
-        // 4. Get Coordinates
-        const customerCoordRes = await api5004.post(`map/coordinate`, {
-          address: customerAddress,
+      } catch (err) {
+        clearTimeout(timeoutId);
+        return navigate("/error", {
+          state: { message: "Customer details cannot be found." },
         });
-        const restaurantCoordRes = await api5004.post(`map/coordinate`, {
-          address: restaurantAddress,
+      }
+      const { username: customerName, profilePicture: customerImage } =
+        customerRes.data;
+
+      // 3. Get Restaurant Info
+      let restaurantRes;
+      try {
+        restaurantRes = await api1.get(`restaurants/${restaurantId}`);
+      } catch (err) {
+        clearTimeout(timeoutId);
+        return navigate("/error", {
+          state: { message: "Restaurant details cannot be found." },
         });
+      }
+      const {
+        name: restaurantName,
+        address: restaurantAddress,
+        images: [restaurantImage],
+      } = restaurantRes.data;
 
-        const customerLocation = customerCoordRes.data;
-        const restaurantLocation = restaurantCoordRes.data;
-
-        interface ActiveRider {
-          _id: string;
-          userId: string;
-          currentLocation: { lat: number; lng: number };
-        }
-
-        const allDriversRes = await axios.get<{
-          success: boolean;
-          data: ActiveRider[];
-        }>("http://localhost:5002/active-riders");
-
-        if (!allDriversRes.data.success) {
-          console.error("No active riders found");
-          return [];
-        }
-
-        const payloadRiders = allDriversRes.data.data.map((r) => ({
-          userId: r._id,
-          currentLocation: r.currentLocation,
-        }));
-
-        // 6. Find the closest driver
-        const closestDriverRes = await axios.post<{
-          id: string;
-          currentLocation: { lat: number; lng: number };
-          distance: number;
-        }>("http://localhost:5004/api/map/closest-rider", {
-          baseLocation: restaurantAddress,
-          data: payloadRiders,
+      // 4. Get Coordinates
+      let customerCoordRes, restaurantCoordRes;
+      try {
+        [customerCoordRes, restaurantCoordRes] = await Promise.all([
+          api5004.post(`map/coordinate`, { address: customerAddress }),
+          api5004.post(`map/coordinate`, { address: restaurantAddress }),
+        ]);
+      } catch (err) {
+        clearTimeout(timeoutId);
+        return navigate("/error", {
+          state: { message: "Could not resolve one or more addresses." },
         });
+      }
+      const customerLocation = customerCoordRes.data;
+      const restaurantLocation = restaurantCoordRes.data;
 
-        const { id: driverId, currentLocation: driverLocation } =
-          closestDriverRes.data;
+      // 5. Get Active Riders
+      let allDriversRes;
+      try {
+        allDriversRes = await axios.get("http://localhost:5002/active-riders");
+        if (!allDriversRes.data.success) throw new Error("No active riders");
+      } catch (err) {
+        clearTimeout(timeoutId);
+        return navigate("/error", {
+          state: { message: "No active riders available right now." },
+        });
+      }
+      const payloadRiders = allDriversRes.data.data.map((r: any) => ({
+        userId: r._id,
+        currentLocation: r.currentLocation,
+      }));
 
-        // 7. Get Driver Info
-        const driverRes = await axios.get(
+      // 6. Find the closest driver
+      let closestDriverRes;
+      try {
+        closestDriverRes = await axios.post(
+          `http://localhost:5004/api/map/closest-rider`,
+          {
+            baseLocation: restaurantAddress,
+            data: payloadRiders,
+          }
+        );
+      } catch (err) {
+        clearTimeout(timeoutId);
+        return navigate("/error", {
+          state: { message: "Could not find the closest rider." },
+        });
+      }
+      const { id: driverId, currentLocation: driverLocation } =
+        closestDriverRes.data;
+
+      // 7. Get Driver Info
+      let driverRes;
+      try {
+        driverRes = await axios.get(
           `http://localhost:5002/api/user/${driverId}`
         );
-        const {
-          fullName: driverName,
-          image: driverImage,
+      } catch (err) {
+        clearTimeout(timeoutId);
+        return navigate("/error", {
+          state: { message: "Driver details cannot be found." },
+        });
+      }
+      const {
+        fullName: driverName,
+        image: driverImage,
+        vehicleNumber,
+        vehicleType,
+        vehicleModel,
+        vehicleColor,
+      } = driverRes.data;
+
+      clearTimeout(timeoutId);
+      navigate("/delivery-assign", {
+        state: {
+          orderId,
+          driverId,
+          restaurantAddress,
+          customerAddress,
+          driverLocation,
+          restaurantLocation,
+          customerLocation,
+          driverName,
+          driverImage,
           vehicleNumber,
           vehicleType,
           vehicleModel,
           vehicleColor,
-        } = driverRes.data;
-
-        clearTimeout(timeoutId);
-
-        // 9. Navigate to DeliveryAssign.tsx
-        navigate("/delivery-assign", {
-          state: {
-            orderId,
-            driverId,
-            //            driverAddress,
-            restaurantAddress,
-            customerAddress,
-            driverLocation,
-            restaurantLocation,
-            customerLocation,
-            driverName,
-            driverImage,
-            vehicleNumber,
-            vehicleType,
-            vehicleModel,
-            vehicleColor,
-            customerName,
-            customerImage,
-            restaurantName,
-            restaurantImage,
-          },
-        });
-      } catch (error) {
-        console.error("Failed to gather delivery assignment data", error);
-        clearTimeout(timeoutId);
-        navigate("/error", {
-          state: { message: "Failed to assign delivery. Please try again." },
-        });
-      }
+          customerName,
+          customerImage,
+          restaurantName,
+          restaurantImage,
+        },
+      });
     };
 
     loadData();
