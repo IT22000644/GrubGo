@@ -218,7 +218,7 @@ export default function CustomerTracking() {
 
   useEffect(() => {
     if (!connectedRef.current) {
-      socketRef.current = io("http://localhost:5005");
+      socketRef.current = io("http://localhost:4006");
       socketRef.current.on("connect", () => {
         console.log("Socket connected:", socketRef.current?.id);
         connectedRef.current = true;

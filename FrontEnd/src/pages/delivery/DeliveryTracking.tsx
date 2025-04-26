@@ -194,7 +194,7 @@ export default function DeliveryTracking() {
 
   useEffect(() => {
     if (!connectedRef.current) {
-      socketRef.current = io("http://localhost:5005");
+      socketRef.current = io("http://localhost:4006");
       socketRef.current.on("connect", () => {
         connectedRef.current = true;
       });

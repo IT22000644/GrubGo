@@ -98,7 +98,7 @@ export default function DeliveryAssign() {
   };
 
   useEffect(() => {
-    socketRef.current = io("http://localhost:5005");
+    socketRef.current = io("http://localhost:4006");
     socketRef.current.on("connect", () => {
       console.log("WebSocket connected:", socketRef.current?.id);
     });
