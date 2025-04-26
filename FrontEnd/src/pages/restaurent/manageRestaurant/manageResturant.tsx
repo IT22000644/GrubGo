@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import { api1 } from "../../../api/axios";
 import {
   Ban,
-  Cat,
   CookingPot,
   DoorClosed,
   DoorOpen,
@@ -16,7 +15,7 @@ import Modal from "../../../components/modal/Modal";
 import MenuTable from "./MenuTable";
 import { FoodMenu, Restaurant } from "./ManageRestaurant.types";
 import CategorySelector from "./categorySelector/CategorySelector";
-import { form } from "framer-motion/client";
+
 type Review = {
   _id: string;
   user: string;
