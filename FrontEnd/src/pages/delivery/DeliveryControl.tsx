@@ -13,7 +13,7 @@ export default function DeliveryControl() {
     if (!orderId) return alert("Please enter an Order ID.");
 
     try {
-      const { data } = await api5005.get(`deliveries/order/${orderId}`);
+      const { data } = await api5005.get(`delivery/order/${orderId}`);
 
       const delivery = data.deliveries?.[0];
       if (!delivery) return alert("No delivery found for this Order ID");
@@ -89,7 +89,7 @@ export default function DeliveryControl() {
     if (!orderId) return alert("Please enter an Order ID.");
 
     try {
-      const { data } = await api5005.get(`deliveries/order/${orderId}`);
+      const { data } = await api5005.get(`delivery/order/${orderId}`);
 
       const delivery = data.deliveries?.[0];
       if (!delivery) return alert("No delivery found for this Order ID");

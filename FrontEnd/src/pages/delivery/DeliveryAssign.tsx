@@ -98,7 +98,7 @@ export default function DeliveryAssign() {
   };
 
   useEffect(() => {
-    socketRef.current = io("http://localhost:5005");
+    socketRef.current = io("http://localhost:4006");
     socketRef.current.on("connect", () => {
       console.log("WebSocket connected:", socketRef.current?.id);
     });
@@ -181,7 +181,7 @@ export default function DeliveryAssign() {
 
     try {
       const { delivery } = (
-        await api5005.post<AssignPayload>("deliveries/assign", {
+        await api5005.post<AssignPayload>("delivery/assign", {
           orderId: ORDER_ID,
           driverId: "34ga21e5624f2dfbc3284h65",
           driverAddress,

@@ -23,7 +23,7 @@ const DriverView = () => {
   const fetchDriverDeliveries = async () => {
     try {
       const driverId = "34ga21e5624f2dfbc3284h65";
-      const { data } = await api5005.get(`deliveries/driver/${driverId}`);
+      const { data } = await api5005.get(`delivery/driver/${driverId}`);
       setDeliveries(data.deliveries);
     } catch (error) {
       console.error("Error fetching deliveries:", error);

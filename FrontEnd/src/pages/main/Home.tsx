@@ -11,7 +11,7 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import { api1, api2 } from "../../api/axios";
-import { Restaurant } from "../restaurent/allRestaurants/AllRestaurants.types";
+import { Restaurant } from "../restaurant/allRestaurants/AllRestaurants.types";
 import image1 from "../../assets/Images/daniel-T_PbUhfwd0U-unsplash.jpg";
 import image2 from "../../assets/Images/daniel-eUhCKM0ntrg-unsplash.jpg";
 import image3 from "../../assets/Images/vinn-koonyosying-vBOxsZrfiCw-unsplash.jpg";

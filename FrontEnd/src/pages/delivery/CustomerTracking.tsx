@@ -115,7 +115,7 @@ export default function CustomerTracking() {
 
     try {
       const res = await api5005.get<DeliveryStatusResponse>(
-        `deliveries/status/${deliveryIdRef.current}`
+        `delivery/status/${deliveryIdRef.current}`
       );
       const data = res.data;
 
@@ -218,7 +218,7 @@ export default function CustomerTracking() {
 
   useEffect(() => {
     if (!connectedRef.current) {
-      socketRef.current = io("http://localhost:5005");
+      socketRef.current = io("http://localhost:4006");
       socketRef.current.on("connect", () => {
         console.log("Socket connected:", socketRef.current?.id);
         connectedRef.current = true;
