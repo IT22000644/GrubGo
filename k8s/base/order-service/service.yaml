@@ -6,5 +6,5 @@ spec:
   selector:
     app: order-service
   ports:
-    - port: 4002
-      targetPort: 4002
+    - port: 4004
+      targetPort: 4004

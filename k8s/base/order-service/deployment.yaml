@@ -16,7 +16,7 @@ spec:
         - name: order-service
           image: manilkanav/order-service:latest
           ports:
-            - containerPort: 4002
+            - containerPort: 4004
           envFrom:
             - configMapRef:
                 name: order-config

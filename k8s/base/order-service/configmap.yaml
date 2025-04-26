@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: order-config
 data:
-  PORT: "4002"
+  PORT: "4004"
   MONGO_URI: "mongodb://mongo-order:27017/orderdb"
   RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
   CLIENT_URL: "http://localhost:5173"
