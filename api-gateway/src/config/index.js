@@ -10,4 +10,5 @@ export const {
   ORDER_SERVICE_URL,
   PAYMENT_SERVICE_URL,
   REVIEW_SERVICE_URL,
+  MAP_SERVICE_URL,
 } = process.env;

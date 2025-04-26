@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: map-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: map-service
+  template:
+    metadata:
+      labels:
+        app: map-service
+    spec:
+      containers:
+        - name: map-service
+          image: manilkanav/map-service:latest
+          ports:
+            - containerPort: 4009
+          envFrom:
+            - configMapRef:
+                name: map-config
+            - secretRef:
+                name: map-secret
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "128Mi"

@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { authProxy } from "../proxies/auth.js";
+import { mapProxy } from "../proxies/map.js";
 
-const authRoutes = Router();
+const mapRoutes = Router();
 
-authRoutes.use("/", authProxy);
+mapRoutes.use("/", mapProxy);
 
-export default authRoutes;
+export default mapRoutes;

@@ -7,6 +7,7 @@ import paymentRoutes from "./routes/payment.routes.js";
 import deliveryRoutes from "./routes/delivery.routes.js";
 import reviewRoutes from "./routes/review.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import mapRoutes from "./routes/auth.routes.js";
 
 const app = express();
 app.use(express.json());
@@ -22,6 +23,7 @@ app.use("/order", orderRoutes);
 app.use("/payment", paymentRoutes);
 app.use("/delivery", deliveryRoutes);
 app.use("/review", reviewRoutes);
+app.use("/map", mapRoutes);
 
 const PORT = process.env.PORT || 3000;
 

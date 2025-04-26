@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: map-service
+spec:
+  selector:
+    app: map-service
+  ports:
+    - port: 4009
+      targetPort: 4009
