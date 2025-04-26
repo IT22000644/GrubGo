@@ -181,7 +181,7 @@ export default function DeliveryAssign() {
 
     try {
       const { delivery } = (
-        await api5005.post<AssignPayload>("deliveries/assign", {
+        await api5005.post<AssignPayload>("delivery/assign", {
           orderId: ORDER_ID,
           driverId: "34ga21e5624f2dfbc3284h65",
           driverAddress,

@@ -108,7 +108,7 @@ export default function DeliveryTracking() {
 
     try {
       const res = await api5005.get<DeliveryStatusResponse>(
-        `deliveries/status/${deliveryIdRef.current}`
+        `delivery/status/${deliveryIdRef.current}`
       );
       const data = res.data;
 
@@ -229,7 +229,7 @@ export default function DeliveryTracking() {
 
   const handlePickedUp = useCallback(async () => {
     try {
-      await api5005.put("deliveries/status/picked-up", {
+      await api5005.put("delivery/status/picked-up", {
         deliveryId: deliveryIdRef.current,
       });
       lastFetchedStatusRef.current = null;
@@ -241,7 +241,7 @@ export default function DeliveryTracking() {
 
   const handleDelivered = useCallback(async () => {
     try {
-      await api5005.put("deliveries/status/delivered", {
+      await api5005.put("delivery/status/delivered", {
         deliveryId: deliveryIdRef.current,
       });
       lastFetchedStatusRef.current = null;

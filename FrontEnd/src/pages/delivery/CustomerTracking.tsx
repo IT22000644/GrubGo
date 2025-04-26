@@ -115,7 +115,7 @@ export default function CustomerTracking() {
 
     try {
       const res = await api5005.get<DeliveryStatusResponse>(
-        `deliveries/status/${deliveryIdRef.current}`
+        `delivery/status/${deliveryIdRef.current}`
       );
       const data = res.data;
 
