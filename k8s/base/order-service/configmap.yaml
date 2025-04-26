@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: user-config
+  name: order-config
 data:
   PORT: "4002"
-  MONGODB_URI: "mongodb://user-mongo:27017/userdb"
+  MONGODB_URI: "mongodb://mongo-order:27017/orderdb"
