@@ -23,8 +23,10 @@ import { ManageRestaurant } from "../pages/restaurent/manageRestaurant/ManageRes
 import AdminLayout from "../layouts/AdminLayout";
 import { AdminDashboard } from "../pages/admin/adminDashboard";
 
+
 // import DeliveryTracking from "../pages/delivery/DeliveryTracking";
 import RestaurantOrderPage from "../pages/restaurent/showingorders/Orderpage";
+//import OrderPage from "../pages/restaurent/showingorders/Orderpage";
 
 const AppRoutes: React.FC = () => {
   return (
