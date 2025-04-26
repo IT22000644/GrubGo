@@ -22,6 +22,7 @@ import CartPage from "../pages/order/CartPage";
 import { ManageRestaurant } from "../pages/restaurent/manageRestaurant/ManageResturant";
 import AdminLayout from "../layouts/AdminLayout";
 import { AdminDashboard } from "../pages/admin/adminDashboard";
+import { AdminRestaurants } from "../pages/restaurent/adminRestaurants/AdminRestaurants";
 
 
 // import DeliveryTracking from "../pages/delivery/DeliveryTracking";
@@ -57,6 +58,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="restaurant" element={<AdminRestaurants />} />
 
         <Route path="*" element={<NotFound />} />
       </Route>
