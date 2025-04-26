@@ -142,6 +142,24 @@ export default function AssignDeliveryDataLoader() {
         vehicleColor,
       } = driverRes.data;
 
+      // 8. Get Driver's Address
+      let driverAddress = "";
+      try {
+        const driverAddressRes = await axios.post(
+          "http://localhost:5004/api/map/address", 
+          {
+            latitude: driverLocation.latitude,
+            longitude: driverLocation.longitude,
+          }
+        );
+        driverAddress = driverAddressRes.data.address; 
+      } catch (err) {
+        clearTimeout(timeoutId);
+        return navigate("/error", {
+          state: { message: "Driver Address cannot be converted." },
+        });
+      }
+
       clearTimeout(timeoutId);
       navigate("/delivery-assign", {
         state: {
@@ -149,6 +167,7 @@ export default function AssignDeliveryDataLoader() {
           driverId,
           restaurantAddress,
           customerAddress,
+          driverAddress,
           driverLocation,
           restaurantLocation,
           customerLocation,

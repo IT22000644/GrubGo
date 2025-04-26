@@ -11,6 +11,7 @@ import MainLayout from "../layouts/MainLayout";
 import DeliveryAssign from "../pages/delivery/DeliveryAssign";
 import DeliveryControl from "../pages/delivery/DeliveryControl";
 import DeliveryTracking from "../pages/delivery/DeliveryTracking";
+import DeliveryDataLoader from "../pages/delivery/DeliveryDataLoader";
 import CustomerTracking from "../pages/delivery/CustomerTracking";
 import DriverView from "../pages/delivery/DriverView";
 import NotFound from "../pages/common/NotFound";
@@ -24,7 +25,6 @@ import AdminLayout from "../layouts/AdminLayout";
 import { AdminDashboard } from "../pages/admin/adminDashboard";
 import { AdminRestaurants } from "../pages/restaurant/adminRestaurants/AdminRestaurants";
 
-// import DeliveryTracking from "../pages/delivery/DeliveryTracking";
 import RestaurantOrderPage from "../pages/restaurant/showingorders/Orderpage";
 import RestaurantDetails from "../pages/restaurant/restaurantDetails/restaurantDetails";
 //import OrderPage from "../pages/restaurent/showingorders/Orderpage";
@@ -56,6 +56,7 @@ const AppRoutes: React.FC = () => {
         />
 
         <Route path="/delivery-assign" element={<DeliveryAssign />} />
+        <Route path="/delivery-loader" element={<DeliveryDataLoader />} />
         <Route path="/delivery-control" element={<DeliveryControl />} />
         <Route path="/delivery-tracking" element={<DeliveryTracking />} />
         <Route path="/customer-tracking" element={<CustomerTracking />} />

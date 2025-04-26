@@ -24,14 +24,25 @@ export interface LatLng {
   longitude: number;
 }
 
-export interface DeliveryRoute {
-  driverLocation: LatLng;
-  restaurantLocation: LatLng;
-  customerLocation: LatLng;
+export type DeliveryRoute = {
+  driverLocation: {
+    latitude: number;
+    longitude: number;
+  };
+  restaurantLocation: {
+    latitude: number;
+    longitude: number;
+  };
+  customerLocation: {
+    latitude: number;
+    longitude: number;
+  };
+
   vehicleType?: string;
+  vehicleModel?: string;
   vehicleColor?: string;
   vehicleNumber?: string;
-}
+};
 
 interface Props {
   route?: DeliveryRoute;
