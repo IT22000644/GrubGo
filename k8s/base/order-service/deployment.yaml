@@ -1,25 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: user-service
+  name: order-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: user-service
+      app: order-service
   template:
     metadata:
       labels:
-        app: user-service
+        app: order-service
     spec:
       containers:
-        - name: user-service
-          image: manilkanav/user-service:latest
+        - name: order-service
+          image: manilkanav/order-service:latest
           ports:
             - containerPort: 4002
           envFrom:
             - configMapRef:
-                name: user-config
+                name: order-config
+            - secretRef:
+                name: order-secret
           resources:
             requests:
               cpu: "50m"

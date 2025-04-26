@@ -100,7 +100,7 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
     if (!selectedCart) return;
 
     try {
-      const orderRes = await api5011.post("/orders", {
+      const orderRes = await api5011.post("/order", {
         customerId,
         restaurantId: selectedCart.restaurantId,
         address,
@@ -108,7 +108,7 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
 
       const order = orderRes.data.order;
 
-      const checkoutRes = await api5011.post(`/orders/${order._id}/checkout/`);
+      const checkoutRes = await api5011.post(`/order/${order._id}/checkout/`);
       const { url } = checkoutRes.data;
 
       window.location.href = url;

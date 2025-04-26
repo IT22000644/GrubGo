@@ -3,3 +3,5 @@ resources:
   - auth-service
   - user-service
   - delivery-service
+  - map-service
+  - order-service
