@@ -17,14 +17,14 @@ app.use(express.json());
 
 connectDB();
 
-app.use("/api/orders", orderRoutes);
-app.use("/api/cart", cartRoutes);
+app.use("/order", orderRoutes);
+app.use("/cart", cartRoutes);
 
 const PORT = process.env.PORT || 5011;
 const startServer = async () => {
   await connectQueue();
   await consumePaymentDoneQueue();
-  await listenToDeliveryQueue();
+  // await listenToDeliveryQueue();
   app.listen(PORT, () => console.log(`Order service running on port ${PORT}`));
 };
 
