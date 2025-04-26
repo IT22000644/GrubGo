@@ -4,7 +4,6 @@ import { Restaurant, Food } from "../allRestaurants/AllRestaurants.types";
 
 import { api1, api2 } from "../../../api/axios";
 import api5011 from "../../../api/api5011";
-
 import {
   Star,
   MapPin,
@@ -42,6 +41,7 @@ export const RestaurantDetails = () => {
   const navigate = useNavigate();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [reviewLoading, setReviewLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<string>("menu");
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
@@ -56,27 +56,17 @@ export const RestaurantDetails = () => {
   const [cartError, setCartError] = useState<string | null>(null);
   const [cartSuccess, setCartSuccess] = useState<boolean>(false);
 
-  const customerId = localStorage.getItem('customerId') || "customer123";
-
+  const customerId = localStorage.getItem("customerId") || "6611e8f4a1fbb93be88a1a5c";
 
   useEffect(() => {
     const fetchRestaurantDetails = async () => {
       try {
         setLoading(true);
         const response = await api1.get(`/restaurants/${id}`);
-        const reviewsResponse = await api2.get(`/restaurantreviews/${id}`);
         setRestaurant(response.data.restaurant);
-        setReviews(reviewsResponse.data);
-        const averageRating = getAverageRating(reviewsResponse.data);
-        setAverage(averageRating);
-
         if (response.data.restaurant?.menus?.length > 0) {
           setSelectedMenu(response.data.restaurant.menus[0]._id);
         }
-        const interval = setInterval(() => {
-          setCurrent((prev) => (prev + 1) % reviewsResponse.data.length);
-        }, 5000);
-        return () => clearInterval(interval);
       } catch (error) {
         console.error("Failed to fetch restaurant details:", error);
       } finally {
@@ -85,8 +75,27 @@ export const RestaurantDetails = () => {
       if (!autoplayEnabled) return;
     };
 
+    const fetchReview = async () => {
+      try {
+        setReviewLoading(true);
+        const reviewsResponse = await api2.get(`/restaurantreviews/${id}`);
+        setReviews(reviewsResponse.data);
+        const averageRating = getAverageRating(reviewsResponse.data);
+        setAverage(averageRating);
+        const interval = setInterval(() => {
+          setCurrent((prev) => (prev + 1) % reviewsResponse.data.length);
+        }, 5000);
+        return () => clearInterval(interval);
+      } catch (err) {
+        console.log("Review fetching error", err);
+      } finally {
+        setReviewLoading(false);
+      }
+    };
+
     if (id) {
       fetchRestaurantDetails();
+      fetchReview();
     }
   }, [id]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -147,30 +156,25 @@ export const RestaurantDetails = () => {
     try {
       setCartLoading(true);
       setCartError(null);
-      
-      // First add to local cart for immediate UI feedback
       addItemToLocalCart(item);
-      
-      // Then sync with the server
-      const cartItems = [{
-        foodItemId: item._id,
-        name: item.name,
-        price: calculateFinalPrice(item.price, item.discount),
-        quantity: 1
-      }];
-      
-      const response = await api5011.post(
-        `/cart/${customerId}/items`, 
+      const cartItems = [
         {
-          restaurantId: id,
-          items: cartItems
-        }
-      );
-      
+          foodItemId: item._id,
+          name: item.name,
+          price: calculateFinalPrice(item.price, item.discount),
+          quantity: 1,
+        },
+      ];
+
+      const response = await api5011.post(`/cart/${customerId}/items`, {
+        restaurantId: id,
+        items: cartItems,
+      });
+
       // Show success feedback
       setCartSuccess(true);
       setTimeout(() => setCartSuccess(false), 2000);
-      
+
       console.log("Item added to cart successfully:", response.data);
       return response.data;
     } catch (error) {
@@ -182,7 +186,6 @@ export const RestaurantDetails = () => {
     }
   };
 
-  // Replace the existing addToCart function with this one
   const addToCart = (item: Food) => {
     addToCartAPI(item);
   };
@@ -194,14 +197,13 @@ export const RestaurantDetails = () => {
 
   const CartNotification = () => {
     if (!cartSuccess) return null;
-    
+
     return (
       <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in-out">
         Item added to cart successfully!
       </div>
     );
   };
-
 
   if (loading) {
     return <Loader />;
@@ -271,11 +273,10 @@ export const RestaurantDetails = () => {
               <button
                 key={index}
                 onClick={() => setActiveImageIndex(index)}
-                className={`w-12 h-12 rounded-md overflow-hidden border-2 transition-all ${
-                  index === activeImageIndex
+                className={`w-12 h-12 rounded-md overflow-hidden border-2 transition-all ${index === activeImageIndex
                     ? "border-primary/90 dark:border-accent/90 scale-110"
                     : "border-white/80"
-                }`}
+                  }`}
               >
                 <img
                   src={img}
@@ -452,31 +453,28 @@ export const RestaurantDetails = () => {
           <nav className="flex space-x-8 overflow-x-auto">
             <button
               onClick={() => handleTabChange("menu")}
-              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                activeTab === "menu"
+              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === "menu"
                   ? "border-dark text-dark dark:text-text_white dark:border-white"
                   : "border-transparent text-primary hover:text-text_gray_600 hover:border-gray-300 dark:text-accent dark:hover:text-white"
-              }`}
+                }`}
             >
               Menu
             </button>
             <button
               onClick={() => handleTabChange("photos")}
-              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                activeTab === "photos"
+              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === "photos"
                   ? "border-dark text-dark dark:text-text_white dark:border-white"
                   : "border-transparent text-primary hover:text-text_gray_600 hover:border-gray-300 dark:text-accent dark:hover:text-white"
-              }`}
+                }`}
             >
               Photos
             </button>
             <button
               onClick={() => handleTabChange("about")}
-              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                activeTab === "about"
+              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === "about"
                   ? "border-dark text-dark dark:text-text_white dark:border-white"
                   : "border-transparent text-primary hover:text-text_gray_600 hover:border-gray-300 dark:text-accent dark:hover:text-white"
-              }`}
+                }`}
             >
               Information
             </button>
@@ -492,11 +490,10 @@ export const RestaurantDetails = () => {
                     <button
                       key={menu._id}
                       onClick={() => setSelectedMenu(menu._id)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium ${
-                        selectedMenu === menu._id
+                      className={`px-4 py-2 rounded-full text-sm font-medium ${selectedMenu === menu._id
                           ? "bg-primary text-white dark:bg-accent"
                           : "bg-white text-gray-700 hover:bg-gray-100 dark:bg-dark dark:text-text_white dark:hover:bg-accent"
-                      } border border-gray-200 dark:border-black shadow-sm transition`}
+                        } border border-gray-200 dark:border-black shadow-sm transition`}
                     >
                       {menu.title}
                       {menu.offers && (
@@ -549,9 +546,8 @@ export const RestaurantDetails = () => {
                               >
                                 <img
                                   src={img}
-                                  alt={`${selectedMenuData.title} image ${
-                                    idx + 1
-                                  }`}
+                                  alt={`${selectedMenuData.title} image ${idx + 1
+                                    }`}
                                   className="w-full h-40 object-cover hover:opacity-90 transition-opacity"
                                 />
                               </div>
@@ -572,7 +568,7 @@ export const RestaurantDetails = () => {
                     </h3>
 
                     {selectedMenuData.items &&
-                    selectedMenuData.items.length > 0 ? (
+                      selectedMenuData.items.length > 0 ? (
                       <div className="space-y-6">
                         {Array.from(
                           new Set(
@@ -911,11 +907,10 @@ export const RestaurantDetails = () => {
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    index === currentIndex
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentIndex
                       ? "bg-primary w-6"
                       : "bg-gray-300 hover:bg-gray-400"
-                  }`}
+                    }`}
                   aria-label={`Go to review ${index + 1}`}
                 />
               ))}
@@ -932,17 +927,16 @@ export const RestaurantDetails = () => {
 
           <button
             onClick={toggleAutoplay}
-            className={`mt-4 text-sm px-3 py-1 rounded-full transition-colors duration-200 ${
-              autoplayEnabled
+            className={`mt-4 text-sm px-3 py-1 rounded-full transition-colors duration-200 ${autoplayEnabled
                 ? "bg-primary/30 text-primary/90"
                 : "bg-primary/20 text-primary/60"
-            }`}
+              }`}
           >
             {autoplayEnabled ? "Pause Autoplay" : "Enable Autoplay"}
           </button>
         </div>
       ) : (
-        <div className="w-full max-w-3xl mx-auto p-6 bg-white rounded-2xl shadow-lg flex flex-col items-center">
+        <div className="w-full max-w-full mx-4 p-6 bg-white rounded-2xl shadow-lg flex flex-col items-center">
           <p className="text-xl font-semibold mb-2 text-gray-800">
             No Reviews Yet
           </p>

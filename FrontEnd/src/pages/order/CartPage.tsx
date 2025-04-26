@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import CartCard from "../../components/Cart/CartCard";
 import CartModal from "../../components/Cart/CartModal";
 import { Cart, CartItem } from "../../components/Cart/types";
-import OrderPage from "./OrderPage";
 import api5011 from "../../api/api5011";
 import { api1 } from "../../api/axios";
+import { ShoppingCart } from "lucide-react";
 
 interface CartPageProps {
   customerId: string;
@@ -16,7 +15,6 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
   const [error, setError] = useState<string | null>(null);
   const [selectedCart, setSelectedCart] = useState<Cart | null>(null);
   const [showMenu, setShowMenu] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<"cart" | "order">("cart");
 
   useEffect(() => {
     fetchCarts();
@@ -33,7 +31,6 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
         data.map(async (cart) => {
           try {
             const res = await api1.get(`/restaurants/${cart.restaurantId}`);
-            console.log(res.data);
             return {
               ...cart,
               restaurantName: res.data.restaurant.name,
@@ -122,52 +119,24 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto border border-black dark:border-slate-700 rounded-lg shadow-lg mt-10 bg-white dark:bg-slate-900 h-[65vh]">
-      <div className="flex justify-center mb-6">
-        <button
-          onClick={() => setSelectedTab("cart")}
-          className={`px-4 py-2 font-semibold rounded-l-lg border border-black dark:border-slate-700 w-full ${
-            selectedTab === "cart"
-              ? "bg-black text-white"
-              : "bg-white text-black dark:bg-slate-800 dark:text-white"
-          }`}
-        >
-          Cart
-        </button>
-        <button
-          onClick={() => setSelectedTab("order")}
-          className={`px-4 py-2 font-semibold rounded-r-lg border border-black dark:border-slate-700 w-full ${
-            selectedTab === "order"
-              ? "bg-black text-white"
-              : "bg-white text-black dark:bg-slate-800 dark:text-white"
-          }`}
-        >
-          Orders
-        </button>
-      </div>
-
-      {selectedTab === "cart" ? (
-        <>
-          {error && (
-            <p className="text-red-500 text-center font-medium">{error}</p>
-          )}
-          <div className="h-[50vh] overflow-y-auto space-y-4 pr-2">
-            {carts.map((cart) => (
-              <CartCard
-                key={cart._id}
-                cart={cart}
-                calculateTotalPrice={calculateTotalPrice}
-                onView={() => {
-                  setSelectedCart(cart);
-                  setShowMenu(false);
-                }}
-              />
-            ))}
-          </div>
-        </>
-      ) : (
-        <OrderPage customerId={customerId} />
+    <div className="p-5 max-w-4xl mx-auto  rounded-lg shadow-lg mt-10 bg-white dark:bg-slate-900 h-[65vh]">
+      <div className="flex font-bold text-2xl items-center gap-5 justify-center ">Your Carts <ShoppingCart /></div>
+      {error && (
+        <p className="text-red-500 text-center font-medium mt-5">{error}</p>
       )}
+      <div className="h-[50vh] overflow-y-auto space-y-4 pr-2 mt-3">
+        {carts.map((cart) => (
+          <CartCard
+            key={cart._id}
+            cart={cart}
+            calculateTotalPrice={calculateTotalPrice}
+            onView={() => {
+              setSelectedCart(cart);
+              setShowMenu(false);
+            }}
+          />
+        ))}
+      </div>
 
       {selectedCart && (
         <CartModal

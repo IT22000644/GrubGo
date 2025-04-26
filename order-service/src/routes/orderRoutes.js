@@ -22,4 +22,6 @@ router.put('/status/delivered/:orderId', orderController.setOrderDelivered);
 
 router.get('/getorders/:restaurantId', orderController.getOrdersByRestaurant);
 
+router.put('/isreviewed/:orderId', orderController.Reviewdorder);
+
 module.exports = router;
