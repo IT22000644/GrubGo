@@ -1,5 +1,5 @@
 # Use official Node.js image
-FROM node:18
+FROM node:alpine3.21
 
 # Set working directory
 WORKDIR /usr/src/app
@@ -7,8 +7,6 @@ WORKDIR /usr/src/app
 # Copy package files
 COPY package*.json ./
 
-# Copy .env into the image
-COPY .env . 
 
 # Install dependencies
 RUN npm install
@@ -16,8 +14,5 @@ RUN npm install
 # Copy all source files
 COPY . .
 
-# Expose the port your app listens on
-EXPOSE 5011
-
 # Run the app
-CMD [ "npm", "run", "dev" ]
+CMD [ "npm", "start" ]

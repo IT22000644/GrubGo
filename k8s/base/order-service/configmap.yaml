@@ -4,4 +4,6 @@ metadata:
   name: order-config
 data:
   PORT: "4002"
-  MONGODB_URI: "mongodb://mongo-order:27017/orderdb"
+  MONGO_URI: "mongodb://mongo-order:27017/orderdb"
+  RABBIT_MQ: "rabbitmq://rabbitmq:5672"
+  CLIENT_URL: "http://localhost:5173"
