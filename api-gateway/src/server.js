@@ -10,7 +10,6 @@ import userRoutes from "./routes/user.routes.js";
 import mapRoutes from "./routes/auth.routes.js";
 
 const app = express();
-app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("<h1>API Gateway is running</h1>");
@@ -24,6 +23,8 @@ app.use("/payment", paymentRoutes);
 app.use("/delivery", deliveryRoutes);
 app.use("/review", reviewRoutes);
 app.use("/map", mapRoutes);
+
+app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
