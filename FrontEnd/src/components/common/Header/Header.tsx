@@ -21,7 +21,6 @@ import { RootState } from "../../../app/store";
 import { api1 } from "../../../api/axios";
 import CartPage from "../../../pages/order/CartPage";
 
-
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -35,7 +34,6 @@ const Header = () => {
   const [userRole, setUserRole] = useState(role);
   const [isOpen, setIsOpen] = useState(true);
   const [showCart, setShowCart] = useState(false);
-
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,10 +74,11 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed w-full z-50 transition-all duration-300 ${isScrolled
+      className={`fixed w-full z-50 transition-all duration-300 ${
+        isScrolled
           ? "py-3 bg-neutral dark:bg-dark backdrop-blur-sm shadow-md"
           : "py-6 bg-neutral dark:bg-dark"
-        } text-dark_hover dark:text-gray-200`}
+      } text-dark_hover dark:text-gray-200`}
     >
       <div className="container mx-auto px-4">
         <nav className="flex justify-between items-center">
@@ -186,7 +185,7 @@ const Header = () => {
                                     isOpen ? "text-green-600" : "text-red-600"
                                   }
                                 >
-                                  {isOpen ? "Open" : "Close"}
+                                  {isOpen ? "open" : "closed"}
                                 </span>
                               </span>
                               <button
@@ -265,7 +264,6 @@ const Header = () => {
               </span>
             </button>
 
-
             <ThemeToggle />
 
             <button
@@ -288,7 +286,7 @@ const Header = () => {
               <Register switchToLogin={() => setIsLogin(true)} />
             )}
           </Modal>
-          
+
           <ModalCart isOpen={showCart} onClose={() => setShowCart(false)}>
             <CartPage customerId="6611e8f4a1fbb93be88a1a5c" />
           </ModalCart>
@@ -319,8 +317,9 @@ const Header = () => {
       </div>
 
       <div
-        className={`md:hidden ${mobileMenuOpen ? "block" : "hidden"
-          } transition-all duration-300`}
+        className={`md:hidden ${
+          mobileMenuOpen ? "block" : "hidden"
+        } transition-all duration-300`}
       >
         <div className="px-4 pt-2 pb-3 space-y-1 bg-white dark:bg-gray-900 border-t dark:border-dark_hover">
           {navLinks.map((link) => (
@@ -334,8 +333,9 @@ const Header = () => {
                     {link.name}
                     <ChevronDown
                       size={16}
-                      className={`transition-transform duration-200 ${activeDropdown === link.name ? "rotate-180" : ""
-                        }`}
+                      className={`transition-transform duration-200 ${
+                        activeDropdown === link.name ? "rotate-180" : ""
+                      }`}
                     />
                   </button>
 

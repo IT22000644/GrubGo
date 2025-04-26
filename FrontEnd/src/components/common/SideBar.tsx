@@ -8,6 +8,7 @@ import {
   Settings,
   ChevronRight,
   ChevronLeft,
+  CreditCard,
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -32,17 +33,12 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onToggle }) => {
     {
       title: "Restaurants",
       icon: <Utensils size={20} />,
-      path: "/admin/restaurants",
+      path: "/admin/restaurant",
     },
     {
-      title: "Orders",
-      icon: <ShoppingBag size={20} />,
-      path: "/admin/orders",
-    },
-    {
-      title: "Settings",
-      icon: <Settings size={20} />,
-      path: "/admin/settings",
+      title: "Payments",
+      icon: <CreditCard size={20} />,
+      path: "/admin/payments",
     },
   ];
 
