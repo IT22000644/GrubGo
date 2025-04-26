@@ -5,3 +5,4 @@ resources:
   - delivery-service
   - map-service
   - order-service
+  - payment-service

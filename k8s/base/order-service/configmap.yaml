@@ -5,5 +5,5 @@ metadata:
 data:
   PORT: "4002"
   MONGO_URI: "mongodb://mongo-order:27017/orderdb"
-  RABBIT_MQ: "rabbitmq://rabbitmq:5672"
+  RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
   CLIENT_URL: "http://localhost:5173"
