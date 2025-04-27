@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Restaurant, Food } from "../allRestaurants/AllRestaurants.types";
-
-import { api1, api2 } from "../../../api/axios";
 import api from "../../../api/api";
 import {
   Star,
@@ -62,7 +60,7 @@ export const RestaurantDetails = () => {
     const fetchRestaurantDetails = async () => {
       try {
         setLoading(true);
-        const response = await api1.get(`/restaurants/${id}`);
+        const response = await api.get(`/restaurant/${id}`);
         setRestaurant(response.data.restaurant);
         if (response.data.restaurant?.menus?.length > 0) {
           setSelectedMenu(response.data.restaurant.menus[0]._id);
@@ -78,7 +76,7 @@ export const RestaurantDetails = () => {
     const fetchReview = async () => {
       try {
         setReviewLoading(true);
-        const reviewsResponse = await api2.get(`/restaurantreviews/${id}`);
+        const reviewsResponse = await api.get(`/review/${id}`);
         setReviews(reviewsResponse.data);
         const averageRating = getAverageRating(reviewsResponse.data);
         setAverage(averageRating);

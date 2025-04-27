@@ -63,7 +63,7 @@ const OrderCard: React.FC<{
 
     const handleSetPreparing = async () => {
         try {
-            await api.put(`/orders/status/preparing/${order._id}`);
+            await api.put(`/order/status/preparing/${order._id}`);
             onStatusChange(order._id, 'preparing');
         } catch (error) {
             console.error('Failed to set to preparing', error);
@@ -72,7 +72,7 @@ const OrderCard: React.FC<{
 
     const handleSetCompleted = async () => {
         try {
-            await api.put(`/orders/status/completed/${order._id}`);
+            await api.put(`/order/status/completed/${order._id}`);
             onStatusChange(order._id, 'completed');
             navigate("/delivery-assign", { state: { orderId: order._id } });
         } catch (error) {
@@ -161,7 +161,7 @@ const OrderPage: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [filter, setFilter] = useState<Order['status'] | 'all'>('all');
     const [isLoading, setIsLoading] = useState(true);
-    const restaurantId = "680ba32e123f14f2d7759f11";
+    const restaurantId = "680dc6bf09885b823e353937";
 
     useEffect(() => {
         fetchOrders();
@@ -172,7 +172,7 @@ const OrderPage: React.FC = () => {
     const fetchOrders = async () => {
         setIsLoading(true);
         try {
-            const res = await api.get(`/orders/getorders/${restaurantId}`);
+            const res = await api.get(`/order/getorders/${restaurantId}`);
             setOrders(res.data);
         } catch (error) {
             console.error('Failed to fetch orders', error);
