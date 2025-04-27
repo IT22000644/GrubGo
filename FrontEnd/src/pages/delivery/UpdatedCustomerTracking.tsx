@@ -13,10 +13,7 @@ import PickupDropInfo from "../../components/delivery/PickupDropInfo";
 
 interface TrackingState {
   mode: "track";
-  deliveryId: string;
-  driverAddress: string;
-  restaurantAddress: string;
-  customerAddress: string;
+  orderId: string;
 }
 
 interface DeliveryStatusResponse {
@@ -36,16 +33,26 @@ interface DeliveryStatusResponse {
   estimatedTimeToCustomer: number;
 }
 
+interface DriverInfo {
+  fullName: string;
+  vehicleNumber: string;
+  vehicleType: string;
+  vehicleModel: string;
+  vehicleColor: string;
+}
+
 export default function CustomerTracking() {
   const loc = useLocation();
   const state = loc.state as TrackingState;
-  const { restaurantAddress, customerAddress } = state;
+  const { orderId } = state;
 
-  const deliveryIdRef = useRef<string>(state.deliveryId);
-  const orderIdRef = useRef<string>("");
+  const deliveryIdRef = useRef<string>("");
+  const orderIdRef = useRef<string>(orderId);
+  const driverIdRef = useRef<string>("");
 
   const [route, setRoute] = useState<DeliveryRoute>();
   const [status, setStatus] = useState("Loading");
+  const [driverInfo, setDriverInfo] = useState<DriverInfo>();
   const socketRef = useRef<Socket | null>(null);
   const [etaToRestaurant, setEtaToRestaurant] = useState(0);
   const [etaToCustomer, setEtaToCustomer] = useState(0);
@@ -64,12 +71,10 @@ export default function CustomerTracking() {
     start: google.maps.LatLngLiteral,
     end: google.maps.LatLngLiteral,
     t: number
-  ): google.maps.LatLngLiteral => {
-    return {
-      lat: start.lat + (end.lat - start.lat) * t,
-      lng: start.lng + (end.lng - start.lng) * t,
-    };
-  };
+  ): google.maps.LatLngLiteral => ({
+    lat: start.lat + (end.lat - start.lat) * t,
+    lng: start.lng + (end.lng - start.lng) * t,
+  });
 
   const animateAlong = async (
     path: google.maps.LatLngLiteral[],
@@ -108,6 +113,15 @@ export default function CustomerTracking() {
     onFinish?.();
   };
 
+  const fetchDriverInfo = async (driverId: string) => {
+    try {
+      const res = await api.get<DriverInfo>(`user/${driverId}`);
+      setDriverInfo(res.data);
+    } catch (err) {
+      console.error("Failed to fetch driver info:", err);
+    }
+  };
+
   const fetchStatusAndResume = useCallback(async () => {
     const now = Date.now();
     if (now - lastFetchTimeRef.current < 5000) return;
@@ -125,27 +139,28 @@ export default function CustomerTracking() {
         return;
       }
 
-      if (!orderIdRef.current) {
-        orderIdRef.current = data.orderId;
+      if (!driverIdRef.current) {
+        driverIdRef.current = data.driverId;
+        await fetchDriverInfo(driverIdRef.current);
 
         if (socketRef.current && !subscribedRef.current) {
           const evt = `delivery:${orderIdRef.current}`;
           socketRef.current.on(evt, async (_data: { status: string }) => {
             console.log("Received status update from server:", _data.status);
-
             lastFetchedStatusRef.current = null;
             await fetchStatusAndResume();
           });
           subscribedRef.current = true;
         }
       }
+
       const deliveryRoute: DeliveryRoute = {
         driverLocation: data.driverLocation,
         restaurantLocation: data.restaurantLocation,
         customerLocation: data.customerLocation,
-        vehicleType: "car",
-        vehicleColor: "blue",
-        vehicleNumber: "XT-9988",
+        vehicleType: driverInfo?.vehicleType || "Car",
+        vehicleColor: driverInfo?.vehicleColor || "Blue",
+        vehicleNumber: driverInfo?.vehicleNumber || "UNKNOWN",
       };
 
       setRoute(deliveryRoute);
@@ -182,37 +197,48 @@ export default function CustomerTracking() {
           path,
           Math.max(data.estimatedTimeToCustomer * 1000 - 5000, 1000)
         );
-      } else if (data.status === "Arrived Restaurant") {
+      } else if (
+        data.status === "Arrived Restaurant" ||
+        data.status === "Arrived Customer"
+      ) {
         animationCancelledRef.current = true;
         setRoute((r) =>
           r
             ? {
                 ...r,
                 driverLocation: {
-                  latitude: data.restaurantLocation.latitude,
-                  longitude: data.restaurantLocation.longitude,
-                },
-              }
-            : r
-        );
-      } else if (data.status === "Arrived Customer") {
-        animationCancelledRef.current = true;
-        setRoute((r) =>
-          r
-            ? {
-                ...r,
-                driverLocation: {
-                  latitude: data.customerLocation.latitude,
-                  longitude: data.customerLocation.longitude,
+                  latitude:
+                    data.status === "Arrived Restaurant"
+                      ? data.restaurantLocation.latitude
+                      : data.customerLocation.latitude,
+                  longitude:
+                    data.status === "Arrived Restaurant"
+                      ? data.restaurantLocation.longitude
+                      : data.customerLocation.longitude,
                 },
               }
             : r
         );
       }
     } catch (err) {
-      console.error("Failed to resume tracking:", err);
+      console.error("Failed to fetch status:", err);
     }
-  }, []);
+  }, [driverInfo]);
+
+  const fetchInitialData = async () => {
+    try {
+      const res = await api.get(`order/${orderIdRef.current}`);
+      const delivery = res.data.deliveries[0];
+      if (delivery) {
+        deliveryIdRef.current = delivery._id;
+        driverIdRef.current = delivery.driverId;
+        await fetchDriverInfo(driverIdRef.current);
+        await fetchStatusAndResume();
+      }
+    } catch (err) {
+      console.error("Failed to fetch delivery by orderId:", err);
+    }
+  };
 
   useEffect(() => {
     if (!connectedRef.current) {
@@ -234,8 +260,8 @@ export default function CustomerTracking() {
   useEffect(() => {
     if (!socketRef.current || subscribedRef.current) return;
 
-    fetchStatusAndResume();
-  }, [fetchStatusAndResume]);
+    fetchInitialData();
+  }, []);
 
   return (
     <div className="p-4 space-y-6">
@@ -251,18 +277,21 @@ export default function CustomerTracking() {
             dynamicPath={pathCoords}
           />
         </div>
+
         <div className="space-y-4">
           <DriverInfoCard
-            name="Alex Rider"
+            name={driverInfo?.fullName || "Driver"}
             imageUrl="https://images.pexels.com/photos/28955594/pexels-photo-28955594/free-photo-of-chimpanzee-at-zoo-in-natural-habitat.jpeg?auto=compress&cs=tinysrgb&w=600"
-            vehicleType={route?.vehicleType || "Car"}
-            vehicleColor={route?.vehicleColor || "Blue"}
-            vehicleNumber={route?.vehicleNumber || "XT-9988"}
+            vehicleType={driverInfo?.vehicleType || "Car"}
+            vehicleColor={driverInfo?.vehicleColor || "Blue"}
+            vehicleNumber={driverInfo?.vehicleNumber || "UNKNOWN"}
           />
 
           <PickupDropInfo
-            restaurantAddress={restaurantAddress}
-            customerAddress={customerAddress}
+            restaurantAddress={
+              route?.restaurantLocation ? "Restaurant Location" : ""
+            }
+            customerAddress={route?.customerLocation ? "Customer Location" : ""}
           />
 
           {route && (

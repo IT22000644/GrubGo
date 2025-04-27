@@ -9,7 +9,8 @@ import ControlsPanel from "../../components/delivery/ControlsPanel";
 import { fetchRoadPath } from "../../utils/delivery/mapHelpers";
 import NextLocationCard from "../../components/delivery/NextLocationCard";
 import StatusTracker from "../../components/delivery/StatusTracker";
-import api5005 from "../../api/api5005";
+
+import api from "../../api/api";
 
 interface TrackingState {
   mode: "track";
@@ -107,7 +108,7 @@ export default function DeliveryTracking() {
     lastFetchTimeRef.current = now;
 
     try {
-      const res = await api5005.get<DeliveryStatusResponse>(
+      const res = await api.get<DeliveryStatusResponse>(
         `delivery/status/${deliveryIdRef.current}`
       );
       const data = res.data;
@@ -229,7 +230,7 @@ export default function DeliveryTracking() {
 
   const handlePickedUp = useCallback(async () => {
     try {
-      await api5005.put("delivery/status/picked-up", {
+      await api.put("delivery/status/picked-up", {
         deliveryId: deliveryIdRef.current,
       });
       lastFetchedStatusRef.current = null;
@@ -241,15 +242,11 @@ export default function DeliveryTracking() {
 
   const handleDelivered = useCallback(async () => {
     try {
-      await api5005.put("delivery/status/delivered", {
+      await api.put("delivery/status/delivered", {
         deliveryId: deliveryIdRef.current,
       });
       lastFetchedStatusRef.current = null;
       setStatus("Delivered");
-
-      // await api5011.put(`status/delivered/${id}`, {
-
-      // });
     } catch (error) {
       console.error("Error marking delivered:", error);
     }

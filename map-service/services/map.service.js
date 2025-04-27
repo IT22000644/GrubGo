@@ -34,18 +34,9 @@ const getAddressFromCoordinates = async (latitude, longitude) => {
 };
 
 const formatAddressParts = (parts) => {
-  const {
-    street = "",
-    city = "",
-    province = "",
-    state = "",
-    zip = "",
-    country = "",
-  } = parts;
+  const { shopNumber = "", street = "", town = "" } = parts;
 
-  return [street, city, province || state, zip, country]
-    .filter(Boolean)
-    .join(", ");
+  return [shopNumber, street, town].filter(Boolean).join(", ");
 };
 
 const MapService = {
