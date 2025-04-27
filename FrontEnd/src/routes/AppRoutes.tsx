@@ -29,6 +29,7 @@ import { AdminRestaurants } from "../pages/restaurant/adminRestaurants/AdminRest
 
 import RestaurantOrderPage from "../pages/restaurant/showingorders/Orderpage";
 import RestaurantDetails from "../pages/restaurant/restaurantDetails/restaurantDetails";
+import Payment from "../pages/admin/Payement";
 
 //import OrderPage from "../pages/restaurent/showingorders/Orderpage";
 
@@ -82,7 +83,7 @@ const AppRoutes: React.FC = () => {
         <Route index element={<AdminDashboard />} />
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="restaurant" element={<AdminRestaurants />} />
-
+        <Route path="payments" element={<Payment />} />
         <Route path="*" element={<NotFound />} />
       </Route>
 
