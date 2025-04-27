@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import OrderCard from "../../components/Order/OrderCard";
 import api from "../../api/api";
 import type { Order } from "../../components/Order/types";
@@ -12,9 +13,9 @@ const OrderPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [reviewingOrder, setReviewingOrder] = useState<Order | null>(null);
-
+  const navigate = useNavigate();
   const customerId = localStorage.getItem('customerId') || "6611e8f4a1fbb93be88a1a5c";
-  
+
   const fetchOrders = async () => {
     setLoading(true);
     setError("");
@@ -91,6 +92,10 @@ const OrderPage: React.FC = () => {
     const orderToReview = orders.find((o) => o._id === orderId);
     if (orderToReview) setReviewingOrder(orderToReview);
   };
+
+  const trackthedelivary = async (orderId: string) => {
+    navigate("/customer-tracking-loader", { state: { orderId } });
+}
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -205,6 +210,7 @@ const OrderPage: React.FC = () => {
             getStatusBadge={getStatusBadge}
             onReview={handleReviewClick}
             onMarkAsReviewed={markOrderAsReviewed}
+            trackthedelivary={trackthedelivary}
           />
         ))}
         {reviewingOrder && (
