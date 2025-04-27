@@ -6,14 +6,15 @@ import ReviewForm from "../../components/Review/ReviewForm";
 
 const statusOptions = ["done", "pending", "completed"];
 
-const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
+const OrderPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [status, setStatus] = useState("done");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [reviewingOrder, setReviewingOrder] = useState<Order | null>(null);
 
-
+  const customerId = localStorage.getItem('customerId') || "6611e8f4a1fbb93be88a1a5c";
+  
   const fetchOrders = async () => {
     setLoading(true);
     setError("");

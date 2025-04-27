@@ -48,12 +48,12 @@ const AppRoutes: React.FC = () => {
 
         <Route
           path="/cart"
-          element={<CartPage customerId="6611e8f4a1fbb93be88a1a5c" />}
+          element={<CartPage />}
         />
 
         <Route
           path="/orders"
-          element={<OrderPage customerId="6611e8f4a1fbb93be88a1a5c" />}
+          element={<OrderPage />}
         />
 
         <Route path="/delivery-assign" element={<DeliveryAssign />} />
