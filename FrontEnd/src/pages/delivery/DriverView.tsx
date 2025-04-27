@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DeliveryCard from "../../components/delivery/DeliveryCard";
+import AvailabilitySwitch from "../../components/delivery/AvailabilitySwitch";
 import api from "../../api/api";
 
 interface Delivery {
@@ -22,7 +23,7 @@ const DriverView = () => {
 
   const fetchDriverDeliveries = async () => {
     try {
-      const driverId = "34ga21e5624f2dfbc3284h65";
+      const driverId = "680db516c1399c9450e93622";
       const { data } = await api.get(`delivery/driver/${driverId}`);
 
       const driverDeliveries: Delivery[] = Array.isArray(data)
@@ -53,7 +54,7 @@ const DriverView = () => {
 
     if (filteredDeliveries.length === 0) {
       return (
-        <p className="text-center font-semibold text-gray-500 text-lg">
+        <p className="text-center font-bold text-orange-600 dark:text-accent text-lg">
           No {selectedTab} Deliveries Available
         </p>
       );
@@ -87,6 +88,10 @@ const DriverView = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto mt-20 ">
+      {/* top-left switch */}
+      <div className="absolute top-32 left-4">
+        <AvailabilitySwitch />
+      </div>
       {/* Tabs */}
       <div className="flex justify-center mb-6 space-x-4">
         <button
@@ -136,7 +141,7 @@ const DriverView = () => {
       )}
 
       {selectedTab === "Completed" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className=" grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {renderDeliveryCards(["Delivered"])}
         </div>
       )}
