@@ -33,18 +33,20 @@ const MapController = {
 
   // Convert coordinates to an Address
   async coordinatesToAddress(req, res) {
-    const { latitude, longitude } = req.body;
+    const { latitude, longitude, lat, lng } = req.body;
+    const actualLat = latitude ?? lat;
+    const actualLng = longitude ?? lng;
 
-    if (latitude == null || longitude == null) {
-      return res
-        .status(400)
-        .json({ error: "Latitude and longitude are required" });
+    if (actualLat == null || actualLng == null) {
+      return res.status(400).json({
+        error: "Latitude and longitude (or lat and lng) are required",
+      });
     }
 
     try {
       const address = await mapService.getAddressFromCoordinates(
-        latitude,
-        longitude
+        actualLat,
+        actualLng
       );
 
       if (!address) {
