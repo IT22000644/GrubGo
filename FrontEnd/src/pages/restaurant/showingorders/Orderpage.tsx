@@ -74,7 +74,7 @@ const OrderCard: React.FC<{
         try {
             await api.put(`/order/status/completed/${order._id}`);
             onStatusChange(order._id, 'completed');
-            navigate("/delivery-assign", { state: { orderId: order._id } });
+            navigate("/delivery-loader", { state: { orderId: order._id } });
         } catch (error) {
             console.error('Failed to set to completed', error);
         }
@@ -205,7 +205,7 @@ const OrderPage: React.FC = () => {
     };
 
     return (
-        <div className="max-w-6xl mx-auto p-4 bg-gray-50 min-h-screen">
+        <div className="max-w-6xl mx-auto p-4 bg-gray-50 min-h-screen mt-36">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                 <h1 className="text-2xl font-bold text-gray-800">Order Management</h1>
                 <button

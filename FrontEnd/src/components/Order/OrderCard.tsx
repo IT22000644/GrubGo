@@ -29,9 +29,10 @@ interface OrderCardProps {
     getStatusBadge: (status: string) => string;
     onReview: (orderId: string) => void;
     onMarkAsReviewed: (orderId: string) => Promise<void>;
+    trackthedelivary:(orderId: string) => void;
 }
 
-const OrderCard: React.FC<OrderCardProps> = ({ order, onReview, onMarkAsReviewed, onCheckout, formatDate, getStatusBadge }) => {
+const OrderCard: React.FC<OrderCardProps> = ({ order, onReview, trackthedelivary, onCheckout, formatDate, getStatusBadge }) => {
     return (
         <div className="bg-white dark:bg-gray-800 h-52 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
             <div className="flex h-full">
@@ -102,7 +103,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onReview, onMarkAsReviewed
 
                     {order.status === "completed" && (
                         <button
-                            onClick={() => onCheckout(order._id)}
+                            onClick={() => trackthedelivary(order._id)}
                             className="mt-1 w-full py-2 bg-orange-400 hover:bg-orange-500 text-white rounded text-xs shadow-sm transition-colors duration-200 flex items-center justify-center font-medium"
                         >
                             <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
