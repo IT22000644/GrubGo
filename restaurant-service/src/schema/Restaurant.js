@@ -38,6 +38,7 @@ const RestaurantSchema = new mongoose.Schema(
         required: false,
       },
     ],
+    isVerified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
