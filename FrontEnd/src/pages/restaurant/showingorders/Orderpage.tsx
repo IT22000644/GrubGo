@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api5011 from '../../../api/api5011';
+import api from '../../../api/api';
 import { useNavigate } from 'react-router-dom';
 
 interface OrderItem {
@@ -63,7 +63,7 @@ const OrderCard: React.FC<{
 
     const handleSetPreparing = async () => {
         try {
-            await api5011.put(`/orders/status/preparing/${order._id}`);
+            await api.put(`/orders/status/preparing/${order._id}`);
             onStatusChange(order._id, 'preparing');
         } catch (error) {
             console.error('Failed to set to preparing', error);
@@ -72,7 +72,7 @@ const OrderCard: React.FC<{
 
     const handleSetCompleted = async () => {
         try {
-            await api5011.put(`/orders/status/completed/${order._id}`);
+            await api.put(`/orders/status/completed/${order._id}`);
             onStatusChange(order._id, 'completed');
             navigate("/delivery-assign", { state: { orderId: order._id } });
         } catch (error) {
@@ -172,7 +172,7 @@ const OrderPage: React.FC = () => {
     const fetchOrders = async () => {
         setIsLoading(true);
         try {
-            const res = await api5011.get(`/orders/getorders/${restaurantId}`);
+            const res = await api.get(`/orders/getorders/${restaurantId}`);
             setOrders(res.data);
         } catch (error) {
             console.error('Failed to fetch orders', error);

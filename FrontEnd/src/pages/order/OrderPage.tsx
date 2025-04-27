@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import OrderCard from "../../components/Order/OrderCard";
-import api5011 from "../../api/api5011";
+import api from "../../api/api";
 import { api1 } from "../../api/axios";
 import type { Order } from "../../components/Order/types";
 import ReviewForm from "../../components/Review/ReviewForm";
@@ -19,7 +19,7 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
     setLoading(true);
     setError("");
     try {
-      const res = await api5011.get(`/order/customer/${customerId}`, {
+      const res = await api.get(`/order/customer/${customerId}`, {
         params: status ? { status } : {},
       });
 
@@ -69,7 +69,7 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
 
   const handleCheckout = async (orderId: string) => {
     try {
-      const res = await api5011.post(`/order/${orderId}/checkout/`);
+      const res = await api.post(`/order/${orderId}/checkout/`);
       if (res.data?.url) {
         window.location.href = res.data.url;
       }
@@ -81,7 +81,7 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
 
   const markOrderAsReviewed = async (orderId: string) => {
     try {
-      await api5011.put(`/order/isreviewed/${orderId}`);
+      await api.put(`/order/isreviewed/${orderId}`);
     } catch (error) {
       console.error("Failed to mark order as reviewed:", error);
     }
