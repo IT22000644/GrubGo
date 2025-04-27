@@ -29,6 +29,8 @@ const RestaurantOwnerForm: React.FC<RestaurantOwnerFormProps> = ({
     phoneNumber: "",
     role: "owner",
   });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isLoading, setIsLoading] = useState(false);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -39,8 +41,31 @@ const RestaurantOwnerForm: React.FC<RestaurantOwnerFormProps> = ({
     });
   };
 
+  const handleUserSubmit = async () => {
+    try {
+      // API call to register user
+      const response = await fetch("/api/users/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(ownerData),
+      });
+
+      if (response.ok) {
+        console.log("User registered successfully");
+      } else {
+        throw new Error("Registration failed");
+      }
+    } catch (error) {
+      console.error("Error registering user:", error);
+      alert("Registration failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    //handleUserSubmit();
     console.log("Form Data Submitted:", ownerData);
     onSubmit(ownerData);
     // Pass the ownerData as a JSON object
