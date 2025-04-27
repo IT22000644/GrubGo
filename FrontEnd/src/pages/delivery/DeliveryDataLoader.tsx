@@ -118,12 +118,13 @@ export default function AssignDeliveryDataLoader() {
         currentLocation: r.currentLocation,
       }));
       console.log("   Mapped payloadRiders:", payloadRiders);
+      console.log(" RestaurantAddress:", restaurantLocation);
 
       // 6. Find the closest driver
       let closestDriverRes;
       try {
         closestDriverRes = await api.post(`map/closest-rider`, {
-          baseLocation: restaurantAddress,
+          baseLocation: restaurantLocation,
           data: payloadRiders,
         });
         console.log("6️⃣ Closest Rider API response:", closestDriverRes);
