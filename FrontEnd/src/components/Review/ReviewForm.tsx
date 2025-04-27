@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import api5006 from "../../api/api5006";
 import { useEffect } from "react";
+import api from "../../api/api";
 
 interface ReviewFormProps {
     restaurantId: string;
@@ -42,7 +42,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ restaurantId, foodId, userId, o
                 comment,
             };
 
-            const response = await api5006.post("/", reviewData);
+            const response = await api.post("/review", reviewData);
             console.log("Review submitted:", response.data);
             setSubmitSuccess(true);
             setRating(0);

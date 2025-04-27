@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import OrderCard from "../../components/Order/OrderCard";
 import api from "../../api/api";
-import { api1 } from "../../api/axios";
 import type { Order } from "../../components/Order/types";
 import ReviewForm from "../../components/Review/ReviewForm";
 
@@ -26,8 +25,8 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
       const ordersWithDetails = await Promise.all(
         res.data.map(async (order: Order) => {
           try {
-            const restaurantRes = await api1.get(
-              `/restaurants/${order.restaurantId}`
+            const restaurantRes = await api.get(
+              `/restaurant/${order.restaurantId}`
             );
             const restaurantData = restaurantRes.data?.restaurant;
 

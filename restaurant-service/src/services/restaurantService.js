@@ -28,27 +28,21 @@ export const updateRestaurantService = async (id, updateData) => {
 };
 
 export const getRestaurantByIdService = async (id) => {
-  return await Restaurant.findById(id)
-    .populate("restaurantOwner", "-password")
-    .populate({
-      path: "menus",
-      populate: {
-        path: "items",
-        model: "Food",
-      },
-    });
+  return await Restaurant.findById(id).populate({
+    path: "menus",
+    populate: {
+      path: "items",
+      model: "Food",
+    },
+  });
 };
 
 export const getAllRestaurantsService = async () => {
-  return await Restaurant.find()
-    .populate("restaurantOwner", "name email")
-    .populate("menus");
+  return await Restaurant.find().populate("menus");
 };
 
 export const getAllRestaurantsByStatusService = async () => {
-  return await Restaurant.find({ status: "open" })
-    .populate("restaurantOwner", "name email")
-    .populate("menus");
+  return await Restaurant.find({ status: "open" }).populate("menus");
 };
 
 export const toggleRestaurantStatusService = async (
@@ -82,7 +76,5 @@ export const deleteRestaurantService = async (restaurantId) => {
 };
 
 export const getRestaurantByOwnerId = async (ownerId) => {
-  return await Restaurant.find({ restaurantOwner: ownerId })
-    .populate("restaurantOwner", "name email")
-    .populate("menus");
+  return await Restaurant.find({ restaurantOwner: ownerId }).populate("menus");
 };

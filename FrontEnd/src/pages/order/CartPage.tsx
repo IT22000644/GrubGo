@@ -3,7 +3,6 @@ import CartCard from "../../components/Cart/CartCard";
 import CartModal from "../../components/Cart/CartModal";
 import { Cart, CartItem } from "../../components/Cart/types";
 import api from "../../api/api";
-import { api1 } from "../../api/axios";
 import { ShoppingCart } from "lucide-react";
 
 interface CartPageProps {
@@ -30,7 +29,7 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
       const cartsWithNames = await Promise.all(
         data.map(async (cart) => {
           try {
-            const res = await api1.get(`/restaurants/${cart.restaurantId}`);
+            const res = await api.get(`/restaurant/${cart.restaurantId}`);
             return {
               ...cart,
               restaurantName: res.data.restaurant.name,
