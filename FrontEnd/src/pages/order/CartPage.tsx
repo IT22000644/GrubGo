@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import CartCard from "../../components/Cart/CartCard";
 import CartModal from "../../components/Cart/CartModal";
 import { Cart, CartItem } from "../../components/Cart/types";
-import api5011 from "../../api/api5011";
+import api from "../../api/api";
 import { api1 } from "../../api/axios";
 import { ShoppingCart } from "lucide-react";
 
@@ -22,7 +22,7 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
 
   const fetchCarts = async () => {
     try {
-      const response = await api5011.get(`/cart/${customerId}`);
+      const response = await api.get(`order/cart/${customerId}`);
       let data: Cart[] = Array.isArray(response.data)
         ? response.data
         : [response.data];
@@ -68,8 +68,8 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
         })),
       };
 
-      const res = await api5011.put(
-        `/cart/${customerId}/${selectedCart.restaurantId}`,
+      const res = await api.put(
+        `order/cart/${customerId}/${selectedCart.restaurantId}`,
         payload
       );
 
@@ -87,7 +87,7 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
 
   const clearCart = async (restaurantId: string) => {
     try {
-      await api5011.delete(`/cart/${customerId}/${restaurantId}`);
+      await api.delete(`order/cart/${customerId}/${restaurantId}`);
       setSelectedCart(null);
       await fetchCarts();
       alert("Cart cleared successfully!");
@@ -100,7 +100,7 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
     if (!selectedCart) return;
 
     try {
-      const orderRes = await api5011.post("/order", {
+      const orderRes = await api.post("/order", {
         customerId,
         restaurantId: selectedCart.restaurantId,
         address,
@@ -108,7 +108,7 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
 
       const order = orderRes.data.order;
 
-      const checkoutRes = await api5011.post(`/order/${order._id}/checkout/`);
+      const checkoutRes = await api.post(`/order/${order._id}/checkout/`);
       const { url } = checkoutRes.data;
 
       window.location.href = url;

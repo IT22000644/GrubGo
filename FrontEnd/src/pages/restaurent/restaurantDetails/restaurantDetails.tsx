@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Restaurant, Food } from "../allRestaurants/AllRestaurants.types";
 
 import { api1, api2 } from "../../../api/axios";
-import api5011 from "../../../api/api5011";
+import api from "../../../api/api";
 import {
   Star,
   MapPin,
@@ -166,7 +166,7 @@ export const RestaurantDetails = () => {
         },
       ];
 
-      const response = await api5011.post(`/cart/${customerId}/items`, {
+      const response = await api.post(`order/cart/${customerId}/items`, {
         restaurantId: id,
         items: cartItems,
       });
