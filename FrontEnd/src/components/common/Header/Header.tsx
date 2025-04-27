@@ -20,6 +20,7 @@ import { RootState } from "../../../app/store";
 
 import { api1 } from "../../../api/axios";
 import CartPage from "../../../pages/order/CartPage";
+import { useLogout } from "../../../hooks/useLogout";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -34,7 +35,23 @@ const Header = () => {
 
   const navigate = useNavigate();
   // );
+
+  const handleLogout = useLogout();
   const restaurantId = "6413432b0c1f4a2d3e5b8c9d";
+
+  const updatedLinks = {
+    ...adminLinks,
+    restaurantDropdownContent: adminLinks.restaurantDropdownContent.map(
+      (item) =>
+        item.name === "Logout" ? { ...item, onClick: handleLogout } : item
+    ),
+    userDropdownContent: adminLinks.userDropdownContent.map((item) =>
+      item.name === "Logout" ? { ...item, onClick: handleLogout } : item
+    ),
+    riderDropdownContent: adminLinks.riderDropdownContent.map((item) =>
+      item.name === "Logout" ? { ...item, onClick: handleLogout } : item
+    ),
+  };
 
   // const [userRole, setUserRole] = useState("");
   const [isOpen, setIsOpen] = useState(true);
@@ -162,7 +179,7 @@ const Header = () => {
               {activeDropdown === "customer" && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
                   <div className="py-1">
-                    {adminLinks.userDropdownContent.map((item) => (
+                    {updatedLinks.userDropdownContent.map((item) => (
                       <Link
                         key={item.name}
                         to={item?.path || ""}
@@ -181,7 +198,7 @@ const Header = () => {
               {activeDropdown === "restaurant_admin" && (
                 <div className="absolute right-0 mt-2 w-[280px] bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
                   <div className="py-1">
-                    {adminLinks.restaurantDropdownContent.map((item) => (
+                    {updatedLinks.restaurantDropdownContent.map((item) => (
                       <div className="flex flex-row justify-between">
                         {item.visible && item ? (
                           <div className="flex flex-row justify-between">
@@ -236,7 +253,7 @@ const Header = () => {
               {activeDropdown === "driver" && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
                   <div className="py-1">
-                    {adminLinks.riderDropdownContent.map((item) => (
+                    {updatedLinks.riderDropdownContent.map((item) => (
                       <Link
                         key={item.name}
                         to={item?.path || ""}

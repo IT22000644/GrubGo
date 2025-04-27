@@ -5,6 +5,7 @@ interface User {
   id: string;
   name: string;
   email: string;
+  username: string;
   phoneNumber: string;
   profilePicture: string;
   role: string;
@@ -55,8 +56,25 @@ export const registerUser = createAsyncThunk<
     headers: { "Content-Type": "application/json" },
     withCredentials: true,
   });
-  return response.data;
+  return response.data.data;
 });
+
+export const logoutUser = createAsyncThunk<void, { token: string }>(
+  "auth/logout",
+  async ({ token }) => {
+    await api.post(
+      "/auth/logout",
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      }
+    );
+  }
+);
 
 const authSlice = createSlice({
   name: "auth",
@@ -84,7 +102,7 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;
-        state.role = action.payload.user.role; // Store the role
+        state.role = action.payload.user.role;
         state.loading = false;
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -99,11 +117,30 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;
+        state.role = action.payload.user.role;
+        state.loading = false;
       })
       .addCase(registerUser.rejected, (state) => {
         state.isAuthenticated = false;
         state.user = null;
         state.token = null;
+        state.role = null;
+        state.loading = false;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.isAuthenticated = false;
+        state.user = null;
+        state.token = null;
+        state.role = null;
+        state.loading = false;
+      })
+      .addCase(logoutUser.rejected, (state) => {
+        console.error("Logout failed");
+        state.isAuthenticated = false;
+        state.user = null;
+        state.token = null;
+        state.role = null;
+        state.loading = false;
       });
   },
 });
