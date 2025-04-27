@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 
 import authRoutes from "./routes/auth.routes.js";
 import restaurantRoutes from "./routes/restaurant.routes.js";
@@ -7,9 +8,15 @@ import paymentRoutes from "./routes/payment.routes.js";
 import deliveryRoutes from "./routes/delivery.routes.js";
 import reviewRoutes from "./routes/review.routes.js";
 import userRoutes from "./routes/user.routes.js";
-import mapRoutes from "./routes/auth.routes.js";
+import mapRoutes from "./routes/map.routes.js";
 
 const app = express();
+
+app.use(
+  cors({
+    accessControlAllowOrigin: "*",
+  })
+);
 
 app.get("/", (req, res) => {
   res.send("<h1>API Gateway is running</h1>");

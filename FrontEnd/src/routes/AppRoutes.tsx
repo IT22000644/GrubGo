@@ -27,6 +27,7 @@ import { AdminRestaurants } from "../pages/restaurant/adminRestaurants/AdminRest
 
 import RestaurantOrderPage from "../pages/restaurant/showingorders/Orderpage";
 import RestaurantDetails from "../pages/restaurant/restaurantDetails/restaurantDetails";
+import JudaButton from "../pages/delivery/JudaButton";
 //import OrderPage from "../pages/restaurent/showingorders/Orderpage";
 
 const AppRoutes: React.FC = () => {
@@ -60,6 +61,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/delivery-control" element={<DeliveryControl />} />
         <Route path="/delivery-tracking" element={<DeliveryTracking />} />
         <Route path="/customer-tracking" element={<CustomerTracking />} />
+        <Route path="/juda-button" element={<JudaButton />} />
         <Route path="/driver-home" element={<DriverView />} />
       </Route>
       <Route path="/admin" element={<AdminLayout />}>

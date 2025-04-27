@@ -5,3 +5,4 @@ metadata:
 data:
   PORT: "4003"
   MONGO_URI: "mongodb://mongo-restaurant:27017/restaurantdb"
+  HOST_NAME: "api.grubgo.local/restaurant"

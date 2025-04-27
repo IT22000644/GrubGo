@@ -6,6 +6,7 @@ import {
   getActiveRiders,
   updateRiderLocation,
   updateRiderStatus,
+  getAllUsers,
 } from "../controllers/user.controller.js";
 
 const router = Router();
@@ -13,6 +14,8 @@ const router = Router();
 router.get("/health", (req, res) => {
   res.json({ success: true, message: "User service is healthy" });
 });
+
+router.get("/", getAllUsers);
 
 router.get("/active-riders", getActiveRiders);
 

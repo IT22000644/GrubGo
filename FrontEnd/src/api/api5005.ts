@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "http://localhost:4006/",
+  baseURL: "http://api.grubgo.local/",
 });
 
 export default instance;
