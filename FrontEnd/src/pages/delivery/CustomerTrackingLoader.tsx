@@ -103,16 +103,6 @@ export default function CustomerTrackingLoader() {
         vehicleNumber,
       } = driverData.riderDetails;
 
-      console.log("→ Driver info extracted:", {
-        driverName,
-        driverImage,
-        vehicleType,
-        vehicleColor,
-        vehicleModel,
-        vehicleNumber,
-      });
-
-      // Final state dump
       console.log("🚀 All gathered data:", {
         orderId,
         deliveryId,
@@ -173,9 +163,11 @@ export default function CustomerTrackingLoader() {
   }, [orderId, navigate]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen text-gray-700">
-      <Loader2 className="w-10 h-10 animate-spin text-blue-500 mb-4" />
-      <p className="text-xl font-medium">Preparing your delivery tracking...</p>
+    <div className="flex flex-col items-center justify-center h-screen text-gray-700 dark:text-white">
+      <Loader2 className="w-10 h-10 animate-spin text-primary dark:text-accent/30 mb-4" />
+      <p className="text-xl font-medium dark:text-white">
+        Preparing your delivery tracking...
+      </p>
     </div>
   );
 }

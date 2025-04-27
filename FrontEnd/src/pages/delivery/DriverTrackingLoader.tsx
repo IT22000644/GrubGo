@@ -122,7 +122,6 @@ export default function DriverTrackingLoader() {
       const restaurantName = restaurantData.name;
       const restaurantImage = restaurantData.images[0] ?? "";
 
-      // 🚀 Final gathered data
       console.log("🚀 All gathered tracking data:", {
         deliveryId,
         orderId,
@@ -191,9 +190,11 @@ export default function DriverTrackingLoader() {
   }, [deliveryId, navigate]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen text-gray-700">
-      <Loader2 className="w-10 h-10 animate-spin text-orange-500 mb-4" />
-      <p className="text-xl font-medium">Loading tracking information...</p>
+    <div className="flex flex-col items-center justify-center h-screen text-gray-700 dark:text-white">
+      <Loader2 className="w-10 h-10 animate-spin text-primary dark:text-accent/30 mb-4" />
+      <p className="text-xl font-medium dark:text-white">
+        Loading tracking information...
+      </p>
     </div>
   );
 }
