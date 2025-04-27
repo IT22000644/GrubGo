@@ -76,15 +76,23 @@ export default function AssignDeliveryDataLoader() {
       const restaurantImage = images[0] ?? "";
 
       // 4. Get Coordinates
+      const customerPayload = { address: customerAddress };
+      const restaurantPayload = { addressParts: restaurantAddress };
+      console.log("→ map/coordinate payloads:", {
+        customerPayload,
+        restaurantPayload,
+      });
+
       let customerCoordRes, restaurantCoordRes;
       try {
         [customerCoordRes, restaurantCoordRes] = await Promise.all([
-          api.post(`map/coordinate`, { address: customerAddress }),
-          api.post(`map/coordinate`, { address: restaurantAddress }),
+          api.post("map/coordinate", customerPayload),
+          api.post("map/coordinate", restaurantPayload),
         ]);
-        console.log("4️⃣ Customer coord:", customerCoordRes);
-        console.log("   Restaurant coord:", restaurantCoordRes);
+        console.log("4️⃣ Customer coord:", customerCoordRes.data);
+        console.log("   Restaurant coord:", restaurantCoordRes.data);
       } catch (err) {
+        console.error("Coordinate lookup error:", err);
         clearTimeout(timeoutId);
         return navigate("/error", {
           state: { message: "Could not resolve one or more addresses." },
