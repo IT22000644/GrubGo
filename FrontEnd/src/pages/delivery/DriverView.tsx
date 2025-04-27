@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DeliveryCard from "../../components/delivery/DeliveryCard";
-import api5005 from "../../api/api5005";
+import api from "../../api/api";
 
 interface Delivery {
   _id: string;
@@ -23,10 +23,18 @@ const DriverView = () => {
   const fetchDriverDeliveries = async () => {
     try {
       const driverId = "34ga21e5624f2dfbc3284h65";
-      const { data } = await api5005.get(`delivery/driver/${driverId}`);
-      setDeliveries(data.deliveries);
+      const { data } = await api.get(`delivery/driver/${driverId}`);
+
+      const driverDeliveries: Delivery[] = Array.isArray(data)
+        ? data
+        : Array.isArray(data.deliveries)
+        ? data.deliveries
+        : [];
+
+      setDeliveries(driverDeliveries);
     } catch (error) {
       console.error("Error fetching deliveries:", error);
+      setDeliveries([]);
     }
   };
 

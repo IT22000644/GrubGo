@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DeliveryRoute } from "../../components/delivery/DeliveryMap";
-import api5005 from "../../api/api5005";
-import api5004 from "../../api/api5004";
+import api from "../../api/api";
 
 export default function DeliveryControl() {
   const [deliveryId, setDeliveryId] = useState("");
@@ -13,7 +12,7 @@ export default function DeliveryControl() {
     if (!orderId) return alert("Please enter an Order ID.");
 
     try {
-      const { data } = await api5005.get(`delivery/order/${orderId}`);
+      const { data } = await api.get(`delivery/order/${orderId}`);
 
       const delivery = data.deliveries?.[0];
       if (!delivery) return alert("No delivery found for this Order ID");
@@ -42,7 +41,7 @@ export default function DeliveryControl() {
 
   const getCoordinates = async (address: string) => {
     try {
-      const response = await api5004.post("map/coordinate", {
+      const response = await api.post("map/coordinate", {
         address,
       });
       return response.data;
@@ -89,7 +88,7 @@ export default function DeliveryControl() {
     if (!orderId) return alert("Please enter an Order ID.");
 
     try {
-      const { data } = await api5005.get(`delivery/order/${orderId}`);
+      const { data } = await api.get(`delivery/order/${orderId}`);
 
       const delivery = data.deliveries?.[0];
       if (!delivery) return alert("No delivery found for this Order ID");

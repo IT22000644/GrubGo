@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import api5005 from "../../api/api5005";
+import api from "../../api/api";
 import { io, Socket } from "socket.io-client";
 import DeliveryMap, {
   DeliveryRoute,
@@ -214,7 +214,7 @@ export default function DeliveryAssign() {
   const assignDelivery = useCallback(async () => {
     try {
       const { delivery } = (
-        await api5005.post<AssignPayload>("deliveries/assign", {
+        await api.post<AssignPayload>("deliveries/assign", {
           orderId,
           driverId,
           driverAddress,
