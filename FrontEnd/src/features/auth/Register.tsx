@@ -6,16 +6,20 @@ import RestaurantOwnerForm from "../../components/RegisterForms/RestaurantOwnerF
 import RestaurantDetailsForm from "../../components/RegisterForms/RestaurantDetailsForm";
 import RoleSelection from "../../components/RegisterForms/RoleSelection";
 import { Loader } from "../../pages/common/loader";
+import { useAppDispatch } from "../../app/hooks";
+import { registerUser } from "./authSlice";
 
 type Role = "user" | "rider" | "restaurant";
 
 // Define interfaces for our form data
 interface UserData {
-  username: string;
-  email: string;
-  password: string;
-  phone: string;
+  fullName: string;
   address: string;
+  email: string;
+  username: string;
+  password: string;
+  phoneNumber: string;
+  role: string;
 }
 
 interface RiderData extends UserData {
@@ -43,6 +47,7 @@ interface RegisterProps {
 }
 
 export const Register = ({ switchToLogin }: RegisterProps) => {
+  const dispatch = useAppDispatch();
   // State for selected role
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
@@ -95,19 +100,17 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
   };
 
   // Handle user registration
-  const handleUserSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleUserSubmit = async (userData: UserData) => {
     setIsLoading(true);
 
-    try {
-      // API call to register user
-      const response = await fetch("/api/users/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
-      });
+    console.log("User Data:", userData);
 
-      if (response.ok) {
+    try {
+      // Dispatch registerUser thunk action
+      const actionResult = await dispatch(registerUser(userData));
+
+      // Check if registration was successful (check if the action was fulfilled)
+      if (registerUser.fulfilled.match(actionResult)) {
         setIsRegistered(true);
       } else {
         throw new Error("Registration failed");

@@ -6,22 +6,25 @@ interface UserData {
   address: string;
   email: string;
   username: string;
-  passwordHash: string;
+  password: string;
   phoneNumber: string;
   role: string;
 }
 
 interface UserFormProps {
+  userData: UserData;
+  setUserData: React.Dispatch<React.SetStateAction<UserData>>;
+  onSubmit: (userData: UserData) => Promise<void>;
   onBack: () => void;
 }
 
-const UserForm: React.FC<UserFormProps> = ({ onBack }) => {
+const UserForm: React.FC<UserFormProps> = ({ onBack, onSubmit }) => {
   const [userData, setUserData] = useState<UserData>({
     fullName: "",
     address: "",
     email: "",
     username: "",
-    passwordHash: "",
+    password: "",
     phoneNumber: "",
     role: "customer",
   });
@@ -38,7 +41,7 @@ const UserForm: React.FC<UserFormProps> = ({ onBack }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form Data Submitted:", userData);
+    onSubmit(userData);
   };
 
   return (
@@ -116,9 +119,9 @@ const UserForm: React.FC<UserFormProps> = ({ onBack }) => {
             </label>
             <input
               type="password"
-              id="passwordHash"
-              name="passwordHash"
-              value={userData.passwordHash}
+              id="password"
+              name="password"
+              value={userData.password}
               onChange={handleChange}
               placeholder="••••••••"
               className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
