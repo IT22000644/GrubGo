@@ -228,8 +228,8 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-10">
-      <h1 className="text-2xl font-bold mb-4 text-center">Sign Up</h1>
+    <div className="max-w-md mx-auto mt-5">
+      <h1 className="text-2xl font-bold mb-2 text-center">Sign Up</h1>
 
       {!selectedRole && <RoleSelection onRoleSelect={handleRoleSelect} />}
 

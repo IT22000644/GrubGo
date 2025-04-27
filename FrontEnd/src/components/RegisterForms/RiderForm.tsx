@@ -1,41 +1,43 @@
-import {
-  Mail,
-  User,
-  Lock,
-  Phone,
-  MapPin,
-  Truck,
-  CreditCard,
-} from "lucide-react";
-import React from "react";
+import { Mail, User, Lock, Phone, MapPin, CreditCard } from "lucide-react";
+import React, { useState } from "react";
 
 interface RiderData {
-  name: string;
-  email: string;
-  password: string;
-  phone: string;
+  fullName: string;
   address: string;
+  email: string;
+  username: string;
+  passwordHash: string;
+  phoneNumber: string;
+  role: string;
   vehicleType: string;
+  vehicleModel: string;
+  vehicleColor: string;
+  vehicleNumber: string;
   licenseNumber: string;
 }
 
 interface RiderFormProps {
-  riderData: RiderData;
-  setRiderData: React.Dispatch<React.SetStateAction<RiderData>>;
-  onSubmit: (e: React.FormEvent) => void;
   onBack: () => void;
 }
 
-const RiderForm: React.FC<RiderFormProps> = ({
-  riderData,
-  setRiderData,
-  onSubmit,
-  onBack,
-}) => {
+const RiderForm: React.FC<RiderFormProps> = ({ onBack }) => {
+  const [riderData, setRiderData] = useState<RiderData>({
+    fullName: "",
+    address: "",
+    email: "",
+    username: "",
+    passwordHash: "",
+    phoneNumber: "",
+    role: "driver",
+    vehicleType: "",
+    vehicleModel: "",
+    vehicleColor: "",
+    vehicleNumber: "",
+    licenseNumber: "",
+  });
+
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setRiderData({
@@ -44,17 +46,22 @@ const RiderForm: React.FC<RiderFormProps> = ({
     });
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form Data Submitted:", riderData); // Pass the riderData as a JSON object
+  };
+
   return (
     <div className="max-w-md mx-auto">
       <h2 className="text-md font-bold text-gray-800 my-6 flex items-center">
         Delivery Rider Registration
       </h2>
 
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className="h-[400px] overflow-y-auto space-y-5">
           <div className="space-y-1">
             <label
-              htmlFor="name"
+              htmlFor="fullName"
               className="text-sm font-medium text-gray-700 flex items-center"
             >
               <User size={15} className="mr-1 text-gray-500" />
@@ -62,9 +69,30 @@ const RiderForm: React.FC<RiderFormProps> = ({
             </label>
             <input
               type="text"
-              id="name"
-              name="name"
+              id="fullName"
+              name="fullName"
+              value={riderData.fullName}
+              onChange={handleChange}
               placeholder="Enter your full name"
+              className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label
+              htmlFor="userName"
+              className="text-sm font-medium text-gray-700 flex items-center"
+            >
+              <User size={15} className="mr-1 text-gray-500" />
+              User Name
+            </label>
+            <input
+              type="text"
+              id="userName"
+              name="username"
+              value={riderData.username}
+              onChange={handleChange}
+              placeholder="Enter your username"
               className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
             />
           </div>
@@ -81,6 +109,8 @@ const RiderForm: React.FC<RiderFormProps> = ({
               type="email"
               id="email"
               name="email"
+              value={riderData.email}
+              onChange={handleChange}
               placeholder="your.email@example.com"
               className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
             />
@@ -88,7 +118,7 @@ const RiderForm: React.FC<RiderFormProps> = ({
 
           <div className="space-y-1">
             <label
-              htmlFor="password"
+              htmlFor="passwordHash"
               className="text-sm font-medium text-gray-700 flex items-center"
             >
               <Lock size={15} className="mr-1 text-gray-500" />
@@ -96,8 +126,10 @@ const RiderForm: React.FC<RiderFormProps> = ({
             </label>
             <input
               type="password"
-              id="password"
-              name="password"
+              id="passwordHash"
+              name="passwordHash"
+              value={riderData.passwordHash}
+              onChange={handleChange}
               placeholder="••••••••"
               className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
             />
@@ -105,7 +137,7 @@ const RiderForm: React.FC<RiderFormProps> = ({
 
           <div className="space-y-1">
             <label
-              htmlFor="phone"
+              htmlFor="phoneNumber"
               className="text-sm font-medium text-gray-700 flex items-center"
             >
               <Phone size={15} className="mr-1 text-gray-500" />
@@ -113,8 +145,10 @@ const RiderForm: React.FC<RiderFormProps> = ({
             </label>
             <input
               type="tel"
-              id="phone"
-              name="phone"
+              id="phoneNumber"
+              name="phoneNumber"
+              value={riderData.phoneNumber}
+              onChange={handleChange}
               placeholder="+1 (123) 456-7890"
               className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
             />
@@ -131,39 +165,12 @@ const RiderForm: React.FC<RiderFormProps> = ({
             <textarea
               id="address"
               name="address"
+              value={riderData.address}
+              onChange={handleChange}
               placeholder="Enter your full address"
               rows={3}
               className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
             />
-          </div>
-
-          <div className="space-y-1">
-            <label
-              htmlFor="vehicleType"
-              className="text-sm font-medium text-gray-700 flex items-center"
-            >
-              <Truck size={15} className="mr-1 text-gray-500" />
-              Vehicle Type
-            </label>
-            <select
-              id="vehicleType"
-              name="vehicleType"
-              className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors appearance-none"
-              style={{
-                backgroundImage:
-                  "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e\")",
-                backgroundPosition: "right 0.5rem center",
-                backgroundRepeat: "no-repeat",
-                backgroundSize: "1.5em 1.5em",
-                paddingRight: "2.5rem",
-              }}
-            >
-              <option value="">Select Vehicle Type</option>
-              <option value="bicycle">Bicycle</option>
-              <option value="motorcycle">Motorcycle</option>
-              <option value="car">Car</option>
-              <option value="scooter">Scooter</option>
-            </select>
           </div>
 
           <div className="space-y-1">
@@ -178,7 +185,81 @@ const RiderForm: React.FC<RiderFormProps> = ({
               type="text"
               id="licenseNumber"
               name="licenseNumber"
+              value={riderData.licenseNumber}
+              onChange={handleChange}
               placeholder="Enter license number"
+              className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label
+              htmlFor="vehicleType"
+              className="text-sm font-medium text-gray-700 flex items-center"
+            >
+              Vehicle Type
+            </label>
+            <input
+              type="text"
+              id="vehicleType"
+              name="vehicleType"
+              value={riderData.vehicleType}
+              onChange={handleChange}
+              placeholder="Enter vehicle type"
+              className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label
+              htmlFor="vehicleModel"
+              className="text-sm font-medium text-gray-700 flex items-center"
+            >
+              Vehicle Model
+            </label>
+            <input
+              type="text"
+              id="vehicleModel"
+              name="vehicleModel"
+              value={riderData.vehicleModel}
+              onChange={handleChange}
+              placeholder="Enter vehicle model"
+              className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label
+              htmlFor="vehicleColor"
+              className="text-sm font-medium text-gray-700 flex items-center"
+            >
+              Vehicle Color
+            </label>
+            <input
+              type="text"
+              id="vehicleColor"
+              name="vehicleColor"
+              value={riderData.vehicleColor}
+              onChange={handleChange}
+              placeholder="Enter vehicle color"
+              className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label
+              htmlFor="vehicleNumber"
+              className="text-sm font-medium text-gray-700 flex items-center"
+            >
+              Vehicle Number
+            </label>
+            <input
+              type="text"
+              id="vehicleNumber"
+              name="vehicleNumber"
+              value={riderData.vehicleNumber}
+              onChange={handleChange}
+              placeholder="Enter vehicle number"
               className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
             />
           </div>
@@ -195,7 +276,6 @@ const RiderForm: React.FC<RiderFormProps> = ({
           <button
             type="submit"
             className="w-full font-bold text-sm bg-neutral text-text_dark hover:shadow-lg hover:text-primary text-dark py-2 rounded shadow-md border-1"
-            onClick={onSubmit}
           >
             Register
           </button>

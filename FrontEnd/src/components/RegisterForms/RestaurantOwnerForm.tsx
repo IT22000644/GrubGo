@@ -1,27 +1,37 @@
-import { Mail, User, Lock, Phone, ChevronRight } from "lucide-react";
-import React from "react";
+import { Mail, User, Lock, Phone, ChevronRight, MapPin } from "lucide-react";
+import React, { useState } from "react";
 
 interface RestaurantOwnerData {
-  name: string;
+  fullName: string;
+  address: string;
   email: string;
-  password: string;
-  phone: string;
+  username: string;
+  passwordHash: string;
+  phoneNumber: string;
+  role: string;
 }
 
 interface RestaurantOwnerFormProps {
-  ownerData: RestaurantOwnerData;
-  setOwnerData: React.Dispatch<React.SetStateAction<RestaurantOwnerData>>;
   onSubmit: (data: RestaurantOwnerData) => void;
   onBack: () => void;
 }
 
 const RestaurantOwnerForm: React.FC<RestaurantOwnerFormProps> = ({
-  ownerData,
-  setOwnerData,
   onSubmit,
   onBack,
 }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [ownerData, setOwnerData] = useState<RestaurantOwnerData>({
+    fullName: "",
+    address: "",
+    email: "",
+    username: "",
+    passwordHash: "",
+    phoneNumber: "",
+    role: "owner",
+  });
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setOwnerData({
       ...ownerData,
@@ -31,7 +41,9 @@ const RestaurantOwnerForm: React.FC<RestaurantOwnerFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form Data Submitted:", ownerData);
     onSubmit(ownerData);
+    // Pass the ownerData as a JSON object
   };
 
   return (
@@ -48,10 +60,10 @@ const RestaurantOwnerForm: React.FC<RestaurantOwnerFormProps> = ({
         </div>
       </div>
 
-      <div className="h-96 overflow-y-auto pr-2 space-y-5 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+      <div className="h-[400px] overflow-y-auto space-y-5">
         <div className="space-y-1">
           <label
-            htmlFor="name"
+            htmlFor="fullName"
             className="text-sm font-medium text-gray-700 flex items-center"
           >
             <User size={15} className="mr-1 text-gray-500" />
@@ -59,9 +71,30 @@ const RestaurantOwnerForm: React.FC<RestaurantOwnerFormProps> = ({
           </label>
           <input
             type="text"
-            id="name"
-            name="name"
+            id="fullName"
+            name="fullName"
+            value={ownerData.fullName}
+            onChange={handleChange}
             placeholder="Enter your full name"
+            className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label
+            htmlFor="username"
+            className="text-sm font-medium text-gray-700 flex items-center"
+          >
+            <User size={15} className="mr-1 text-gray-500" />
+            Username
+          </label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            value={ownerData.username}
+            onChange={handleChange}
+            placeholder="Enter your username"
             className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
           />
         </div>
@@ -78,6 +111,8 @@ const RestaurantOwnerForm: React.FC<RestaurantOwnerFormProps> = ({
             type="email"
             id="email"
             name="email"
+            value={ownerData.email}
+            onChange={handleChange}
             placeholder="your.email@example.com"
             className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
           />
@@ -85,7 +120,7 @@ const RestaurantOwnerForm: React.FC<RestaurantOwnerFormProps> = ({
 
         <div className="space-y-1">
           <label
-            htmlFor="password"
+            htmlFor="passwordHash"
             className="text-sm font-medium text-gray-700 flex items-center"
           >
             <Lock size={15} className="mr-1 text-gray-500" />
@@ -93,8 +128,10 @@ const RestaurantOwnerForm: React.FC<RestaurantOwnerFormProps> = ({
           </label>
           <input
             type="password"
-            id="password"
-            name="password"
+            id="passwordHash"
+            name="passwordHash"
+            value={ownerData.passwordHash}
+            onChange={handleChange}
             placeholder="••••••••"
             className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
           />
@@ -102,7 +139,7 @@ const RestaurantOwnerForm: React.FC<RestaurantOwnerFormProps> = ({
 
         <div className="space-y-1">
           <label
-            htmlFor="phone"
+            htmlFor="phoneNumber"
             className="text-sm font-medium text-gray-700 flex items-center"
           >
             <Phone size={15} className="mr-1 text-gray-500" />
@@ -110,9 +147,30 @@ const RestaurantOwnerForm: React.FC<RestaurantOwnerFormProps> = ({
           </label>
           <input
             type="tel"
-            id="phone"
-            name="phone"
+            id="phoneNumber"
+            name="phoneNumber"
+            value={ownerData.phoneNumber}
+            onChange={handleChange}
             placeholder="+1 (123) 456-7890"
+            className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label
+            htmlFor="address"
+            className="text-sm font-medium text-gray-700 flex items-center"
+          >
+            <MapPin size={15} className="mr-1 text-gray-500" />
+            Address
+          </label>
+          <textarea
+            id="address"
+            name="address"
+            value={ownerData.address}
+            onChange={handleChange}
+            placeholder="Enter your full address"
+            rows={3}
             className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
           />
         </div>
