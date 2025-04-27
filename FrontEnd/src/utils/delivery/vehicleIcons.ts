@@ -1,4 +1,10 @@
-export type VehicleType = "bike" | "car" | "threewheel" | "van" | "lorry";
+export type VehicleType =
+  | "bike"
+  | "car"
+  | "threewheel"
+  | "van"
+  | "lorry"
+  | "scooter";
 export type VehicleColor =
   | "red"
   | "yellow"
@@ -32,6 +38,15 @@ const vehicleIcons: Record<
     black: "https://cdn-icons-png.flaticon.com/128/9983/9983173.png",
     purple: "https://cdn-icons-png.flaticon.com/128/5008/5008303.png",
   },
+  scooter: {
+    red: "https://cdn-icons-png.flaticon.com/128/1023/1023448.png",
+    yellow: "https://cdn-icons-png.flaticon.com/128/618/618987.png",
+    blue: "https://cdn-icons-png.flaticon.com/128/13566/13566174.png",
+    green: "https://cdn-icons-png.flaticon.com/128/1052/1052730.png",
+    white: "https://cdn-icons-png.flaticon.com/128/1023/1023397.png",
+    black: "https://cdn-icons-png.flaticon.com/128/66/66527.png",
+    purple: "https://cdn-icons-png.flaticon.com/128/17890/17890906.png",
+  },
   threewheel: {
     red: "https://cdn-icons-png.flaticon.com/128/5768/5768851.png",
     yellow: "https://cdn-icons-png.flaticon.com/128/3205/3205236.png",
@@ -62,8 +77,8 @@ const vehicleIcons: Record<
 };
 
 export function getVehicleIconUrl(
-  type: VehicleType = "car",
-  color: VehicleColor = "blue"
+  type: VehicleType = "bike",
+  color: VehicleColor = "red"
 ): string {
   return (
     vehicleIcons[type]?.[color] ??

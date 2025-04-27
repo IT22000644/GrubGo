@@ -6,9 +6,10 @@ import {
   VehicleColor,
 } from "../../utils/delivery/vehicleIcons";
 
-// Type guards
 const isVehicleType = (value: string): value is VehicleType => {
-  return ["bike", "car", "threewheel", "van", "lorry"].includes(value);
+  return ["bike", "car", "threewheel", "van", "lorry", "scooter"].includes(
+    value
+  );
 };
 
 const isVehicleColor = (value: string): value is VehicleColor => {
@@ -42,10 +43,10 @@ const DriverInfoCard: React.FC<DriverInfoCardProps> = ({
 }) => {
   const safeType: VehicleType = isVehicleType(vehicleType)
     ? vehicleType
-    : "car";
+    : "bike";
   const safeColor: VehicleColor = isVehicleColor(vehicleColor)
     ? vehicleColor
-    : "blue";
+    : "red";
   const vehicleIconUrl = getVehicleIconUrl(safeType, safeColor);
 
   return (

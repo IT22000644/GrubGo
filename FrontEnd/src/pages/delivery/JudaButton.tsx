@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 
 const JudaButton: React.FC = () => {
   const navigate = useNavigate();
-  const orderId = "680db93d802387aabfec173b";
+  const orderId = "680db93d802387aabfec173a";
 
   const handleLoad = () => {
-    navigate("/delivery-loader", { state: { orderId } });
+    navigate("/tracking-loader", { state: { orderId } });
   };
 
   return (

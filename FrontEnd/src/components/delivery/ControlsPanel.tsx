@@ -11,8 +11,8 @@ const ControlsPanel: React.FC<Props> = ({
   onPickedUp,
   onDelivered,
 }) => (
-  <div className="border-4 border-blue-800 border-double rounded-lg p-4 shadow space-y-2 bg-blue-50">
-    <h2 className="text-lg font-medium text-orange-600">Actions</h2>
+  <div className="rounded-lg p-4 shadow-lg space-y-2 bg-neutral dark:bg-accent/30">
+    <h2 className="text-lg font-medium text-primary">Actions</h2>
 
     {status === "Arrived Restaurant" && (
       <button
@@ -26,7 +26,7 @@ const ControlsPanel: React.FC<Props> = ({
     {status === "Arrived Customer" && (
       <button
         onClick={onDelivered}
-        className="w-full py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        className="w-full py-2 bg-success text-white rounded hover:bg-green-600"
       >
         Delivered
       </button>
@@ -39,7 +39,10 @@ const ControlsPanel: React.FC<Props> = ({
     )}
 
     {status === "Delivered" && (
-      <p className="text-green-600"> No More Actions To Be Taken!</p>
+      <p className="text-success font-semibold">
+        {" "}
+        No More Actions To Be Taken!
+      </p>
     )}
   </div>
 );
