@@ -26,7 +26,7 @@ export const createUser = async (req, res) => {
 
     try {
       if (role === "customer") {
-        const { fullName, address } = req.body.customerDetails || {};
+        const { fullName, address } = req.body || {};
 
         const newCustomer = new Customer({
           userId: savedUser._id,

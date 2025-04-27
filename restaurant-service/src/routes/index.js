@@ -6,7 +6,7 @@ import foodMenuRoutes from "./foodMenuRoutes.js";
 import foodsRoutes from "./foodsRoutes.js";
 import categoryRoutes from "./categoryRoutes.js";
 
-router.use("/restaurants", restaurantRoutes);
+router.use("/", restaurantRoutes);
 router.use("/foodMenus", foodMenuRoutes);
 router.use("/foods", foodsRoutes);
 router.use("/categories", categoryRoutes);
