@@ -29,6 +29,7 @@ interface DriverInfoCardProps {
   vehicleType: string;
   vehicleColor: string;
   vehicleNumber: string;
+  vehicleModel: string;
 }
 
 const DriverInfoCard: React.FC<DriverInfoCardProps> = ({
@@ -37,6 +38,7 @@ const DriverInfoCard: React.FC<DriverInfoCardProps> = ({
   vehicleType,
   vehicleColor,
   vehicleNumber,
+  vehicleModel,
 }) => {
   const safeType: VehicleType = isVehicleType(vehicleType)
     ? vehicleType
@@ -47,13 +49,13 @@ const DriverInfoCard: React.FC<DriverInfoCardProps> = ({
   const vehicleIconUrl = getVehicleIconUrl(safeType, safeColor);
 
   return (
-    <div className="flex items-center justify-between p-6 bg-blue-50 rounded-3xl shadow-lg border-double border-4 border-blue-800 max-w-xl w-full">
+    <div className="flex items-center justify-between p-6 bg-neutral dark:bg-accent/30 rounded-3xl shadow-lg  max-w-xl w-full">
       {/* Avatar + Vehicle Icon */}
       <div className="relative flex flex-col items-center gap-3">
         <img
           src={imageUrl}
           alt="Driver"
-          className="w-20 h-20 rounded-full object-cover border-4 border-blue-500 shadow-lg"
+          className="w-20 h-20 rounded-full object-cover border-4 border-orange-500 dark:border-accent shadow-lg"
         />
         <img
           src={vehicleIconUrl}
@@ -64,11 +66,13 @@ const DriverInfoCard: React.FC<DriverInfoCardProps> = ({
 
       {/* Driver Info */}
       <div className="flex flex-col flex-grow ml-6">
-        <span className="text-2xl font-semibold text-gray-900">{name}</span>
-        <span className="text-sm text-gray-600 capitalize mt-1">
-          {safeColor} {safeType}
+        <span className="text-2xl font-semibold text-gray-900 dark:text-white">
+          {name}
         </span>
-        <span className="text-lg font-medium text-blue-600 mt-2">
+        <span className="text-sm text-gray-600 dark:text-white capitalize mt-1">
+          {vehicleModel}
+        </span>
+        <span className="text-lg font-medium text-blue-600 dark:text-orange-500 mt-2">
           {vehicleNumber}
         </span>
       </div>

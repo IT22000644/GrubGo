@@ -48,8 +48,11 @@ export default function AssignDeliveryDataLoader() {
           state: { message: "Customer details cannot be found." },
         });
       }
+
+      const customerData = customerRes.data.data;
+
       const { username: customerName, profilePicture: customerImage } =
-        customerRes.data;
+        customerData;
 
       // 3. Get Restaurant Info
       let restaurantRes;
@@ -65,19 +68,37 @@ export default function AssignDeliveryDataLoader() {
 
       const {
         name: restaurantName,
-        address: restaurantAddress,
+        address: restaurantAddressTemp,
         images = [],
       } = restaurantRes.data.restaurant ?? {};
       console.log("   Parsed restaurantName, address, images:", {
         restaurantName,
-        restaurantAddress,
+        restaurantAddressTemp,
         images,
       });
       const restaurantImage = images[0] ?? "";
 
+      // 3.1 Get Restaurant Address
+      let stringRes;
+      try {
+        stringRes = await api.post("map/string", {
+          addressParts: restaurantAddressTemp,
+        });
+        console.log("3️⃣.a String API response:", stringRes);
+      } catch (err) {
+        clearTimeout(timeoutId);
+        return navigate("/error", {
+          state: { message: "Could not format restaurant address." },
+        });
+      }
+
+      // grab the formatted address
+      const restaurantAddress = stringRes.data.fullAddress;
+      console.log("→ restaurantAddress:", restaurantAddress);
+
       // 4. Get Coordinates
       const customerPayload = { address: customerAddress };
-      const restaurantPayload = { addressParts: restaurantAddress };
+      const restaurantPayload = { addressParts: restaurantAddressTemp };
       console.log("→ map/coordinate payloads:", {
         customerPayload,
         restaurantPayload,
@@ -114,7 +135,7 @@ export default function AssignDeliveryDataLoader() {
         });
       }
       const payloadRiders = allDriversRes.data.data.map((r: any) => ({
-        userId: r._id,
+        userId: r.userId,
         currentLocation: r.currentLocation,
       }));
       console.log("   Mapped payloadRiders:", payloadRiders);
@@ -134,8 +155,12 @@ export default function AssignDeliveryDataLoader() {
           state: { message: "Could not find the closest rider." },
         });
       }
-      const { id: driverId, currentLocation: driverLocation } =
-        closestDriverRes.data;
+
+      const { closest } = closestDriverRes.data;
+
+      const { id: driverId, currentLocation: driverLocation } = closest;
+
+      console.log("→ driverId:", driverId, "driverLocation:", driverLocation);
 
       // 7. Get Driver Info
       let driverRes;
@@ -148,14 +173,18 @@ export default function AssignDeliveryDataLoader() {
           state: { message: "Driver details cannot be found." },
         });
       }
+
+      const userData = driverRes.data.data;
+
+      const { profilePicture: driverImage } = userData;
+
       const {
         fullName: driverName,
-        image: driverImage,
         vehicleNumber,
         vehicleType,
         vehicleModel,
         vehicleColor,
-      } = driverRes.data;
+      } = userData.riderDetails;
 
       // 8. Get Driver's Address
       let driverAddress = "";
@@ -176,24 +205,23 @@ export default function AssignDeliveryDataLoader() {
       // Final state dump
       console.log("🚀 All gathered data:", {
         orderId,
-        customerName,
-        customerAddress,
-        customerImage,
-        restaurantName,
-        restaurantAddress,
-        restaurantImage,
-        customerLocation,
-        restaurantLocation,
-        payloadRiders,
         driverId,
+        restaurantAddress,
+        customerAddress,
+        driverAddress,
         driverLocation,
+        restaurantLocation,
+        customerLocation,
         driverName,
         driverImage,
         vehicleNumber,
         vehicleType,
         vehicleModel,
         vehicleColor,
-        driverAddress,
+        customerName,
+        customerImage,
+        restaurantName,
+        restaurantImage,
       });
 
       clearTimeout(timeoutId);
