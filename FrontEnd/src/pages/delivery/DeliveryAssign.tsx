@@ -214,7 +214,7 @@ export default function DeliveryAssign() {
   const assignDelivery = useCallback(async () => {
     try {
       const { delivery } = (
-        await api.post<AssignPayload>("deliveries/assign", {
+        await api.post<AssignPayload>("delivery/assign", {
           orderId,
           driverId,
           driverAddress,
@@ -273,7 +273,7 @@ export default function DeliveryAssign() {
       <h1 className="text-2xl font-semibold">Delivery</h1>
       <StatusTracker currentStatus={status} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="col-span-2 h-96 border-4 border-blue-800 border-double">
+        <div className="col-span-2 h-auto shadow-md">
           <DeliveryMap
             route={route}
             pathStage={mapPathStage}
@@ -287,6 +287,7 @@ export default function DeliveryAssign() {
             vehicleType={vehicleType}
             vehicleColor={vehicleColor}
             vehicleNumber={vehicleNumber}
+            vehicleModel={vehicleModel}
           />
 
           <PickupDropInfo

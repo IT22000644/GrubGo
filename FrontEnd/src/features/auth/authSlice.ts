@@ -18,6 +18,7 @@ interface AuthState {
   user: User | null;
   role: string | null;
   token: string | null;
+  loading: boolean;
 }
 
 const initialState: AuthState = {
@@ -25,6 +26,7 @@ const initialState: AuthState = {
   user: null,
   token: null,
   role: null,
+  loading: false,
 };
 
 export const loginUser = createAsyncThunk<
@@ -35,6 +37,22 @@ export const loginUser = createAsyncThunk<
     headers: {
       "Content-Type": "application/json",
     },
+    withCredentials: true,
+  });
+
+  console.log("Login Response:", response.data);
+  return {
+    user: response.data.data.user,
+    token: response.data.data.accessToken,
+  };
+});
+
+export const registerUser = createAsyncThunk<
+  { user: User; token: string },
+  any
+>("auth/register", async (formData) => {
+  const response = await api.post("/auth/register", formData, {
+    headers: { "Content-Type": "application/json" },
     withCredentials: true,
   });
   return response.data;
@@ -56,18 +74,37 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(loginUser.fulfilled, (state, action) => {
-      state.isAuthenticated = true;
-      state.user = action.payload.user;
-      state.token = action.payload.token;
-      state.role = action.payload.user.role;
-    });
-    builder.addCase(loginUser.rejected, (state) => {
-      state.isAuthenticated = false;
-      state.user = null;
-      state.token = null;
-      state.role = null;
-    });
+    builder
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        console.log("Login successful:", action.payload);
+
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.role = action.payload.user.role; // Store the role
+        state.loading = false;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        console.error("Login failed:", action.error);
+        state.isAuthenticated = false;
+        state.user = null;
+        state.token = null;
+        state.role = null;
+        state.loading = false;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+      })
+      .addCase(registerUser.rejected, (state) => {
+        state.isAuthenticated = false;
+        state.user = null;
+        state.token = null;
+      });
   },
 });
 

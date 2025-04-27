@@ -11,7 +11,7 @@ type Role = "user" | "rider" | "restaurant";
 
 // Define interfaces for our form data
 interface UserData {
-  name: string;
+  username: string;
   email: string;
   password: string;
   phone: string;
@@ -48,10 +48,10 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
 
   // State for form data
   const [userData, setUserData] = useState<UserData>({
-    name: "",
+    username: "",
     email: "",
     password: "",
-    phone: "",
+    phoneNumber: "",
     address: "",
   });
 

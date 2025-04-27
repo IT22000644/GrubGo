@@ -11,9 +11,9 @@ import React from "react";
 interface RestaurantData {
   name: string;
   address: string;
-  cuisine: string;
-  openingHours: string;
   description: string;
+  phone: string;
+  images: string[];
 }
 
 interface RestaurantDetailsFormProps {
@@ -56,106 +56,91 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
       </div>
 
       <div className="h-96 overflow-y-auto pr-2 space-y-5 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-        <div className="space-y-1">
-          <label
-            htmlFor="name"
-            className="text-sm font-medium text-gray-700 flex items-center"
-          >
-            <Store size={15} className="mr-1 text-gray-500" />
-            Restaurant Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            placeholder="Enter your restaurant name"
-            className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-          />
+        <div className="h-[400px] overflow-y-auto space-y-5">
+          <div className="space-y-1">
+            <label
+              htmlFor="name"
+              className="text-sm font-medium text-gray-700 flex items-center"
+            >
+              <Store size={15} className="mr-1 text-gray-500" />
+              Restaurant Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Enter your restaurant name"
+              className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label
+              htmlFor="address"
+              className="text-sm font-medium text-gray-700 flex items-center"
+            >
+              <MapPin size={15} className="mr-1 text-gray-500" />
+              Restaurant Address
+            </label>
+            <textarea
+              id="address"
+              name="address"
+              placeholder="Enter full restaurant address"
+              rows={3}
+              className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label
+              htmlFor="description"
+              className="text-sm font-medium text-gray-700 flex items-center"
+            >
+              <FileText size={15} className="mr-1 text-gray-500" />
+              Restaurant Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              placeholder="Tell customers about your restaurant..."
+              rows={4}
+              className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
+            />
+          </div>
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1 mt-4">
           <label
-            htmlFor="address"
-            className="text-sm font-medium text-gray-700 flex items-center"
-          >
-            <MapPin size={15} className="mr-1 text-gray-500" />
-            Restaurant Address
-          </label>
-          <textarea
-            id="address"
-            name="address"
-            placeholder="Enter full restaurant address"
-            rows={3}
-            className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
-          />
-        </div>
-
-        <div className="space-y-1">
-          <label
-            htmlFor="cuisine"
-            className="text-sm font-medium text-gray-700 flex items-center"
-          >
-            <UtensilsCrossed size={15} className="mr-1 text-gray-500" />
-            Cuisine Type
-          </label>
-          <select
-            id="cuisine"
-            name="cuisine"
-            className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors appearance-none"
-            style={{
-              backgroundImage:
-                "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e\")",
-              backgroundPosition: "right 0.5rem center",
-              backgroundRepeat: "no-repeat",
-              backgroundSize: "1.5em 1.5em",
-              paddingRight: "2.5rem",
-            }}
-          >
-            <option value="">Select Cuisine Type</option>
-            <option value="italian">Italian</option>
-            <option value="chinese">Chinese</option>
-            <option value="indian">Indian</option>
-            <option value="mexican">Mexican</option>
-            <option value="japanese">Japanese</option>
-            <option value="thai">Thai</option>
-            <option value="french">French</option>
-            <option value="american">American</option>
-            <option value="mediterranean">Mediterranean</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-
-        <div className="space-y-1">
-          <label
-            htmlFor="openingHours"
+            htmlFor="phone"
             className="text-sm font-medium text-gray-700 flex items-center"
           >
             <Clock size={15} className="mr-1 text-gray-500" />
-            Opening Hours
+            Restaurant Phone Number
           </label>
           <input
-            type="text"
-            id="openingHours"
-            name="openingHours"
-            placeholder="e.g., Mon-Fri: 9am-10pm, Sat-Sun: 10am-11pm"
+            type="tel"
+            id="phone"
+            name="phone"
+            placeholder="+1 (123) 456-7890"
             className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
           />
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1 mt-4">
           <label
-            htmlFor="description"
+            htmlFor="images"
             className="text-sm font-medium text-gray-700 flex items-center"
           >
-            <FileText size={15} className="mr-1 text-gray-500" />
-            Restaurant Description
+            <UtensilsCrossed size={15} className="mr-1 text-gray-500" />
+            Restaurant Images (optional)
           </label>
-          <textarea
-            id="description"
-            name="description"
-            placeholder="Tell customers about your restaurant..."
-            rows={4}
-            className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
+          <input
+            type="file"
+            id="images"
+            name="images"
+            accept="image/*"
+            multiple
+            className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
           />
         </div>
       </div>

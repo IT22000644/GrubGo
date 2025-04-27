@@ -13,8 +13,15 @@ import {
 export const RestaurantController = {
   registerNewRestaurant: async (req, res) => {
     try {
-      const { name, address, description, phone, restaurantOwner, menus } =
-        req.body;
+      const {
+        name,
+        address,
+        description,
+        phone,
+        restaurantOwner,
+        menus,
+        isVerified,
+      } = req.body;
       const phoneRegex = /^\+?\d{10}$/;
       const imagePaths = req.files
         ? req.files.map(
@@ -55,6 +62,7 @@ export const RestaurantController = {
         images: imagePaths,
         restaurantOwner,
         menus,
+        isVerified,
       };
 
       const newRestaurant = await registerRestaurantService(restaurantData);

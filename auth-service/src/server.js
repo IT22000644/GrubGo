@@ -2,8 +2,11 @@ import express from "express";
 import connectDB from "./db/db-config.js";
 import router from "./routes/auth.route.js";
 import { connectQueue } from "./utils/messageQueue.js";
+import cors from "cors";
 
 const app = express();
+
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 const PORT = process.env.PORT || 5001;
 
