@@ -15,7 +15,6 @@ import DeliveryDataLoader from "../pages/delivery/DeliveryDataLoader";
 import CustomerTrackingLoader from "../pages/delivery/CustomerTrackingLoader";
 import DriverTrackingLoader from "../pages/delivery/DriverTrackingLoader";
 import DriverView from "../pages/delivery/DriverView";
-import JudaButton from "../pages/delivery/JudaButton";
 
 import NotFound from "../pages/common/NotFound";
 import Contact from "../pages/main/ContactUs";
@@ -69,7 +68,7 @@ const AppRoutes: React.FC = () => {
           path="/driver-tracking-loader"
           element={<DriverTrackingLoader />}
         />
-        <Route path="/juda-button" element={<JudaButton />} />
+
         <Route
           path="/driver-activity"
           element={

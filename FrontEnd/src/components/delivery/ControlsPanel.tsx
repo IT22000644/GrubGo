@@ -35,7 +35,7 @@ const ControlsPanel: React.FC<Props> = ({
     {(status === "Assigned" ||
       status === "In Transit" ||
       status === "Picked Up") && (
-      <p className="text-orange-600">Waiting for next step…</p>
+      <p className="text-gray-500 dark:text-white">Waiting for next step…</p>
     )}
 
     {status === "Delivered" && (

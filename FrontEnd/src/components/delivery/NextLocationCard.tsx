@@ -13,6 +13,10 @@ const NextLocationCard: React.FC<NextLocationCardProps> = ({
   address,
   role,
 }) => {
+  const placeholderImage =
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrCLHZeA--7ckaEIUPD-Z0XASJ5BxYQYLsdA&s";
+  const displayImage = imageUrl ? imageUrl : placeholderImage;
+
   return (
     <div className="p-6 bg-neutral dark:bg-accent/30 rounded-2xl shadow-lg max-w-xl w-full">
       <h3 className="text-lg font-semibold text-primary mb-4">
@@ -22,7 +26,7 @@ const NextLocationCard: React.FC<NextLocationCardProps> = ({
       <div className="flex items-center gap-5">
         {/* Avatar */}
         <img
-          src={imageUrl}
+          src={displayImage}
           alt={fullName}
           className="w-20 h-20 rounded-2xl object-cover border-4 border-primary shadow-lg"
         />

@@ -51,8 +51,10 @@ export default function AssignDeliveryDataLoader() {
 
       const customerData = customerRes.data.data;
 
-      const { username: customerName, profilePicture: customerImage } =
-        customerData;
+      const { fullName: customerName, profilePicture: customerImage } = {
+        fullName: customerData.customerDetails?.fullName || "Unknown Customer",
+        profilePicture: customerData.profilePicture,
+      };
 
       // 3. Get Restaurant Info
       let restaurantRes;
@@ -203,6 +205,7 @@ export default function AssignDeliveryDataLoader() {
       }
 
       console.log("🚀 All gathered data:", {
+        replace: true,
         orderId,
         driverId,
         restaurantAddress,
