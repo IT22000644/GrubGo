@@ -156,7 +156,7 @@ export const getUserByEmail = async (req, res) => {
   const { email } = req.params;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("-passwordHash");
 
     if (!user) {
       return res.status(404).json({
@@ -196,10 +196,20 @@ export const getUserByEmail = async (req, res) => {
 
 export const updateRiderLocation = async (req, res) => {
   const { id } = req.params;
-  const { currentLocation } = req.body;
+  const { location } = req.body;
+
+  console.log("Location:", location);
 
   try {
-    const rider = await Rider.findOne({ userId: id });
+    const rider = await Rider.findOneAndUpdate(
+      { userId: id },
+      {
+        $set: {
+          currentLocation: location || undefined,
+        },
+      },
+      { new: true }
+    );
 
     if (!rider) {
       return res.status(404).json({
@@ -208,15 +218,13 @@ export const updateRiderLocation = async (req, res) => {
       });
     }
 
-    rider.currentLocation = currentLocation;
-    await rider.save();
-
     return res.status(200).json({
       success: true,
       message: "Rider location updated successfully",
       data: rider,
     });
   } catch (error) {
+    console.error(error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });

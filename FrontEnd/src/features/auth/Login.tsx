@@ -3,15 +3,19 @@ import { useState } from "react";
 import { auth, googleProvider } from "../../firebase/config";
 import { signInWithPopup } from "firebase/auth";
 import Google from "../../assets/Images/OIP (3).jpeg";
+import { useAppDispatch } from "../../app/hooks";
+import { loginUser } from "./authSlice";
 
 interface LoginProps {
   switchToRegister: () => void;
+  setShowAuthModal: (show: boolean) => void;
 }
 
-export const Login = ({ switchToRegister }: LoginProps) => {
+export const Login = ({ switchToRegister, setShowAuthModal }: LoginProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const dispatch = useAppDispatch();
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -19,6 +23,17 @@ export const Login = ({ switchToRegister }: LoginProps) => {
       console.log("Google login success:", user);
     } catch (err) {
       console.error("Google login error:", err);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await dispatch(loginUser({ email, password })).unwrap();
+      setShowAuthModal(false);
+      console.log("Login success");
+    } catch (error: any) {
+      console.error("Login error:", error);
     }
   };
 
@@ -46,7 +61,7 @@ export const Login = ({ switchToRegister }: LoginProps) => {
       {error && <p className="text-red-500 mb-2 text-sm">{error}</p>}
 
       <button
-        type="submit"
+        onClick={handleLogin}
         className="w-full font-bold text-sm bg-neutral text-text_dark hover:shadow-lg hover:text-primary text-dark py-2 rounded shadow-md border-1 mb-4"
       >
         login

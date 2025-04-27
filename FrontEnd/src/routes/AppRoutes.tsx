@@ -62,7 +62,14 @@ const AppRoutes: React.FC = () => {
         <Route path="/delivery-tracking" element={<DeliveryTracking />} />
         <Route path="/customer-tracking" element={<CustomerTracking />} />
         <Route path="/juda-button" element={<JudaButton />} />
-        <Route path="/driver-home" element={<DriverView />} />
+        <Route
+          path="/driver-home"
+          element={
+            <ProtectedRoute>
+              <DriverView />
+            </ProtectedRoute>
+          }
+        />
       </Route>
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />

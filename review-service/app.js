@@ -13,7 +13,7 @@ const mongoURI = process.env.MONGO_URI;
 
 connectDB(mongoURI);
 
-app.use("/api/v1", reviewRoutes);
+app.use("/", reviewRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Review service running on port ${PORT}`));

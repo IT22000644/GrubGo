@@ -13,7 +13,7 @@ export const foodController = {
       const imagePaths = req.files
         ? req.files.map(
             (file) =>
-              `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
+              `${req.protocol}://${process.env.HOST_NAME}/uploads/${file.filename}`
           )
         : [];
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ThemeToggle from "../../../assets/Theme/ThemeToggle";
 import {
   ChevronDown,
@@ -27,11 +27,16 @@ const Header = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
-  const role = useSelector((state: RootState) => state.user.role);
-  const restaurantId = useSelector(
-    (state: RootState) => state.user.restaurantId
-  );
-  const [userRole, setUserRole] = useState(role);
+  //const role = useSelector((state: RootState) => state.user.role);
+  // const restaurantId = useSelector(
+  //   (state: RootState) => state.user.restaurantId
+  const userRole = useSelector((state: RootState) => state.auth.role);
+
+  const navigate = useNavigate();
+  // );
+  const restaurantId = "6413432b0c1f4a2d3e5b8c9d";
+
+  // const [userRole, setUserRole] = useState("");
   const [isOpen, setIsOpen] = useState(true);
   const [showCart, setShowCart] = useState(false);
 
@@ -140,7 +145,10 @@ const Header = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-5">
-            <button className="p-2 rounded-full hover:bg-light_hover dark:hover:bg-dark_hover transition-colors">
+            <button
+              onClick={() => navigate("/driver-home")}
+              className="p-2 rounded-full hover:bg-light_hover dark:hover:bg-dark_hover transition-colors"
+            >
               <Search size={20} />
             </button>
 
@@ -151,7 +159,7 @@ const Header = () => {
               >
                 <User size={20} />
               </button>
-              {activeDropdown === "user" && (
+              {activeDropdown === "customer" && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
                   <div className="py-1">
                     {adminLinks.userDropdownContent.map((item) => (
@@ -170,7 +178,7 @@ const Header = () => {
                   </div>
                 </div>
               )}
-              {activeDropdown === "restaurantOwner" && (
+              {activeDropdown === "restaurant_admin" && (
                 <div className="absolute right-0 mt-2 w-[280px] bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
                   <div className="py-1">
                     {adminLinks.restaurantDropdownContent.map((item) => (
@@ -225,7 +233,7 @@ const Header = () => {
                   </div>
                 </div>
               )}
-              {activeDropdown === "rider" && (
+              {activeDropdown === "driver" && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
                   <div className="py-1">
                     {adminLinks.riderDropdownContent.map((item) => (
@@ -281,7 +289,10 @@ const Header = () => {
 
           <Modal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)}>
             {isLogin ? (
-              <Login switchToRegister={() => setIsLogin(false)} />
+              <Login
+                switchToRegister={() => setIsLogin(false)}
+                setShowAuthModal={setShowAuthModal}
+              />
             ) : (
               <Register switchToLogin={() => setIsLogin(true)} />
             )}
