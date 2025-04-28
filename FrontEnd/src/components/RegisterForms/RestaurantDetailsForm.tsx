@@ -7,10 +7,10 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import React from "react";
-<<<<<<< HEAD
 import { RestaurantData } from "../../features/auth/types";
-=======
->>>>>>> 838c172ad22e44b695300f4431ca0f08b0f05ed6
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
+import api from "../../api/api";
 
 interface RestaurantDetailsFormProps {
   onBack: () => void;
@@ -19,35 +19,85 @@ interface RestaurantDetailsFormProps {
 const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
   onBack,
 }) => {
+  const restaurantOwner = useSelector(
+    (state: RootState) => state.auth.user?._id
+  );
+  const token = useSelector((state: RootState) => state.auth.token);
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [restaurantData, setRestaurantData] = React.useState<FormData>(() => {
-    const formData = new FormData();
-    formData.append("name", "");
-    formData.append("address", "");
-    formData.append("description", "");
-    formData.append("phone", "");
-    return formData;
+  const [restaurantData, setRestaurantData] = React.useState<RestaurantData>({
+    name: "",
+    cuisine: "",
+    address: { shopNumber: "", street: "", town: "" },
+    description: "",
+    openingHours: "",
+    phone: "",
+    images: [],
   });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target;
-    setRestaurantData((prevData) => {
-      const updatedData = new FormData();
-      prevData.forEach((value, key) => {
-        updatedData.append(key, value);
-      });
-      updatedData.set(name, value);
-      return updatedData;
-    });
+    const { name, value, files } = e.target as HTMLInputElement;
+
+    if (name.startsWith("address.")) {
+      const addressField = name.split(".")[1];
+      setRestaurantData((prev) => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          [addressField]: value,
+        },
+      }));
+    } else if (name === "images" && files) {
+      setRestaurantData((prev) => ({
+        ...prev,
+        images: Array.from(files),
+      }));
+    } else {
+      setRestaurantData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you can handle the form submission logic
-    console.log("Form submitted");
-    console.log("Form Data:", restaurantData);
+
+    console.log("Restaurant Data Submitted:", restaurantData);
+
+    const formData = new FormData();
+
+    formData.append("name", restaurantData.name);
+    formData.append("cuisine", restaurantData.cuisine);
+    formData.append("description", restaurantData.description);
+    formData.append("openingHours", restaurantData.openingHours);
+    formData.append("phone", restaurantData.phone);
+
+    // For nested address
+    formData.append("address[shopNumber]", restaurantData.address.shopNumber);
+    formData.append("address[street]", restaurantData.address.street);
+    formData.append("address[town]", restaurantData.address.town);
+    formData.append("restaurantOwner", restaurantOwner ?? "");
+
+    console.log("Restaurant Owner:", restaurantOwner);
+
+    // Images (array)
+    restaurantData.images.forEach((file, index) => {
+      formData.append(`images`, file);
+    });
+
+    try {
+      const response = api.post("/restaurant/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      console.error("Error submitting restaurant data:", error);
+    }
   };
 
   return (
@@ -92,14 +142,59 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
               <MapPin size={15} className="mr-1 text-gray-500" />
               Restaurant Address
             </label>
-            <textarea
-              id="address"
-              name="address"
-              onChange={handleChange}
-              placeholder="Enter full restaurant address"
-              rows={3}
-              className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
-            />
+
+            <div className="space-y-4 pl-4 mt-2">
+              <div className="space-y-1">
+                <label
+                  htmlFor="address.shopNumber"
+                  className="text-sm font-medium text-gray-600 flex items-center"
+                >
+                  Shop Number
+                </label>
+                <input
+                  type="text"
+                  id="address.shopNumber"
+                  name="address.shopNumber"
+                  onChange={handleChange}
+                  placeholder="Enter shop number"
+                  className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label
+                  htmlFor="address.street"
+                  className="text-sm font-medium text-gray-600 flex items-center"
+                >
+                  Street
+                </label>
+                <input
+                  type="text"
+                  id="address.street"
+                  name="address.street"
+                  onChange={handleChange}
+                  placeholder="Enter street name"
+                  className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label
+                  htmlFor="address.town"
+                  className="text-sm font-medium text-gray-600 flex items-center"
+                >
+                  Town
+                </label>
+                <input
+                  type="text"
+                  id="address.town"
+                  name="address.town"
+                  onChange={handleChange}
+                  placeholder="Enter town/city"
+                  className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="space-y-1">

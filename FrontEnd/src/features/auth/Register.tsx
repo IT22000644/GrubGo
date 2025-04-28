@@ -57,7 +57,11 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
 
   const [restaurantData, setRestaurantData] = useState<RestaurantData>({
     name: "",
-    address: "",
+    address: {
+      shopNumber: "",
+      street: "",
+      town: "",
+    },
     cuisine: "",
     openingHours: "",
     description: "",
@@ -172,7 +176,6 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
           userData={riderData}
           setRiderData={setRiderData}
           onSubmit={handleUserSubmit}
-          onSubmit={handleUserSubmit}
           onBack={() => setSelectedRole(null)}
         />
       )}
@@ -180,6 +183,8 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
       {/* Restaurant Registration Form - Step 1: Owner Details */}
       {selectedRole === "restaurant" && restaurantStep === 1 && (
         <RestaurantOwnerForm
+          ownerData={ownerData}
+          setOwnerData={setOwnerData}
           onSubmit={handleOwnerFormComplete}
           onBack={() => setSelectedRole(null)}
         />

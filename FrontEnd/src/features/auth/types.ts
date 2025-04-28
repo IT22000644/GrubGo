@@ -12,13 +12,19 @@ export interface UserData {
   vehicleColor?: string;
   vehicleNumber?: string;
 }
+interface Address {
+  shopNumber: string;
+  street: string;
+  town: string;
+}
 
 export interface RestaurantData {
   name: string;
   cuisine: string;
-  address: string;
+  address: Address;
   description: string;
   openingHours: string;
+  restaurantOwner?: string;
   phone: string;
-  images: string[];
+  images: File[];
 }
