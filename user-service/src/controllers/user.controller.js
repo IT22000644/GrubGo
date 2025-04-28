@@ -127,7 +127,28 @@ export const getUserById = async (req, res) => {
   }
 };
 
-export const getAllUsers = async (req, res) => {};
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-passwordHash");
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No users found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: users,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
 
 export const getActiveRiders = async (req, res) => {
   try {
