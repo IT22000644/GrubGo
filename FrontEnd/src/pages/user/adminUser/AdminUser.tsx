@@ -7,9 +7,9 @@ import {
   ExternalLink,
   MapPin,
 } from "lucide-react";
-import { api1 } from "../../../api/axios";
 
 import Modal from "../../../components/modal/Modal";
+import api from "../../../api/api";
 
 interface User {
   _id: string;
@@ -45,7 +45,7 @@ export const AdminUser = () => {
   const fetchRestaurants = async () => {
     try {
       setLoading(true);
-      const response = await api1.get("/users/");
+      const response = await api.get("/users/");
       setUsers(response.data.users);
       console.log("Fetched users:", response.data.users);
 
