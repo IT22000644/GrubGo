@@ -21,6 +21,8 @@ import { RootState } from "../../../app/store";
 import CartPage from "../../../pages/order/CartPage";
 import { useLogout } from "../../../hooks/useLogout";
 import api from "../../../api/api";
+import { useAppDispatch } from "../../../app/hooks";
+import { fetchRestaurantByOwner } from "../../../features/restaurant/restaurantSlice";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -32,12 +34,30 @@ const Header = () => {
   // const restaurantId = useSelector(
   //   (state: RootState) => state.user.restaurantId
   const userRole = useSelector((state: RootState) => state.auth.role);
-
+  const user = useSelector((state: RootState) => state.auth.user);
   const navigate = useNavigate();
-  // );
+  const dispatch = useAppDispatch();
 
   const handleLogout = useLogout();
-  const restaurantId = "6413432b0c1f4a2d3e5b8c9d";
+  const restaurantDetails = useSelector(
+    (state: RootState) => state.restaurant.restaurantData
+  );
+
+  useEffect(() => {
+    if (
+      userRole === "restaurant_admin" &&
+      !restaurantDetails &&
+      typeof user?._id === "string"
+    ) {
+      dispatch(
+        fetchRestaurantByOwner({
+          ownerId: user?._id,
+        })
+      );
+    }
+  }, [user, restaurantDetails, dispatch]);
+
+  const restaurantId = restaurantDetails?._id || null;
 
   const updatedLinks = {
     ...adminLinks,
@@ -70,7 +90,7 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const toggleDropdown = (name: any) => {
+  const toggleDropdown = (name: string | null) => {
     if (activeDropdown === name) {
       setActiveDropdown(null);
     } else {
@@ -316,7 +336,7 @@ const Header = () => {
           </Modal>
 
           <ModalCart isOpen={showCart} onClose={() => setShowCart(false)}>
-            <CartPage  />
+            <CartPage />
           </ModalCart>
 
           <div className="flex items-center space-x-3 md:hidden">

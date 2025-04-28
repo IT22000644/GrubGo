@@ -127,7 +127,28 @@ export const getUserById = async (req, res) => {
   }
 };
 
-export const getAllUsers = async (req, res) => {};
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-passwordHash");
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No users found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: users,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
 
 export const getActiveRiders = async (req, res) => {
   try {
@@ -259,6 +280,108 @@ export const updateRiderStatus = async (req, res) => {
       message: `Rider status updated to ${
         isAvailable ? "available" : "not available"
       }`,
+      data: rider,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const updateFields = req.body; // assume only the fields to update are sent
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      id,
+      { $set: updateFields },
+      { new: true }
+    ).select("-passwordHash");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    let userData = user.toObject();
+
+    if (user.role === "customer") {
+      const customer = await Customer.findOne({ userId: user._id });
+      if (customer) {
+        userData.customerDetails = customer;
+      }
+    }
+
+    if (user.role === "driver") {
+      const rider = await Rider.findOne({ userId: user._id });
+      if (rider) {
+        userData.riderDetails = rider;
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: userData,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findByIdAndDelete(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const increaseOrderCount = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const rider = await Rider.findOneAndUpdate(
+      { userId: id },
+      { $inc: { totalDeliveries: 1 } },
+      { new: true }
+    );
+
+    if (!rider) {
+      return res.status(404).json({
+        success: false,
+        message: "Rider not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Order count updated successfully",
       data: rider,
     });
   } catch (error) {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { RootState } from "../../../app/store";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -88,11 +89,11 @@ export const ManageRestaurant = () => {
     fetchRestaurantDetails();
   };
 
-  function getAverageRating(reviews: { rating: number }[]): number {
-    if (reviews.length === 0) return 0;
-    const total = reviews.reduce((sum, review) => sum + review.rating, 0);
-    return parseFloat((total / reviews.length).toFixed(1));
-  }
+  // function getAverageRating(reviews: { rating: number }[]): number {
+  //   if (reviews.length === 0) return 0;
+  //   const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+  //   return parseFloat((total / reviews.length).toFixed(1));
+  // }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
