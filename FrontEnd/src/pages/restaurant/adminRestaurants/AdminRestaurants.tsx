@@ -7,7 +7,6 @@ import {
   ExternalLink,
   MapPin,
 } from "lucide-react";
-import { api1 } from "../../../api/axios";
 import { Restaurant } from "../allRestaurants/AllRestaurants.types";
 import Modal from "../../../components/modal/Modal";
 import api from "../../../api/api";
@@ -116,7 +115,7 @@ export const AdminRestaurants = () => {
   const handleToggle = async (restaurantId: string) => {
     const status = !isOpen ? "open" : "closed";
     if (restaurantId) {
-      await api1.patch(`/restaurant/status/${restaurantId}`, {
+      await api.patch(`/restaurant/status/${restaurantId}`, {
         status,
       });
       fetchRestaurants();

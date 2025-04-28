@@ -5,7 +5,7 @@ import { Cart, CartItem } from "../../components/Cart/types";
 import api from "../../api/api";
 import { ShoppingCart } from "lucide-react";
 import { useSelector } from "react-redux";
-import { RootState } from '../../App/store';
+import { RootState } from "../../app/store";
 
 const CartPage: React.FC = () => {
   const [carts, setCarts] = useState<Cart[]>([]);
@@ -16,10 +16,14 @@ const CartPage: React.FC = () => {
   const customerId = useSelector((state: RootState) => state.auth.user?._id);
   
   // const customerId = localStorage.getItem('customerId') || "6611e8f4a1fbb93be88a1a5c";
+// const restaurantId = "680dc6bf09885b823e353937";
 
   useEffect(() => {
     fetchCarts();
   }, [customerId]);
+
+  // console.log(restaurantId);
+  console.log(customerId)
 
   const fetchCarts = async () => {
     try {
@@ -32,6 +36,7 @@ const CartPage: React.FC = () => {
         data.map(async (cart) => {
           try {
             const res = await api.get(`/restaurant/${cart.restaurantId}`);
+         
             return {
               ...cart,
               restaurantName: res.data.restaurant.name,
@@ -106,6 +111,7 @@ const CartPage: React.FC = () => {
         restaurantId: selectedCart.restaurantId,
         address,
       });
+      console.log(orderRes);
 
       const order = orderRes.data.order;
 

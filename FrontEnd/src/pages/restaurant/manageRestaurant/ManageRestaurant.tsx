@@ -1,7 +1,6 @@
 import { RootState } from "../../../app/store";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { api1 } from "../../../api/axios";
 import {
   Ban,
   CookingPot,
@@ -56,12 +55,13 @@ export const ManageRestaurant = () => {
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
 
   const ownerId = useSelector((state: RootState) => state.auth.user?._id);
-
+  console.log(ownerId);
   const fetchRestaurantDetails = async () => {
     try {
       setLoading(true);
       const response = await api.get(`/restaurant/owner/${ownerId}`);
-      setRestaurant(response.data.restaurant);
+      setRestaurant(response.data.restaurant[0]);
+      console.log(response.data.restaurant)
       setRestaurantId(response.data.restaurant._id);
       setMenus(response.data.restaurant.menus);
       if (response.data.restaurant?.menus?.length > 0) {
@@ -73,18 +73,18 @@ export const ManageRestaurant = () => {
   };
 
   useEffect(() => {
-    if (restaurantId) {
+    if (ownerId) {
       fetchRestaurantDetails();
     }
     console.log(menus);
-  }, [restaurantId]);
+  }, [ownerId]);
 
   const handleEdit = (id: string) => {
     console.log("Edit menu", id);
   };
 
   const handleDelete = async (id: string) => {
-    await api.delete(`/foodMenu/${id}`);
+    await api.delete(`/foodMenus/${id}`);
     fetchRestaurantDetails();
   };
 
@@ -113,7 +113,8 @@ export const ManageRestaurant = () => {
     }
 
     try {
-      const response = await api.post("/foodMenu/", formData, {
+      console.log(formData);
+      const response = await api.post("/restaurant/foodMenus", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
