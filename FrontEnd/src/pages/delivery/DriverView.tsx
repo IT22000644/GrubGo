@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import DeliveryCard from "../../components/delivery/DeliveryCard";
 import AvailabilitySwitch from "../../components/delivery/AvailabilitySwitch";
 import api from "../../api/api";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
 
 interface Delivery {
   _id: string;
@@ -21,9 +23,10 @@ const DriverView = () => {
   const [selectedTab, setSelectedTab] = useState("Ongoing");
   const navigate = useNavigate();
 
+  const driverId = useSelector((state: RootState) => state.auth.user?._id);
+
   const fetchDriverDeliveries = async () => {
     try {
-      const driverId = "680db516c1399c9450e93622";
       const { data } = await api.get(`delivery/driver/${driverId}`);
 
       const driverDeliveries: Delivery[] = Array.isArray(data)

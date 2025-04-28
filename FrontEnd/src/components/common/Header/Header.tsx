@@ -18,9 +18,9 @@ import { adminLinks, navLinks } from "./Header.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 
-import { api1 } from "../../../api/axios";
 import CartPage from "../../../pages/order/CartPage";
 import { useLogout } from "../../../hooks/useLogout";
+import api from "../../../api/api";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -81,7 +81,7 @@ const Header = () => {
     setIsOpen(!isOpen);
     const status = !isOpen ? "open" : "closed";
     if (restaurantId) {
-      await api1.patch(`/restaurants/status/${restaurantId}`, {
+      await api.patch(`/restaurant/status/${restaurantId}`, {
         status,
       });
       setIsOpen(!isOpen);

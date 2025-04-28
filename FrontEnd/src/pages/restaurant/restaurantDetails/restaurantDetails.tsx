@@ -25,7 +25,7 @@ import {
 import { Loader } from "../../common/loader";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSelector } from "react-redux";
-import { RootState } from '../../../App/hooks';
+import { RootState } from "../../../app/store";
 
 type Review = {
   _id: string;
@@ -60,7 +60,7 @@ export const RestaurantDetails = () => {
   const customerId = useSelector((state: RootState) => state.auth.user?._id);
 
   // const customerId =
-    // localStorage.getItem("customerId") || "6611e8f4a1fbb93be88a1a5c";
+  // localStorage.getItem("customerId") || "6611e8f4a1fbb93be88a1a5c";
 
   useEffect(() => {
     const fetchRestaurantDetails = async () => {
@@ -111,7 +111,7 @@ export const RestaurantDetails = () => {
     setAutoplayEnabled(!autoplayEnabled);
   };
 
-  const renderStars = (rating: any) => {
+  const renderStars = (rating: number) => {
     return Array(5)
       .fill(0)
       .map((_, i) => (
@@ -131,7 +131,7 @@ export const RestaurantDetails = () => {
     return parseFloat((total / reviews.length).toFixed(1));
   }
 
-  const formatDate = (dateString: any) => {
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
