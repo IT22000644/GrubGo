@@ -56,6 +56,17 @@ export const toggleRestaurantStatusService = async (
   );
 };
 
+export const toggleRestaurantVerifyService = async (
+  restaurantId,
+  newVerificationStatus
+) => {
+  return await Restaurant.findByIdAndUpdate(
+    restaurantId,
+    { isVerified: newVerificationStatus },
+    { new: true }
+  );
+};
+
 export const deleteRestaurantService = async (restaurantId) => {
   const restaurant = await Restaurant.findById(restaurantId);
   if (!restaurant) return null;

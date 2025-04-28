@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Search,
-  Plus,
-  Edit,
-  MoreHorizontal,
-  ExternalLink,
-  MapPin,
-} from "lucide-react";
+import { Search, Plus, MoreHorizontal, ExternalLink } from "lucide-react";
 
 import Modal from "../../../components/modal/Modal";
 import api from "../../../api/api";
@@ -45,7 +38,7 @@ export const AdminUser = () => {
   const fetchRestaurants = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/users/");
+      const response = await api.get("user/");
       setUsers(response.data.users);
       console.log("Fetched users:", response.data.users);
 
@@ -117,7 +110,7 @@ export const AdminUser = () => {
   const handleToggle = async (restaurantId: string) => {
     const status = !isOpen ? "open" : "closed";
     if (restaurantId) {
-      await api1.patch(`/users/status/${restaurantId}`, {
+      await api.patch(`/users/status/${restaurantId}`, {
         status,
       });
       fetchRestaurants();
@@ -125,14 +118,6 @@ export const AdminUser = () => {
     } else {
       console.error("Restaurant ID is null");
     }
-  };
-
-  const handleVerified = async (restaurantId: string) => {
-    console.log("Toggle user verification status:", restaurantId);
-  };
-
-  const onEditRestaurant = (restaurantId: string) => {
-    console.log("Edit user with ID:", restaurantId);
   };
 
   return (
@@ -217,7 +202,6 @@ export const AdminUser = () => {
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredRestaurants.map((user) => {
-                  const isOpen = user.role === "Customer" ? true : false;
                   return (
                     <tr
                       key={user._id}
