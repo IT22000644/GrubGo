@@ -8,40 +8,11 @@ import RoleSelection from "../../components/RegisterForms/RoleSelection";
 import { Loader } from "../../pages/common/loader";
 import { useAppDispatch } from "../../app/hooks";
 import { registerUser } from "./authSlice";
+import { UserData, RestaurantData } from "./types";
 
 type Role = "user" | "rider" | "restaurant";
 
 // Define interfaces for our form data
-interface UserData {
-  fullName: string;
-  address: string;
-  email: string;
-  username: string;
-  password: string;
-  phoneNumber: string;
-  role: string;
-}
-
-interface RiderData extends UserData {
-  vehicleType: string;
-  licenseNumber: string;
-}
-
-interface RestaurantOwnerData {
-  name: string;
-  email: string;
-  password: string;
-  phone: string;
-}
-
-interface RestaurantData {
-  name: string;
-  address: string;
-  cuisine: string;
-  openingHours: string;
-  description: string;
-}
-
 interface RegisterProps {
   switchToLogin: () => void;
 }
@@ -53,28 +24,35 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
 
   // State for form data
   const [userData, setUserData] = useState<UserData>({
-    username: "",
+    fullName: "",
+    address: "",
     email: "",
+    username: "",
     password: "",
     phoneNumber: "",
-    address: "",
+    role: "customer",
   });
 
-  const [riderData, setRiderData] = useState<RiderData>({
-    name: "",
+  const [riderData, setRiderData] = useState<UserData>({
+    fullName: "",
     email: "",
+    username: "",
     password: "",
-    phone: "",
-    address: "",
-    vehicleType: "",
+    phoneNumber: "",
+    role: "driver",
     licenseNumber: "",
+    vehicleType: "",
+    vehicleModel: "",
+    vehicleColor: "",
+    vehicleNumber: "",
   });
 
-  const [ownerData, setOwnerData] = useState<RestaurantOwnerData>({
-    name: "",
+  const [ownerData, setOwnerData] = useState<UserData>({
     email: "",
+    username: "",
     password: "",
-    phone: "",
+    phoneNumber: "",
+    role: "restaurant_admin",
   });
 
   const [restaurantData, setRestaurantData] = useState<RestaurantData>({
@@ -83,6 +61,8 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
     cuisine: "",
     openingHours: "",
     description: "",
+    phone: "",
+    images: [],
   });
 
   // State for multi-step form (restaurant registration)
@@ -123,36 +103,25 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
     }
   };
 
-  // Handle rider registration
-  const handleRiderSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Handle restaurant owner form completion
+  const handleOwnerFormComplete = async (ownerData: UserData) => {
     setIsLoading(true);
 
+    console.log("User Data:", ownerData);
     try {
-      // API call to register rider
-      const response = await fetch("/api/riders/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(riderData),
-      });
-
-      if (response.ok) {
-        setIsRegistered(true);
+      const actionResult = await dispatch(registerUser(ownerData));
+      if (registerUser.fulfilled.match(actionResult)) {
+        setOwnerData(ownerData);
+        setRestaurantStep(2);
       } else {
         throw new Error("Registration failed");
       }
     } catch (error) {
-      console.error("Error registering rider:", error);
+      console.error("Error registering user:", error);
       alert("Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Handle restaurant owner form completion
-  const handleOwnerFormComplete = (data: RestaurantOwnerData) => {
-    setOwnerData(data);
-    setRestaurantStep(2);
   };
 
   // Handle complete restaurant registration
@@ -215,12 +184,12 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
         <p className="mb-6">
           Thank you for registering with our restaurant service!
         </p>
-        <button
+        {/* <button
           onClick={handleReset}
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           Register Another Account
-        </button>
+        </button> */}
       </div>
     );
   }
@@ -249,9 +218,9 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
       {/* Rider Registration Form */}
       {selectedRole === "rider" && (
         <RiderForm
-          riderData={riderData}
+          userData={riderData}
           setRiderData={setRiderData}
-          onSubmit={handleRiderSubmit}
+          onSubmit={handleUserSubmit}
           onBack={() => setSelectedRole(null)}
         />
       )}

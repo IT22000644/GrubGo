@@ -7,14 +7,7 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import React from "react";
-
-interface RestaurantData {
-  name: string;
-  address: string;
-  description: string;
-  phone: string;
-  images: string[];
-}
+import { RestaurantData } from "../../features/auth/types";
 
 interface RestaurantDetailsFormProps {
   restaurantData: RestaurantData;

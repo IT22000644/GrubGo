@@ -1,32 +1,20 @@
 import { Mail, User, Lock, Phone, MapPin, CreditCard } from "lucide-react";
 import React, { useState } from "react";
-
-interface RiderData {
-  fullName: string;
-  address: string;
-  email: string;
-  username: string;
-  passwordHash: string;
-  phoneNumber: string;
-  role: string;
-  vehicleType: string;
-  vehicleModel: string;
-  vehicleColor: string;
-  vehicleNumber: string;
-  licenseNumber: string;
-}
+import { UserData } from "../../features/auth/types";
 
 interface RiderFormProps {
+  userData: UserData;
+  setRiderData: React.Dispatch<React.SetStateAction<UserData>>;
+  onSubmit: (userData: UserData) => Promise<void>;
   onBack: () => void;
 }
 
-const RiderForm: React.FC<RiderFormProps> = ({ onBack }) => {
-  const [riderData, setRiderData] = useState<RiderData>({
+const RiderForm: React.FC<RiderFormProps> = ({ onBack, onSubmit }) => {
+  const [riderData, setRiderData] = useState<UserData>({
     fullName: "",
-    address: "",
     email: "",
     username: "",
-    passwordHash: "",
+    password: "",
     phoneNumber: "",
     role: "driver",
     vehicleType: "",
@@ -37,7 +25,9 @@ const RiderForm: React.FC<RiderFormProps> = ({ onBack }) => {
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setRiderData({
@@ -48,7 +38,7 @@ const RiderForm: React.FC<RiderFormProps> = ({ onBack }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form Data Submitted:", riderData); // Pass the riderData as a JSON object
+    onSubmit(riderData);
   };
 
   return (
@@ -126,9 +116,9 @@ const RiderForm: React.FC<RiderFormProps> = ({ onBack }) => {
             </label>
             <input
               type="password"
-              id="passwordHash"
-              name="passwordHash"
-              value={riderData.passwordHash}
+              id="password"
+              name="password"
+              value={riderData.password}
               onChange={handleChange}
               placeholder="••••••••"
               className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
@@ -156,30 +146,11 @@ const RiderForm: React.FC<RiderFormProps> = ({ onBack }) => {
 
           <div className="space-y-1">
             <label
-              htmlFor="address"
-              className="text-sm font-medium text-gray-700 flex items-center"
-            >
-              <MapPin size={15} className="mr-1 text-gray-500" />
-              Address
-            </label>
-            <textarea
-              id="address"
-              name="address"
-              value={riderData.address}
-              onChange={handleChange}
-              placeholder="Enter your full address"
-              rows={3}
-              className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label
               htmlFor="licenseNumber"
               className="text-sm font-medium text-gray-700 flex items-center"
             >
               <CreditCard size={15} className="mr-1 text-gray-500" />
-              License Number (if applicable)
+              License Number
             </label>
             <input
               type="text"
@@ -199,15 +170,18 @@ const RiderForm: React.FC<RiderFormProps> = ({ onBack }) => {
             >
               Vehicle Type
             </label>
-            <input
-              type="text"
+            <select
               id="vehicleType"
               name="vehicleType"
               value={riderData.vehicleType}
               onChange={handleChange}
-              placeholder="Enter vehicle type"
               className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-            />
+            >
+              <option value="">Select vehicle type</option>
+              <option value="car">Car</option>
+              <option value="bike">Bike</option>
+              <option value="scooter">Scooter</option>
+            </select>
           </div>
 
           <div className="space-y-1">

@@ -1,15 +1,16 @@
 import { Mail, User, Lock, Phone, MapPin } from "lucide-react";
 import React, { useState } from "react";
+import { UserData } from "../../features/auth/types";
 
-interface UserData {
-  fullName: string;
-  address: string;
-  email: string;
-  username: string;
-  password: string;
-  phoneNumber: string;
-  role: string;
-}
+// interface UserData {
+//   fullName: string;
+//   address: string;
+//   email: string;
+//   username: string;
+//   password: string;
+//   phoneNumber: string;
+//   role: string;
+// }
 
 interface UserFormProps {
   userData: UserData;
