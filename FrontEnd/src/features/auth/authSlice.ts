@@ -50,7 +50,18 @@ export const loginUser = createAsyncThunk<
 
 export const registerUser = createAsyncThunk<
   { user: User; token: string },
-  any
+  {
+    email: string;
+    password: string;
+    name: string;
+    phoneNumber: string;
+    username: string;
+    profilePicture: string;
+    role: string;
+    isVerified: boolean;
+    customerDetails: any;
+    riderDetails: any;
+  }
 >("auth/register", async (formData) => {
   const response = await api.post("/auth/register", formData, {
     headers: { "Content-Type": "application/json" },

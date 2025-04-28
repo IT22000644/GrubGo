@@ -29,6 +29,7 @@ router.get("/owner/:ownerId", RestaurantController.getbyOwnerId);
 router.get("/", RestaurantController.getAllRestaurants);
 router.get("/status/open", RestaurantController.getAllRestaurantsByStatus);
 router.patch("/status/:id", RestaurantController.updateRestaurantStatus);
+router.patch("/verify/:id", RestaurantController.updateRestaurantVerify);
 router.delete("/:id", RestaurantController.deleteRestaurant);
 
 export default router;
