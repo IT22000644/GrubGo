@@ -4,6 +4,8 @@ import OrderCard from "../../components/Order/OrderCard";
 import api from "../../api/api";
 import type { Order } from "../../components/Order/types";
 import ReviewForm from "../../components/Review/ReviewForm";
+import { useSelector } from "react-redux";
+import { RootState } from '../../App/store';
 
 const statusOptions = ["done", "pending", "completed"];
 
@@ -14,7 +16,10 @@ const OrderPage: React.FC = () => {
   const [error, setError] = useState("");
   const [reviewingOrder, setReviewingOrder] = useState<Order | null>(null);
   const navigate = useNavigate();
-  const customerId = localStorage.getItem('customerId') || "6611e8f4a1fbb93be88a1a5c";
+  
+  const customerId = useSelector((state: RootState) => state.auth.user?._id);
+
+  // const customerId = localStorage.getItem('customerId') || "6611e8f4a1fbb93be88a1a5c";
 
   const fetchOrders = async () => {
     setLoading(true);
