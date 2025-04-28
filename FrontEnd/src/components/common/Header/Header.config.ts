@@ -52,8 +52,8 @@ export const adminLinks = {
       path: "/restaurant/manage",
     },
     {
-      name: "Settings",
-      path: "/",
+      name: "Orders",
+      path: "/restaurant/orders",
     },
     {
       name: "Logout",
