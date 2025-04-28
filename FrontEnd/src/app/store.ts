@@ -5,7 +5,7 @@ import authReducer from "../features/auth/authSlice";
 import restaurantReducer from "../features/restaurant/restaurantSlice";
 
 const persistConfig = {
-  key: "root",
+  key: "auth",
   storage,
 };
 

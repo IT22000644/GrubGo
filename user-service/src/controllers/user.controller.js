@@ -88,7 +88,7 @@ export const getUserById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const user = await User.findById(id).select("-passwordHash");
+    const user = await User.findById(id);
 
     if (!user) {
       return res.status(404).json({
@@ -177,7 +177,7 @@ export const getUserByEmail = async (req, res) => {
   const { email } = req.params;
 
   try {
-    const user = await User.findOne({ email }).select("-passwordHash");
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).json({

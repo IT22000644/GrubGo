@@ -9,8 +9,29 @@ const AvailabilitySwitch: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const token = useSelector((state: RootState) => state.auth.token);
 
+  console.log("User from Redux:", user);
+  console.log("Token from Redux:", token);
+
   // ❗ No local state for isAvailable anymore, take from Redux directly:
   const isAvailable = user?.riderDetails?.isAvailable ?? false;
+
+  const getCurrentLocation = (): Promise<{ lat: number; lng: number }> => {
+    return new Promise((resolve, reject) => {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            resolve({ lat: latitude, lng: longitude });
+          },
+          (error) => {
+            reject(error);
+          }
+        );
+      } else {
+        reject(new Error("Geolocation is not available"));
+      }
+    });
+  };
 
   const handleToggle = async () => {
     const newAvailability = !isAvailable;
@@ -20,15 +41,15 @@ const AvailabilitySwitch: React.FC = () => {
       return;
     }
 
+    const { lat, lng } = await getCurrentLocation();
+
     try {
+      console.log("Toggling availability to:", newAvailability);
       await dispatch(
         updateRiderStatus({
           id: user._id,
-          isActive: newAvailability,
-          location: {
-            lat: user.riderDetails?.currentLocation?.lat || 0,
-            lng: user.riderDetails?.currentLocation?.lng || 0,
-          },
+          isAvailable: newAvailability,
+          location: { lat, lng },
           token,
         })
       ).unwrap();

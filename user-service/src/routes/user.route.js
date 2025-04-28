@@ -36,6 +36,6 @@ router.patch("/update-location/:id", updateRiderLocation);
 
 router.patch("/rider-status/:id", updateRiderStatus);
 
-router.post("/delivery-count/:", increaseOrderCount);
+router.post("/delivery-count/:id", increaseOrderCount);
 
 export default router;

@@ -91,15 +91,15 @@ export const updateRiderStatus = createAsyncThunk<
   { riderDetails: any },
   {
     id: string;
-    isActive: boolean;
+    isAvailable: boolean;
     location: { lat: number; lng: number };
     token: string;
   }
->("auth/updateRiderStatus", async ({ id, isActive, location, token }) => {
+>("auth/updateRiderStatus", async ({ id, isAvailable, location, token }) => {
   const response = await api.patch(
     `/user/rider-status/${id}`,
     {
-      isActive,
+      isAvailable,
       location,
     },
     {

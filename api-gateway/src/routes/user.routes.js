@@ -13,6 +13,7 @@ userRoutes.use(
     GET: ["any"],
     PUT: ["admin", "owner"],
     DELETE: ["owner"],
+    PATCH: ["owner", "admin"],
   })
 );
 

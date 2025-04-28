@@ -149,6 +149,8 @@ export const login = async (req, res) => {
         .json({ success: false, message: "Invalid email or password" });
     }
 
+    console.log("[Login] User found:", user);
+
     // Compare password
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
@@ -167,13 +169,9 @@ export const login = async (req, res) => {
 
     if (existingSession) {
       // Existing session found -> return the stored refreshToken
-      return res.status(200).json({
-        success: true,
+      return res.status(400).json({
+        success: false,
         message: "User already logged in",
-        data: {
-          refreshToken: existingSession.refreshTokenHash, // Send the existing refresh token
-          user,
-        },
       });
     }
 

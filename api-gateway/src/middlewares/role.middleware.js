@@ -23,7 +23,10 @@ export const actionGuard = (permissions = {}) => {
     }
 
     if (allowedRoles.includes("owner")) {
-      const { id } = req.params;
+      const pathParts = req.path.split("/");
+      const id = pathParts[pathParts.length - 1];
+      console.log("User ID:", user._id);
+      console.log("Param ID:", id);
       if (id?.toString() === user._id?.toString()) {
         return next();
       }
