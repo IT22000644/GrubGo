@@ -28,7 +28,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onToggle }) => {
     {
       title: "Users",
       icon: <Users size={20} />,
-      path: "/admin/users",
+      path: "/admin/user",
     },
     {
       title: "Restaurants",

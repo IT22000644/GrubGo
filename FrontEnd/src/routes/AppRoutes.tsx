@@ -27,6 +27,7 @@ import { AdminRestaurants } from "../pages/restaurant/adminRestaurants/AdminRest
 // import DeliveryTracking from "../pages/delivery/DeliveryTracking";
 import RestaurantOrderPage from "../pages/restaurant/showingorders/Orderpage";
 import RestaurantDetails from "../pages/restaurant/restaurantDetails/restaurantDetails";
+import { AdminUser } from "../pages/user/adminUser/AdminUser";
 //import OrderPage from "../pages/restaurent/showingorders/Orderpage";
 
 const AppRoutes: React.FC = () => {
@@ -65,6 +66,7 @@ const AppRoutes: React.FC = () => {
         <Route index element={<AdminDashboard />} />
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="restaurant" element={<AdminRestaurants />} />
+        <Route path="user" element={<AdminUser />} />
 
         <Route path="*" element={<NotFound />} />
       </Route>
