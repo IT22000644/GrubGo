@@ -10,13 +10,13 @@ import {
   DoorClosed,
   UtensilsCrossed,
 } from "lucide-react";
-import { api1, api2 } from "../../api/axios";
 import { Restaurant } from "../restaurant/allRestaurants/AllRestaurants.types";
 import image1 from "../../assets/Images/daniel-T_PbUhfwd0U-unsplash.jpg";
 import image2 from "../../assets/Images/daniel-eUhCKM0ntrg-unsplash.jpg";
 import image3 from "../../assets/Images/vinn-koonyosying-vBOxsZrfiCw-unsplash.jpg";
 import appStore from "../../assets/Images/app-store-logo-transparent-5.png";
 import playStore from "../../assets/Images/google-play-store-icon-logo-symbol-free-png.webp";
+import api from "../../api/api";
 
 const Home = () => {
   const [heroIndex, setHeroIndex] = useState(0);
@@ -27,7 +27,7 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res1 = await api1.get("/restaurants/status/open");
+        const res1 = await api.get("/restaurant/status/open");
         setRestaurants(res1.data.restaurants);
       } catch (error) {
         console.error("Failed to fetch:", error);

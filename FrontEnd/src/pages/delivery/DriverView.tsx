@@ -75,13 +75,10 @@ const DriverView = () => {
   };
 
   const handleTrackOrder = (delivery: Delivery) => {
-    navigate("/delivery-tracking", {
+    navigate("/driver-tracking-loader", {
       state: {
         mode: "track",
         deliveryId: delivery._id,
-        driverAddress: delivery.driverAddress,
-        restaurantAddress: delivery.restaurantAddress,
-        customerAddress: delivery.customerAddress,
       },
     });
   };
@@ -89,7 +86,7 @@ const DriverView = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto mt-20 ">
       {/* top-left switch */}
-      <div className="absolute top-32 left-4">
+      <div className="absolute top-32 left-12">
         <AvailabilitySwitch />
       </div>
       {/* Tabs */}

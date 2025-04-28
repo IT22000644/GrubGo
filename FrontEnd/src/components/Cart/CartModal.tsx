@@ -34,7 +34,6 @@ const CartModal: React.FC<CartModalProps> = ({
     const [geoError, setGeoError] = useState('');
     const api_Key = import.meta.env.VITE_OPENCAGE_API_KEY;
 
-
     useEffect(() => {
         if (addressType === 'current') {
             getCurrentLocation();
@@ -94,14 +93,14 @@ const CartModal: React.FC<CartModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-            <div className="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative">
+        <div className="fixed inset-0 bg-black bg-opacity-40 dark:bg-opacity-60 flex justify-center items-center z-50">
+            <div className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-xl shadow-xl p-6 relative">
                 <div className="flex flex-col items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold mb-4 text-gray-500">
+                    <h2 className="text-xl font-bold mb-4 text-gray-500 dark:text-gray-300">
                         Cart for {selectedCart.restaurantName || selectedCart.restaurantId}
                     </h2>
 
-                    <button onClick={onClose} className="absolute top-2 right-4 text-gray-500 hover:text-red-600 text-xl">
+                    <button onClick={onClose} className="absolute top-2 right-4 text-gray-500 hover:text-red-600 dark:hover:text-red-400 text-xl">
                         &times;
                     </button>
 
@@ -109,10 +108,10 @@ const CartModal: React.FC<CartModalProps> = ({
                 </div>
 
                 {selectedCart.items.length === 0 ? (
-                    <p className="text-gray-500">Cart is empty.</p>
+                    <p className="text-gray-500 dark:text-gray-400">Cart is empty.</p>
                 ) : (
                     <>
-                        <div className="space-y-3 max-h-64 overflow-y-auto text-gray-500">
+                        <div className="space-y-3 max-h-64 overflow-y-auto text-gray-500 dark:text-gray-300">
                             {selectedCart.items.map((item) => (
                                 <CartItemRow
                                     key={item._id}
@@ -121,9 +120,9 @@ const CartModal: React.FC<CartModalProps> = ({
                                 />
                             ))}
                         </div>
-                        <div className="border border-black mt-6"></div>
+                        <div className="border border-black dark:border-gray-600 mt-6"></div>
                         <div className="mt-4 text-left">
-                            <label className="block text-gray-700 font-semibold mb-1">Delivery Address</label>
+                            <label className="block text-gray-700 dark:text-gray-300 font-semibold mb-1">Delivery Address</label>
 
                             <div className="space-y-2">
                                 <div className="flex items-center">
@@ -135,7 +134,7 @@ const CartModal: React.FC<CartModalProps> = ({
                                         onChange={() => setAddressType('manual')}
                                         className="mr-2"
                                     />
-                                    <label htmlFor="manual">Enter Address Manually</label>
+                                    <label htmlFor="manual" className="dark:text-gray-300">Enter Address Manually</label>
                                 </div>
 
                                 <div className="flex items-center">
@@ -147,7 +146,7 @@ const CartModal: React.FC<CartModalProps> = ({
                                         onChange={() => setAddressType('current')}
                                         className="mr-2"
                                     />
-                                    <label htmlFor="current">Use Current Location</label>
+                                    <label htmlFor="current" className="dark:text-gray-300">Use Current Location</label>
                                 </div>
 
                                 <div className="flex items-center">
@@ -159,7 +158,7 @@ const CartModal: React.FC<CartModalProps> = ({
                                         onChange={() => setAddressType('default')}
                                         className="mr-2"
                                     />
-                                    <label htmlFor="default">Use Default Address</label>
+                                    <label htmlFor="default" className="dark:text-gray-300">Use Default Address</label>
                                 </div>
                             </div>
 
@@ -169,23 +168,23 @@ const CartModal: React.FC<CartModalProps> = ({
                                     value={manualAddress}
                                     onChange={(e) => setManualAddress(e.target.value)}
                                     placeholder="Enter your address"
-                                    className="w-full border border-gray-300 rounded px-3 py-2 mt-3"
+                                    className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded px-3 py-2 mt-3"
                                 />
                             )}
 
                             {(addressType === 'current' || addressType === 'default') && (
-                                <div className="text-sm text-gray-700 italic mt-3">
+                                <div className="text-sm text-gray-700 dark:text-gray-300 italic mt-3">
                                     {isLocating
                                         ? 'Detecting location...'
                                         : getAddressToUse() || 'No address detected yet.'}
                                 </div>
                             )}
 
-                            {geoError && <p className="text-red-500 text-sm mt-2">{geoError}</p>}
+                            {geoError && <p className="text-red-500 dark:text-red-400 text-sm mt-2">{geoError}</p>}
                         </div>
 
                         <div className="mt-6 text-right space-y-2">
-                            <p className="text-lg font-semibold text-black">
+                            <p className="text-lg font-semibold text-black dark:text-white">
                                 Total: ${calculateTotalPrice(selectedCart.items)}
                             </p>
                             <button

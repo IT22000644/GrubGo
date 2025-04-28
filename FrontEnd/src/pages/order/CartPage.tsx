@@ -3,18 +3,16 @@ import CartCard from "../../components/Cart/CartCard";
 import CartModal from "../../components/Cart/CartModal";
 import { Cart, CartItem } from "../../components/Cart/types";
 import api from "../../api/api";
-import { api1 } from "../../api/axios";
 import { ShoppingCart } from "lucide-react";
 
-interface CartPageProps {
-  customerId: string;
-}
 
-const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
+const CartPage: React.FC = () => {
   const [carts, setCarts] = useState<Cart[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedCart, setSelectedCart] = useState<Cart | null>(null);
   const [showMenu, setShowMenu] = useState(false);
+
+  const customerId = localStorage.getItem('customerId') || "6611e8f4a1fbb93be88a1a5c";
 
   useEffect(() => {
     fetchCarts();
@@ -30,7 +28,7 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
       const cartsWithNames = await Promise.all(
         data.map(async (cart) => {
           try {
-            const res = await api1.get(`/restaurants/${cart.restaurantId}`);
+            const res = await api.get(`/restaurant/${cart.restaurantId}`);
             return {
               ...cart,
               restaurantName: res.data.restaurant.name,

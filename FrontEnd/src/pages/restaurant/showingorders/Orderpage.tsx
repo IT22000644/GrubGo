@@ -26,11 +26,11 @@ interface Order {
 const StatusBadge: React.FC<{ status: Order['status'] }> = ({ status }) => {
     const getStatusStyle = () => {
         switch (status) {
-            case 'process': return 'bg-purple-100 text-purple-800 border-purple-200';
-            case 'preparing': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-            case 'ready': return 'bg-green-100 text-green-800 border-green-200';
-            case 'completed': return 'bg-gray-100 text-gray-800 border-gray-200';
-            default: return 'bg-gray-100 text-gray-800 border-gray-200';
+            case 'process': return 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700';
+            case 'preparing': return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700';
+            case 'ready': return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-200 dark:border-green-700';
+            case 'completed': return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600';
+            default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600';
         }
     };
 
@@ -63,7 +63,7 @@ const OrderCard: React.FC<{
 
     const handleSetPreparing = async () => {
         try {
-            await api.put(`/orders/status/preparing/${order._id}`);
+            await api.put(`/order/status/preparing/${order._id}`);
             onStatusChange(order._id, 'preparing');
         } catch (error) {
             console.error('Failed to set to preparing', error);
@@ -72,33 +72,33 @@ const OrderCard: React.FC<{
 
     const handleSetCompleted = async () => {
         try {
-            await api.put(`/orders/status/completed/${order._id}`);
+            await api.put(`/order/status/completed/${order._id}`);
             onStatusChange(order._id, 'completed');
-            navigate("/delivery-assign", { state: { orderId: order._id } });
+            navigate("/delivery-loader", { state: { orderId: order._id } });
         } catch (error) {
             console.error('Failed to set to completed', error);
         }
     };
 
     return (
-        <div className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md ${compact ? 'p-3' : 'p-5'}`}>
+        <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-all hover:shadow-md ${compact ? 'p-3' : 'p-5'}`}>
             <div className="flex justify-between items-center mb-4">
                 <div className="flex flex-col">
-                    <h3 className="font-semibold text-gray-800">Order #{order._id.slice(-6)}</h3>
-                    <span className="text-xs text-gray-500">{formatTime(order.createdAt)}</span>
+                    <h3 className="font-semibold text-gray-800 dark:text-gray-100">Order #{order._id.slice(-6)}</h3>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{formatTime(order.createdAt)}</span>
                 </div>
                 <StatusBadge status={order.status} />
             </div>
 
-            <div className={`${compact ? 'text-xs' : 'text-sm'} space-y-1 text-gray-600 mb-4`}>
+            <div className={`${compact ? 'text-xs' : 'text-sm'} space-y-1 text-gray-600 dark:text-gray-300 mb-4`}>
                 <div className="flex items-center gap-1">
-                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
                     <span className="font-medium">{order.customerId}</span>
                 </div>
                 <div className="flex items-start gap-1">
-                    <svg className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
@@ -107,15 +107,15 @@ const OrderCard: React.FC<{
             </div>
 
             <div className={`mb-4 ${compact ? 'text-xs' : 'text-sm'}`}>
-                <h4 className="font-medium text-gray-800 mb-2">Items</h4>
-                <ul className="divide-y divide-gray-100">
+                <h4 className="font-medium text-gray-800 dark:text-gray-100 mb-2">Items</h4>
+                <ul className="divide-y divide-gray-100 dark:divide-gray-700">
                     {order.items.map(item => (
                         <li key={item._id} className="flex justify-between py-1.5">
                             <div className="flex items-center">
-                                <span className="bg-gray-100 text-gray-800 font-medium rounded-full w-5 h-5 flex items-center justify-center mr-2 text-xs">
+                                <span className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium rounded-full w-5 h-5 flex items-center justify-center mr-2 text-xs">
                                     {item.quantity}
                                 </span>
-                                <span className="text-gray-700">{item.name}</span>
+                                <span className="text-gray-700 dark:text-gray-300">{item.name}</span>
                             </div>
                             <span className="font-medium">Rs. {calculateItemTotal(item)}</span>
                         </li>
@@ -123,9 +123,9 @@ const OrderCard: React.FC<{
                 </ul>
             </div>
 
-            <div className="flex justify-between font-medium py-3 px-3 bg-gray-50 rounded-lg mb-4">
-                <span>Total Amount</span>
-                <span className="text-green-600">Rs. {order.totalAmount}</span>
+            <div className="flex justify-between font-medium py-3 px-3 bg-gray-50 dark:bg-gray-700 rounded-lg mb-4">
+                <span className="dark:text-gray-200">Total Amount</span>
+                <span className="text-green-600 dark:text-green-400">Rs. {order.totalAmount}</span>
             </div>
 
             <div className="space-y-2">
@@ -161,7 +161,7 @@ const OrderPage: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [filter, setFilter] = useState<Order['status'] | 'all'>('all');
     const [isLoading, setIsLoading] = useState(true);
-    const restaurantId = "680ba32e123f14f2d7759f11";
+    const restaurantId = "680df103017a68c8b5971ff9";
 
     useEffect(() => {
         fetchOrders();
@@ -172,7 +172,7 @@ const OrderPage: React.FC = () => {
     const fetchOrders = async () => {
         setIsLoading(true);
         try {
-            const res = await api.get(`/orders/getorders/${restaurantId}`);
+            const res = await api.get(`/order/getorders/${restaurantId}`);
             setOrders(res.data);
         } catch (error) {
             console.error('Failed to fetch orders', error);
@@ -205,12 +205,12 @@ const OrderPage: React.FC = () => {
     };
 
     return (
-        <div className="max-w-6xl mx-auto p-4 bg-gray-50 min-h-screen">
+        <div className="max-w-full mx-auto p-4 bg-gray-50 dark:bg-gray-900 min-h-screen mt-20">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-800">Order Management</h1>
+                <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Order Management</h1>
                 <button
                     onClick={fetchOrders}
-                    className="mt-2 md:mt-0 flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="mt-2 md:mt-0 flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                 >
                     <svg className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -228,23 +228,23 @@ const OrderPage: React.FC = () => {
                 ].map(item => (
                     <div
                         key={item.key}
-                        className={`bg-white border ${filter === item.key ? 'border-blue-500 ring-2 ring-blue-100' : 'border-gray-100'} rounded-lg shadow-sm p-4 cursor-pointer transition-all hover:shadow`}
+                        className={`bg-white dark:bg-gray-800 border ${filter === item.key ? 'border-blue-500 dark:border-blue-400 ring-2 ring-blue-100 dark:ring-blue-900' : 'border-gray-100 dark:border-gray-700'} rounded-lg shadow-sm p-4 cursor-pointer transition-all hover:shadow dark:hover:shadow-lg`}
                         onClick={() => setFilter(item.key as Order['status'] | 'all')}
                     >
                         <div className={`w-2 h-2 ${item.color} rounded-full mb-2`}></div>
-                        <p className="text-xs text-gray-500 font-medium">{item.label}</p>
-                        <p className="text-xl font-bold text-gray-800">{orderStats[item.key as keyof typeof orderStats]}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{item.label}</p>
+                        <p className="text-xl font-bold text-gray-800 dark:text-white">{orderStats[item.key as keyof typeof orderStats]}</p>
                     </div>
                 ))}
             </div>
 
             {isLoading ? (
                 <div className="flex justify-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 dark:border-blue-400"></div>
                 </div>
             ) : (
                 <>
-                    <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                    <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
                         {filter === 'all' ? 'Active Orders' : `${filter.charAt(0).toUpperCase() + filter.slice(1)} Orders`}
                     </h2>
 
@@ -255,18 +255,18 @@ const OrderPage: React.FC = () => {
                             ))}
                         </div>
                     ) : (
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-12 text-center text-gray-500 mb-10">
-                            <svg className="w-12 h-12 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 p-12 text-center text-gray-500 dark:text-gray-400 mb-10">
+                            <svg className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
-                            <p className="text-lg font-medium">No orders found</p>
+                            <p className="text-lg font-medium dark:text-gray-300">No orders found</p>
                             <p className="text-sm">No orders with the selected status are currently available.</p>
                         </div>
                     )}
 
                     {completedOrders.length > 0 && (
                         <>
-                            <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                                 <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>

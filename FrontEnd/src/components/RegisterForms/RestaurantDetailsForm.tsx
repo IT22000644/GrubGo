@@ -7,31 +7,47 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import React from "react";
+<<<<<<< HEAD
 import { RestaurantData } from "../../features/auth/types";
+=======
+>>>>>>> 838c172ad22e44b695300f4431ca0f08b0f05ed6
 
 interface RestaurantDetailsFormProps {
-  restaurantData: RestaurantData;
-  setRestaurantData: React.Dispatch<React.SetStateAction<RestaurantData>>;
-  onSubmit: (e: React.FormEvent) => void;
   onBack: () => void;
 }
 
 const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
-  restaurantData,
-  setRestaurantData,
-  onSubmit,
   onBack,
 }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [restaurantData, setRestaurantData] = React.useState<FormData>(() => {
+    const formData = new FormData();
+    formData.append("name", "");
+    formData.append("address", "");
+    formData.append("description", "");
+    formData.append("phone", "");
+    return formData;
+  });
+
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setRestaurantData({
-      ...restaurantData,
-      [name]: value,
+    setRestaurantData((prevData) => {
+      const updatedData = new FormData();
+      prevData.forEach((value, key) => {
+        updatedData.append(key, value);
+      });
+      updatedData.set(name, value);
+      return updatedData;
     });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Here you can handle the form submission logic
+    console.log("Form submitted");
+    console.log("Form Data:", restaurantData);
   };
 
   return (
@@ -62,6 +78,7 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
               type="text"
               id="name"
               name="name"
+              onChange={handleChange}
               placeholder="Enter your restaurant name"
               className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
             />
@@ -78,6 +95,7 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
             <textarea
               id="address"
               name="address"
+              onChange={handleChange}
               placeholder="Enter full restaurant address"
               rows={3}
               className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
@@ -95,6 +113,7 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
             <textarea
               id="description"
               name="description"
+              onChange={handleChange}
               placeholder="Tell customers about your restaurant..."
               rows={4}
               className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
@@ -114,6 +133,7 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
             type="tel"
             id="phone"
             name="phone"
+            onChange={handleChange}
             placeholder="+1 (123) 456-7890"
             className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
           />
@@ -132,6 +152,7 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
             id="images"
             name="images"
             accept="image/*"
+            onChange={handleChange}
             multiple
             className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
           />
@@ -150,7 +171,7 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
         <button
           type="submit"
           className="w-full font-bold text-sm bg-neutral text-text_dark hover:shadow-lg hover:text-primary text-dark py-2 rounded shadow-md border-1"
-          onClick={onSubmit}
+          onClick={handleSubmit}
         >
           Register Restaurant
         </button>

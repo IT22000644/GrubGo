@@ -69,19 +69,22 @@ const DeliveryCard: React.FC<DeliveryCardProps> = ({
         </p>
       </div>
 
-      <div className="bg-primary/15 p-4 rounded-b-lg shadow-lg">
-        <button
-          onClick={onTrackOrder}
-          className="w-full py-2 px-4 bg-white dark:bg-gradient-to-r from-yellow-600 via-yellow-600 to-orange-500 
-             text-primary dark:text-black rounded-lg shadow-md 
-             hover:brightness-90
-             focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50 
-             transition duration-300 transform"
-        >
-          Manage Status
-          <Bike className="inline-block ml-4 mb-2" />
-        </button>
-      </div>
+      {/* Manage Status section */}
+      {status !== "Delivered" && (
+        <div className="bg-primary/15 p-4 rounded-b-lg shadow-lg">
+          <button
+            onClick={onTrackOrder}
+            className="w-full py-2 px-4 bg-white dark:bg-gradient-to-r from-yellow-600 via-yellow-600 to-orange-500 
+               text-primary dark:text-black rounded-lg shadow-md 
+               hover:brightness-90
+               focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50 
+               transition duration-300 transform"
+          >
+            Manage Status
+            <Bike className="inline-block ml-4 mb-2" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

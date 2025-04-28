@@ -68,13 +68,10 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
   // State for multi-step form (restaurant registration)
   const [restaurantStep, setRestaurantStep] = useState<1 | 2>(1);
 
-  // Loading state
   const [isLoading, setIsLoading] = useState(false);
 
-  // Success state
   const [isRegistered, setIsRegistered] = useState(false);
 
-  // Handle role selection
   const handleRoleSelect = (role: Role) => {
     setSelectedRole(role);
   };
@@ -124,57 +121,12 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
     }
   };
 
-  // Handle complete restaurant registration
-  const handleRestaurantSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      // First API call to register restaurant owner
-      const ownerResponse = await fetch("/api/restaurant-owners/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(ownerData),
-      });
-
-      if (!ownerResponse.ok) {
-        throw new Error("Owner registration failed");
-      }
-
-      const ownerResult = await ownerResponse.json();
-      const ownerId = ownerResult._id; // MongoDB ObjectId from first response
-
-      // Second API call to register restaurant with owner ID
-      const restaurantResponse = await fetch("/api/restaurants/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...restaurantData,
-          ownerId,
-        }),
-      });
-
-      if (restaurantResponse.ok) {
-        setIsRegistered(true);
-      } else {
-        throw new Error("Restaurant registration failed");
-      }
-    } catch (error) {
-      console.error("Error registering restaurant:", error);
-      alert("Registration failed. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Reset form to start over
   const handleReset = () => {
     setSelectedRole(null);
     setRestaurantStep(1);
     setIsRegistered(false);
   };
 
-  // Show success message when registered
   if (isRegistered) {
     return (
       <div className="bg-white p-8 rounded-lg shadow-md max-w-md mx-auto mt-10 text-center">
@@ -194,7 +146,6 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
     );
   }
 
-  // Show loader when submitting form
   if (isLoading) {
     return <Loader />;
   }
@@ -221,6 +172,7 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
           userData={riderData}
           setRiderData={setRiderData}
           onSubmit={handleUserSubmit}
+          onSubmit={handleUserSubmit}
           onBack={() => setSelectedRole(null)}
         />
       )}
@@ -228,8 +180,6 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
       {/* Restaurant Registration Form - Step 1: Owner Details */}
       {selectedRole === "restaurant" && restaurantStep === 1 && (
         <RestaurantOwnerForm
-          ownerData={ownerData}
-          setOwnerData={setOwnerData}
           onSubmit={handleOwnerFormComplete}
           onBack={() => setSelectedRole(null)}
         />
@@ -237,12 +187,7 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
 
       {/* Restaurant Registration Form - Step 2: Restaurant Details */}
       {selectedRole === "restaurant" && restaurantStep === 2 && (
-        <RestaurantDetailsForm
-          restaurantData={restaurantData}
-          setRestaurantData={setRestaurantData}
-          onSubmit={handleRestaurantSubmit}
-          onBack={() => setRestaurantStep(1)}
-        />
+        <RestaurantDetailsForm onBack={() => setRestaurantStep(1)} />
       )}
 
       <p className="text-center text-sm mt-4 text-gray-600 dark:text-gray-400">

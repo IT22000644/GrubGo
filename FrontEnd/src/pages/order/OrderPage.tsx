@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import OrderCard from "../../components/Order/OrderCard";
 import api from "../../api/api";
-import { api1 } from "../../api/axios";
 import type { Order } from "../../components/Order/types";
 import ReviewForm from "../../components/Review/ReviewForm";
 
 const statusOptions = ["done", "pending", "completed"];
 
-const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
+const OrderPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [status, setStatus] = useState("done");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [reviewingOrder, setReviewingOrder] = useState<Order | null>(null);
-
+  const navigate = useNavigate();
+  const customerId = localStorage.getItem('customerId') || "6611e8f4a1fbb93be88a1a5c";
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -26,8 +27,8 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
       const ordersWithDetails = await Promise.all(
         res.data.map(async (order: Order) => {
           try {
-            const restaurantRes = await api1.get(
-              `/restaurants/${order.restaurantId}`
+            const restaurantRes = await api.get(
+              `/restaurant/${order.restaurantId}`
             );
             const restaurantData = restaurantRes.data?.restaurant;
 
@@ -91,6 +92,10 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
     const orderToReview = orders.find((o) => o._id === orderId);
     if (orderToReview) setReviewingOrder(orderToReview);
   };
+
+  const trackthedelivary = async (orderId: string) => {
+    navigate("/customer-tracking-loader", { state: { orderId } });
+}
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -205,6 +210,7 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
             getStatusBadge={getStatusBadge}
             onReview={handleReviewClick}
             onMarkAsReviewed={markOrderAsReviewed}
+            trackthedelivary={trackthedelivary}
           />
         ))}
         {reviewingOrder && (
