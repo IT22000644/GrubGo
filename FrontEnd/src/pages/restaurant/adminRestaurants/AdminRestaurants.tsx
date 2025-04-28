@@ -7,7 +7,6 @@ import {
   ExternalLink,
   MapPin,
 } from "lucide-react";
-import { api1 } from "../../../api/axios";
 import { Restaurant } from "../allRestaurants/AllRestaurants.types";
 import Modal from "../../../components/modal/Modal";
 import api from "../../../api/api";

@@ -1,7 +1,6 @@
 import { RootState } from "../../../app/store";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { api1 } from "../../../api/axios";
 import {
   Ban,
   CookingPot,
