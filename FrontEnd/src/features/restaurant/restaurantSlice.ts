@@ -43,7 +43,7 @@ export const fetchRestaurantByOwner = createAsyncThunk<
       },
       withCredentials: true,
     });
-    return response.data.data.restaurant;
+    return response.data.restaurant[0];
   } catch (error: any) {
     console.error("Failed fetching restaurant:", error);
     return rejectWithValue(

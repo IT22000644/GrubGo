@@ -7,6 +7,9 @@ import {
   updateRiderLocation,
   updateRiderStatus,
   getAllUsers,
+  updateUser,
+  deleteUser,
+  increaseOrderCount,
 } from "../controllers/user.controller.js";
 
 const router = Router();
@@ -17,16 +20,22 @@ router.get("/health", (req, res) => {
 
 router.get("/", getAllUsers);
 
-router.get("/active-riders", getActiveRiders);
-
 router.post("/", createUser);
 
 router.get("/:id", getUserById);
 
+router.put("/:id", updateUser);
+
+router.delete("/:id", deleteUser);
+
 router.get("/email/:email", getUserByEmail);
+
+router.get("/active-riders", getActiveRiders);
 
 router.patch("/update-location/:id", updateRiderLocation);
 
 router.patch("/rider-status/:id", updateRiderStatus);
+
+router.post("/delivery-count/:", increaseOrderCount);
 
 export default router;
