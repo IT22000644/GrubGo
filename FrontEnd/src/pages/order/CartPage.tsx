@@ -4,7 +4,8 @@ import CartModal from "../../components/Cart/CartModal";
 import { Cart, CartItem } from "../../components/Cart/types";
 import api from "../../api/api";
 import { ShoppingCart } from "lucide-react";
-
+import { useSelector } from "react-redux";
+import { RootState } from '../../App/store';
 
 const CartPage: React.FC = () => {
   const [carts, setCarts] = useState<Cart[]>([]);
@@ -12,7 +13,9 @@ const CartPage: React.FC = () => {
   const [selectedCart, setSelectedCart] = useState<Cart | null>(null);
   const [showMenu, setShowMenu] = useState(false);
 
-  const customerId = localStorage.getItem('customerId') || "6611e8f4a1fbb93be88a1a5c";
+  const customerId = useSelector((state: RootState) => state.auth.user?._id);
+  
+  // const customerId = localStorage.getItem('customerId') || "6611e8f4a1fbb93be88a1a5c";
 
   useEffect(() => {
     fetchCarts();
