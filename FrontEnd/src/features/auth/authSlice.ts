@@ -76,6 +76,33 @@ export const logoutUser = createAsyncThunk<void, { token: string }>(
   }
 );
 
+export const updateRiderStatus = createAsyncThunk<
+  { riderDetails: any },
+  {
+    id: string;
+    isActive: boolean;
+    location: { lat: number; lng: number };
+    token: string;
+  }
+>("auth/updateRiderStatus", async ({ id, isActive, location, token }) => {
+  const response = await api.patch(
+    `/user/rider-status/${id}`,
+    {
+      isActive,
+      location,
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    }
+  );
+
+  return { riderDetails: response.data.data };
+});
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -140,6 +167,20 @@ const authSlice = createSlice({
         state.user = null;
         state.token = null;
         state.role = null;
+        state.loading = false;
+      })
+      .addCase(updateRiderStatus.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateRiderStatus.fulfilled, (state, action) => {
+        console.log("Rider status updated:", action.payload.riderDetails);
+        if (state.user) {
+          state.user.riderDetails = action.payload.riderDetails; // Only update riderDetails!
+        }
+        state.loading = false;
+      })
+      .addCase(updateRiderStatus.rejected, (state, action) => {
+        console.error("Updating rider status failed:", action.error);
         state.loading = false;
       });
   },

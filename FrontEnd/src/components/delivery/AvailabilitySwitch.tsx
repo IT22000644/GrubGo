@@ -1,19 +1,43 @@
 import React, { useState, useEffect } from "react";
-
-const STORAGE_KEY = "driverAvailability";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
+import { updateRiderStatus } from "../../features/auth/authSlice";
+import { useAppDispatch } from "../../app/hooks";
 
 const AvailabilitySwitch: React.FC = () => {
-  const [isAvailable, setIsAvailable] = useState<boolean>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored !== null ? JSON.parse(stored) : false;
-  });
+  const dispatch = useAppDispatch();
+  const user = useSelector((state: RootState) => state.auth.user);
+  const token = useSelector((state: RootState) => state.auth.token);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(isAvailable));
-  }, [isAvailable]);
+  // ❗ No local state for isAvailable anymore, take from Redux directly:
+  const isAvailable = user?.riderDetails?.isAvailable ?? false;
 
-  const handleToggle = () => {
-    setIsAvailable((prev) => !prev);
+  const handleToggle = async () => {
+    const newAvailability = !isAvailable;
+
+    if (!user || !token) {
+      console.error("User or token missing");
+      return;
+    }
+
+    try {
+      await dispatch(
+        updateRiderStatus({
+          id: user._id,
+          isActive: newAvailability,
+          location: {
+            lat: user.riderDetails?.currentLocation?.lat || 0,
+            lng: user.riderDetails?.currentLocation?.lng || 0,
+          },
+          token,
+        })
+      ).unwrap();
+
+      // ❗ No need to manually update isAvailable, Redux will update it inside authSlice
+      console.log("Availability updated successfully");
+    } catch (error) {
+      console.error("Failed to update rider status:", error);
+    }
   };
 
   return (
