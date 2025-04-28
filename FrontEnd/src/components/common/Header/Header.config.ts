@@ -97,6 +97,11 @@ export const adminLinks = {
       onClick: () => console.log("Popular clicked"),
     },
     {
+      name: "Activities",
+      path: "/driver-activity",
+      onClick: () => console.log("Activities clicked"),
+    },
+    {
       name: "Settings",
       onClick: () => console.log("New Partners clicked"),
     },
