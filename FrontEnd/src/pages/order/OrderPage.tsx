@@ -1,33 +1,39 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import OrderCard from "../../components/Order/OrderCard";
-import api5011 from "../../api/api5011";
-import { api1 } from "../../api/axios";
+import api from "../../api/api";
 import type { Order } from "../../components/Order/types";
 import ReviewForm from "../../components/Review/ReviewForm";
+import { useSelector } from "react-redux";
+import { RootState } from '../../App/store';
 
 const statusOptions = ["done", "pending", "completed"];
 
-const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
+const OrderPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [status, setStatus] = useState("done");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [reviewingOrder, setReviewingOrder] = useState<Order | null>(null);
+  const navigate = useNavigate();
+  
+  const customerId = useSelector((state: RootState) => state.auth.user?._id);
 
+  // const customerId = localStorage.getItem('customerId') || "6611e8f4a1fbb93be88a1a5c";
 
   const fetchOrders = async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await api5011.get(`/orders/customer/${customerId}`, {
+      const res = await api.get(`/order/customer/${customerId}`, {
         params: status ? { status } : {},
       });
 
       const ordersWithDetails = await Promise.all(
         res.data.map(async (order: Order) => {
           try {
-            const restaurantRes = await api1.get(
-              `/restaurants/${order.restaurantId}`
+            const restaurantRes = await api.get(
+              `/restaurant/${order.restaurantId}`
             );
             const restaurantData = restaurantRes.data?.restaurant;
 
@@ -69,7 +75,7 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
 
   const handleCheckout = async (orderId: string) => {
     try {
-      const res = await api5011.post(`/orders/${orderId}/checkout/`);
+      const res = await api.post(`/order/${orderId}/checkout/`);
       if (res.data?.url) {
         window.location.href = res.data.url;
       }
@@ -81,7 +87,7 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
 
   const markOrderAsReviewed = async (orderId: string) => {
     try {
-      await api5011.put(`/orders/isreviewed/${orderId}`);
+      await api.put(`/order/isreviewed/${orderId}`);
     } catch (error) {
       console.error("Failed to mark order as reviewed:", error);
     }
@@ -91,6 +97,10 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
     const orderToReview = orders.find((o) => o._id === orderId);
     if (orderToReview) setReviewingOrder(orderToReview);
   };
+
+  const trackthedelivary = async (orderId: string) => {
+    navigate("/customer-tracking-loader", { state: { orderId } });
+}
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -205,6 +215,7 @@ const OrderPage: React.FC<{ customerId: string }> = ({ customerId }) => {
             getStatusBadge={getStatusBadge}
             onReview={handleReviewClick}
             onMarkAsReviewed={markOrderAsReviewed}
+            trackthedelivary={trackthedelivary}
           />
         ))}
         {reviewingOrder && (

@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: user-service
+  name: restaurant-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: user-service
+      app: restaurant-service
   template:
     metadata:
       labels:
-        app: user-service
+        app: restaurant-service
     spec:
       containers:
-        - name: user-service
-          image: manilkanav/user-service:latest
+        - name: restaurant-service
+          image: manilkanav/restaurant-service:latest
           ports:
-            - containerPort: 4002
+            - containerPort: 4003
           envFrom:
             - configMapRef:
-                name: user-config
+                name: restaurant-config
           resources:
             requests:
               cpu: "50m"

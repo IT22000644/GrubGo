@@ -3,6 +3,7 @@ import {
   register,
   verifyToken,
   login,
+  logout,
 } from "../controllers/auth.controller.js";
 
 const router = Router();
@@ -15,9 +16,7 @@ router.post("/login", login);
 
 router.post("/register", register);
 
-router.post("/logout", (req, res) => {
-  // TODO
-});
+router.post("/logout", logout);
 
 router.post("/verify-token", verifyToken);
 

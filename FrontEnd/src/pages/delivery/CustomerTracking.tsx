@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import api5005 from "../../api/api5005";
+import api from "../../api/api";
 import { io, Socket } from "socket.io-client";
 import DeliveryMap, {
   DeliveryRoute,
@@ -12,11 +12,29 @@ import DriverInfoCard from "../../components/delivery/DriverInfoCard";
 import PickupDropInfo from "../../components/delivery/PickupDropInfo";
 
 interface TrackingState {
-  mode: "track";
+  orderId: string;
   deliveryId: string;
+  driverId: string;
+  status: string;
   driverAddress: string;
   restaurantAddress: string;
   customerAddress: string;
+  driverLocation: { latitude: number; longitude: number };
+  restaurantLocation: { latitude: number; longitude: number };
+  customerLocation: { latitude: number; longitude: number };
+  nextDestination: string;
+  nextLocation: { latitude: number; longitude: number };
+  distanceToNext: number;
+  etaToNext: number;
+  expectedDeliveryTime: string;
+  estimatedTimeToRestaurant: number;
+  estimatedTimeToCustomer: number;
+  driverName: string;
+  driverImage: string;
+  vehicleType: string;
+  vehicleColor: string;
+  vehicleModel: string;
+  vehicleNumber: string;
 }
 
 interface DeliveryStatusResponse {
@@ -39,25 +57,56 @@ interface DeliveryStatusResponse {
 export default function CustomerTracking() {
   const loc = useLocation();
   const state = loc.state as TrackingState;
-  const { restaurantAddress, customerAddress } = state;
 
-  const deliveryIdRef = useRef<string>(state.deliveryId);
-  const orderIdRef = useRef<string>("");
+  const {
+    orderId,
+    deliveryId,
+    driverName,
+    driverImage,
+    vehicleType,
+    vehicleColor,
+    vehicleModel,
+    vehicleNumber,
+    restaurantAddress,
+    customerAddress,
+    driverLocation,
+    restaurantLocation,
+    customerLocation,
+    status: initialStatus,
+    expectedDeliveryTime,
+    estimatedTimeToRestaurant,
+    estimatedTimeToCustomer,
+  } = state;
 
-  const [route, setRoute] = useState<DeliveryRoute>();
-  const [status, setStatus] = useState("Loading");
-  const socketRef = useRef<Socket | null>(null);
-  const [etaToRestaurant, setEtaToRestaurant] = useState(0);
-  const [etaToCustomer, setEtaToCustomer] = useState(0);
-  const [expectedDeliveryTime, setExpectedDeliveryTime] = useState("");
+  const deliveryIdRef = useRef<string>(deliveryId);
+  const orderIdRef = useRef<string>(orderId);
+
+  const [route, setRoute] = useState<DeliveryRoute>({
+    driverLocation,
+    restaurantLocation,
+    customerLocation,
+    vehicleType,
+    vehicleColor,
+    vehicleNumber,
+    vehicleModel,
+  });
+  const [status, setStatus] = useState(initialStatus);
+  const [etaToRestaurant, setEtaToRestaurant] = useState(
+    estimatedTimeToRestaurant
+  );
+  const [etaToCustomer, setEtaToCustomer] = useState(estimatedTimeToCustomer);
   const [pathCoords, setPathCoords] = useState<google.maps.LatLngLiteral[]>([]);
   const [mapPathStage, setMapPathStage] = useState<
     "toRestaurant" | "toCustomer"
   >("toRestaurant");
+  const [currentExpectedDeliveryTime, setCurrentExpectedDeliveryTime] =
+    useState(expectedDeliveryTime);
+
+  const socketRef = useRef<Socket | null>(null);
   const animationCancelledRef = useRef(false);
   const connectedRef = useRef(false);
   const subscribedRef = useRef(false);
-  const lastFetchedStatusRef = useRef<string | null>(null);
+  const lastFetchedStatusRef = useRef<string | null>(initialStatus);
   const lastFetchTimeRef = useRef<number>(0);
 
   const interpolate = (
@@ -114,8 +163,8 @@ export default function CustomerTracking() {
     lastFetchTimeRef.current = now;
 
     try {
-      const res = await api5005.get<DeliveryStatusResponse>(
-        `deliveries/status/${deliveryIdRef.current}`
+      const res = await api.get<DeliveryStatusResponse>(
+        `delivery/status/${deliveryIdRef.current}`
       );
       const data = res.data;
 
@@ -125,34 +174,8 @@ export default function CustomerTracking() {
         return;
       }
 
-      // Set the order ID
-      if (!orderIdRef.current) {
-        orderIdRef.current = data.orderId;
-
-        // 👇 Subscribe after orderId is available
-        if (socketRef.current && !subscribedRef.current) {
-          const evt = `delivery:${orderIdRef.current}`;
-          socketRef.current.on(evt, async (_data: { status: string }) => {
-            console.log("Received status update from server:", _data.status);
-
-            lastFetchedStatusRef.current = null;
-            await fetchStatusAndResume();
-          });
-          subscribedRef.current = true;
-        }
-      }
-      const deliveryRoute: DeliveryRoute = {
-        driverLocation: data.driverLocation,
-        restaurantLocation: data.restaurantLocation,
-        customerLocation: data.customerLocation,
-        vehicleType: "car",
-        vehicleColor: "blue",
-        vehicleNumber: "XT-9988",
-      };
-
-      setRoute(deliveryRoute);
       setStatus(data.status);
-      setExpectedDeliveryTime(data.expectedDeliveryTime);
+      setCurrentExpectedDeliveryTime(data.expectedDeliveryTime);
       setEtaToRestaurant(data.estimatedTimeToRestaurant);
       setEtaToCustomer(data.estimatedTimeToCustomer);
 
@@ -218,7 +241,7 @@ export default function CustomerTracking() {
 
   useEffect(() => {
     if (!connectedRef.current) {
-      socketRef.current = io("http://localhost:5005");
+      socketRef.current = io("http://localhost:4006");
       socketRef.current.on("connect", () => {
         console.log("Socket connected:", socketRef.current?.id);
         connectedRef.current = true;
@@ -235,6 +258,14 @@ export default function CustomerTracking() {
 
   useEffect(() => {
     if (!socketRef.current || subscribedRef.current) return;
+
+    const evt = `delivery:${orderIdRef.current}`;
+    socketRef.current.on(evt, async (_data: { status: string }) => {
+      console.log("Received status update from server:", _data.status);
+      lastFetchedStatusRef.current = null;
+      await fetchStatusAndResume();
+    });
+    subscribedRef.current = true;
 
     fetchStatusAndResume();
   }, [fetchStatusAndResume]);
@@ -255,11 +286,12 @@ export default function CustomerTracking() {
         </div>
         <div className="space-y-4">
           <DriverInfoCard
-            name="Alex Rider"
-            imageUrl="https://images.pexels.com/photos/28955594/pexels-photo-28955594/free-photo-of-chimpanzee-at-zoo-in-natural-habitat.jpeg?auto=compress&cs=tinysrgb&w=600"
-            vehicleType={route?.vehicleType || "Car"}
-            vehicleColor={route?.vehicleColor || "Blue"}
-            vehicleNumber={route?.vehicleNumber || "XT-9988"}
+            name={driverName}
+            imageUrl={driverImage}
+            vehicleType={vehicleType}
+            vehicleColor={vehicleColor}
+            vehicleModel={vehicleModel}
+            vehicleNumber={vehicleNumber}
           />
 
           <PickupDropInfo
@@ -272,7 +304,7 @@ export default function CustomerTracking() {
               status={status}
               etaToRestaurant={etaToRestaurant}
               etaToCustomer={etaToCustomer}
-              expectedDeliveryTime={expectedDeliveryTime}
+              expectedDeliveryTime={currentExpectedDeliveryTime}
             />
           )}
         </div>

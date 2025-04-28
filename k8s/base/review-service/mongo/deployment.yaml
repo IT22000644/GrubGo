@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongo-user
+  name: mongo-review
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mongo-user
+      app: mongo-review
   template:
     metadata:
       labels:
-        app: mongo-user
+        app: mongo-review
     spec:
       containers:
         - name: mongo
@@ -23,4 +23,4 @@ spec:
       volumes:
         - name: mongo-storage
           persistentVolumeClaim:
-            claimName: mongo-user-pvc
+            claimName: mongo-review-pvc

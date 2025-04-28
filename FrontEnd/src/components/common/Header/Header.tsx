@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ThemeToggle from "../../../assets/Theme/ThemeToggle";
 import {
   ChevronDown,
@@ -18,8 +18,11 @@ import { adminLinks, navLinks } from "./Header.config";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 
-import { api1 } from "../../../api/axios";
 import CartPage from "../../../pages/order/CartPage";
+import { useLogout } from "../../../hooks/useLogout";
+import api from "../../../api/api";
+import { useAppDispatch } from "../../../app/hooks";
+import { fetchRestaurantByOwner } from "../../../features/restaurant/restaurantSlice";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -27,11 +30,50 @@ const Header = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
-  const role = useSelector((state: RootState) => state.user.role);
-  const restaurantId = useSelector(
-    (state: RootState) => state.user.restaurantId
+  //const role = useSelector((state: RootState) => state.user.role);
+  // const restaurantId = useSelector(
+  //   (state: RootState) => state.user.restaurantId
+  const userRole = useSelector((state: RootState) => state.auth.role);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  const handleLogout = useLogout();
+  const restaurantDetails = useSelector(
+    (state: RootState) => state.restaurant.restaurantData
   );
-  const [userRole, setUserRole] = useState(role);
+
+  useEffect(() => {
+    if (
+      userRole === "restaurant_admin" &&
+      !restaurantDetails &&
+      typeof user?._id === "string"
+    ) {
+      dispatch(
+        fetchRestaurantByOwner({
+          ownerId: user?._id,
+        })
+      );
+    }
+  }, [user, restaurantDetails, dispatch]);
+
+  const restaurantId = restaurantDetails?._id || null;
+
+  const updatedLinks = {
+    ...adminLinks,
+    restaurantDropdownContent: adminLinks.restaurantDropdownContent.map(
+      (item) =>
+        item.name === "Logout" ? { ...item, onClick: handleLogout } : item
+    ),
+    userDropdownContent: adminLinks.userDropdownContent.map((item) =>
+      item.name === "Logout" ? { ...item, onClick: handleLogout } : item
+    ),
+    riderDropdownContent: adminLinks.riderDropdownContent.map((item) =>
+      item.name === "Logout" ? { ...item, onClick: handleLogout } : item
+    ),
+  };
+
+  // const [userRole, setUserRole] = useState("");
   const [isOpen, setIsOpen] = useState(true);
   const [showCart, setShowCart] = useState(false);
 
@@ -48,7 +90,7 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const toggleDropdown = (name: any) => {
+  const toggleDropdown = (name: string | null) => {
     if (activeDropdown === name) {
       setActiveDropdown(null);
     } else {
@@ -59,7 +101,7 @@ const Header = () => {
     setIsOpen(!isOpen);
     const status = !isOpen ? "open" : "closed";
     if (restaurantId) {
-      await api1.patch(`/restaurants/status/${restaurantId}`, {
+      await api.patch(`/restaurant/status/${restaurantId}`, {
         status,
       });
       setIsOpen(!isOpen);
@@ -140,7 +182,10 @@ const Header = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-5">
-            <button className="p-2 rounded-full hover:bg-light_hover dark:hover:bg-dark_hover transition-colors">
+            <button
+              onClick={() => navigate("/driver-home")}
+              className="p-2 rounded-full hover:bg-light_hover dark:hover:bg-dark_hover transition-colors"
+            >
               <Search size={20} />
             </button>
 
@@ -151,10 +196,10 @@ const Header = () => {
               >
                 <User size={20} />
               </button>
-              {activeDropdown === "user" && (
+              {activeDropdown === "customer" && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
                   <div className="py-1">
-                    {adminLinks.userDropdownContent.map((item) => (
+                    {updatedLinks.userDropdownContent.map((item) => (
                       <Link
                         key={item.name}
                         to={item?.path || ""}
@@ -170,10 +215,10 @@ const Header = () => {
                   </div>
                 </div>
               )}
-              {activeDropdown === "restaurantOwner" && (
+              {activeDropdown === "restaurant_admin" && (
                 <div className="absolute right-0 mt-2 w-[280px] bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
                   <div className="py-1">
-                    {adminLinks.restaurantDropdownContent.map((item) => (
+                    {updatedLinks.restaurantDropdownContent.map((item) => (
                       <div className="flex flex-row justify-between">
                         {item.visible && item ? (
                           <div className="flex flex-row justify-between">
@@ -225,10 +270,10 @@ const Header = () => {
                   </div>
                 </div>
               )}
-              {activeDropdown === "rider" && (
+              {activeDropdown === "driver" && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
                   <div className="py-1">
-                    {adminLinks.riderDropdownContent.map((item) => (
+                    {updatedLinks.riderDropdownContent.map((item) => (
                       <Link
                         key={item.name}
                         to={item?.path || ""}
@@ -281,14 +326,17 @@ const Header = () => {
 
           <Modal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)}>
             {isLogin ? (
-              <Login switchToRegister={() => setIsLogin(false)} />
+              <Login
+                switchToRegister={() => setIsLogin(false)}
+                setShowAuthModal={setShowAuthModal}
+              />
             ) : (
               <Register switchToLogin={() => setIsLogin(true)} />
             )}
           </Modal>
 
           <ModalCart isOpen={showCart} onClose={() => setShowCart(false)}>
-            <CartPage customerId="6611e8f4a1fbb93be88a1a5c" />
+            <CartPage />
           </ModalCart>
 
           <div className="flex items-center space-x-3 md:hidden">

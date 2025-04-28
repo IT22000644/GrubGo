@@ -1,4 +1,5 @@
-import { USER_SERVICE_URL } from "../config/index.js";
+import axios from "axios";
+import { AUTH_SERVICE_URL, USER_SERVICE_URL } from "../config/index.js";
 
 const authMiddleware = async (req, res, next) => {
   try {
@@ -12,9 +13,8 @@ const authMiddleware = async (req, res, next) => {
 
     const token = authHeader.split(" ")[1];
 
-    // Verify the token using auth service
     const verifyResponse = await axios.post(
-      `${process.env.AUTH_SERVICE_URL}/auth/verify-token`,
+      `${AUTH_SERVICE_URL}/verify-token`,
       { token }
     );
 
@@ -24,9 +24,8 @@ const authMiddleware = async (req, res, next) => {
 
     const decodedToken = verifyResponse.data.data;
 
-    // Get user info from user service
     const userResponse = await axios.get(
-      `${USER_SERVICE_URL}/users/${decodedToken.userId}`
+      `${USER_SERVICE_URL}/${decodedToken.userId}`
     );
 
     if (!userResponse.data.success || !userResponse.data.data.isVerified) {
@@ -34,10 +33,7 @@ const authMiddleware = async (req, res, next) => {
         .status(401)
         .json({ message: "Unauthorized: Inactive or unverified user" });
     }
-
-    // Attach user info to request
     req.user = userResponse.data.data;
-
     next();
   } catch (err) {
     console.error("[❌] Auth Middleware Error:", err.message);

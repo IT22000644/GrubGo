@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import { api1 } from "../../../../api/axios";
 import { Category } from "../ManageRestaurant.types";
+import api from "../../../../api/api";
 
 type Props = {
   onCategorySelect: (categoryId: string) => void;
@@ -14,7 +14,7 @@ const CategorySelector = ({ onCategorySelect }: Props) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await api1.get("/categories");
+        const res = await api.get("restaurant/categories");
         setCategories(res.data.categories);
       } catch (err) {
         console.error("Failed to fetch categories", err);

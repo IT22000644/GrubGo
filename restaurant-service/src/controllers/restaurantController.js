@@ -7,18 +7,26 @@ import {
   toggleRestaurantStatusService,
   deleteRestaurantService,
   getAllRestaurantsByStatusService,
+  getRestaurantByOwnerId,
 } from "../services/restaurantService.js";
 
 export const RestaurantController = {
   registerNewRestaurant: async (req, res) => {
     try {
-      const { name, address, description, phone, restaurantOwner, menus } =
-        req.body;
+      const {
+        name,
+        address,
+        description,
+        phone,
+        restaurantOwner,
+        menus,
+        isVerified,
+      } = req.body;
       const phoneRegex = /^\+?\d{10}$/;
       const imagePaths = req.files
         ? req.files.map(
             (file) =>
-              `${req.protocol}://${req.get("host")}/${file.path.replace(
+              `${req.protocol}://${process.env.HOST_NAME}/${file.path.replace(
                 /\\/g,
                 "/"
               )}`
@@ -54,6 +62,7 @@ export const RestaurantController = {
         images: imagePaths,
         restaurantOwner,
         menus,
+        isVerified,
       };
 
       const newRestaurant = await registerRestaurantService(restaurantData);
@@ -225,6 +234,19 @@ export const RestaurantController = {
         error: error.message,
       });
     }
+  },
+
+  getbyOwnerId: async (req, res) => {
+    const { ownerId } = req.params;
+
+    const restaurant = await getRestaurantByOwnerId(ownerId);
+    if (!restaurant) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Restaurant not found" });
+    }
+
+    res.status(200).json({ success: true, restaurant });
   },
 };
 

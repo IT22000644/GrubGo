@@ -5,8 +5,7 @@ import actionGuard from "../middlewares/role.middleware.js";
 
 const userRoutes = Router();
 
-userRoutes.use("/", userProxy);
-userRoutes.use("/email/:email", authMiddleware, userProxy);
+userRoutes.use("/email/:email", authMiddleware);
 userRoutes.use(
   "/:id",
   authMiddleware,
@@ -14,15 +13,14 @@ userRoutes.use(
     GET: ["any"],
     PUT: ["admin", "owner"],
     DELETE: ["owner"],
-  }),
-  userProxy
+  })
 );
 
 userRoutes.use(
   "/update-location/:id",
   authMiddleware,
-  actionGuard({ PATCH: ["owner"] }),
-  userProxy
+  actionGuard({ PATCH: ["owner"] })
 );
+userRoutes.use("/", userProxy);
 
 export default userRoutes;

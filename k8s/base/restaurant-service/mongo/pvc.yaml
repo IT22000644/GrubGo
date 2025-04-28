@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mongo-user-pvc
+  name: mongo-restaurant-pvc
 spec:
   accessModes:
     - ReadWriteOnce

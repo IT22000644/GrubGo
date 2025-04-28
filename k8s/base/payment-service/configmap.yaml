@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment-config
+data:
+  PORT: "4005"
+  RABBITMQ_URL: "amqp://rabbitmq:5672"

@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DeliveryCard from "../../components/delivery/DeliveryCard";
-import api5005 from "../../api/api5005";
+import AvailabilitySwitch from "../../components/delivery/AvailabilitySwitch";
+import api from "../../api/api";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
 
 interface Delivery {
   _id: string;
@@ -20,13 +23,22 @@ const DriverView = () => {
   const [selectedTab, setSelectedTab] = useState("Ongoing");
   const navigate = useNavigate();
 
+  const driverId = useSelector((state: RootState) => state.auth.user?._id);
+
   const fetchDriverDeliveries = async () => {
     try {
-      const driverId = "34ga21e5624f2dfbc3284h65";
-      const { data } = await api5005.get(`deliveries/driver/${driverId}`);
-      setDeliveries(data.deliveries);
+      const { data } = await api.get(`delivery/driver/${driverId}`);
+
+      const driverDeliveries: Delivery[] = Array.isArray(data)
+        ? data
+        : Array.isArray(data.deliveries)
+        ? data.deliveries
+        : [];
+
+      setDeliveries(driverDeliveries);
     } catch (error) {
       console.error("Error fetching deliveries:", error);
+      setDeliveries([]);
     }
   };
 
@@ -45,7 +57,7 @@ const DriverView = () => {
 
     if (filteredDeliveries.length === 0) {
       return (
-        <p className="text-center font-semibold text-gray-500 text-lg">
+        <p className="text-center font-bold text-orange-600 dark:text-accent text-lg">
           No {selectedTab} Deliveries Available
         </p>
       );
@@ -66,19 +78,20 @@ const DriverView = () => {
   };
 
   const handleTrackOrder = (delivery: Delivery) => {
-    navigate("/delivery-tracking", {
+    navigate("/driver-tracking-loader", {
       state: {
         mode: "track",
         deliveryId: delivery._id,
-        driverAddress: delivery.driverAddress,
-        restaurantAddress: delivery.restaurantAddress,
-        customerAddress: delivery.customerAddress,
       },
     });
   };
 
   return (
     <div className="p-6 max-w-7xl mx-auto mt-20 ">
+      {/* top-left switch */}
+      <div className="absolute top-32 left-12">
+        <AvailabilitySwitch />
+      </div>
       {/* Tabs */}
       <div className="flex justify-center mb-6 space-x-4">
         <button
@@ -128,7 +141,7 @@ const DriverView = () => {
       )}
 
       {selectedTab === "Completed" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className=" grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {renderDeliveryCards(["Delivered"])}
         </div>
       )}

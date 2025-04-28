@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { RootState } from "../../../app/store";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { api1 } from "../../../api/axios";
 import {
   Ban,
   CookingPot,
@@ -15,6 +15,7 @@ import Modal from "../../../components/modal/Modal";
 import MenuTable from "./MenuTable";
 import { FoodMenu, Restaurant } from "./ManageRestaurant.types";
 import CategorySelector from "./categorySelector/CategorySelector";
+import api from "../../../api/api";
 
 type Review = {
   _id: string;
@@ -52,16 +53,16 @@ export const ManageRestaurant = () => {
   const [foodPrice, setFoodPrice] = useState(0);
   const [foodDiscount, setFoodDiscount] = useState(0);
   const [foodImages, setFoodImages] = useState<FileList | null>(null);
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
 
-  const restaurantId = useSelector(
-    (state: RootState) => state.user.restaurantId
-  );
+  const ownerId = useSelector((state: RootState) => state.auth.user?._id);
 
   const fetchRestaurantDetails = async () => {
     try {
       setLoading(true);
-      const response = await api1.get(`/restaurants/${restaurantId}`);
+      const response = await api.get(`/restaurant/owner/${ownerId}`);
       setRestaurant(response.data.restaurant);
+      setRestaurantId(response.data.restaurant._id);
       setMenus(response.data.restaurant.menus);
       if (response.data.restaurant?.menus?.length > 0) {
         setSelectedMenu(response.data.restaurant.menus[0]._id);
@@ -83,15 +84,15 @@ export const ManageRestaurant = () => {
   };
 
   const handleDelete = async (id: string) => {
-    await api1.delete(`/foodMenus/${id}`);
+    await api.delete(`/foodMenu/${id}`);
     fetchRestaurantDetails();
   };
 
-  function getAverageRating(reviews: { rating: number }[]): number {
-    if (reviews.length === 0) return 0;
-    const total = reviews.reduce((sum, review) => sum + review.rating, 0);
-    return parseFloat((total / reviews.length).toFixed(1));
-  }
+  // function getAverageRating(reviews: { rating: number }[]): number {
+  //   if (reviews.length === 0) return 0;
+  //   const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+  //   return parseFloat((total / reviews.length).toFixed(1));
+  // }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,7 +113,7 @@ export const ManageRestaurant = () => {
     }
 
     try {
-      const response = await api1.post("/foodMenus/", formData, {
+      const response = await api.post("/foodMenu/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -146,7 +147,7 @@ export const ManageRestaurant = () => {
       });
     }
     try {
-      const response = await api1.post("/foods/", formData, {
+      const response = await api.post("/food/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

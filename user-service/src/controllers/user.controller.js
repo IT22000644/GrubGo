@@ -1,22 +1,19 @@
 import User from "../models/user.model.js";
 import Rider from "../models/rider.model.js";
-import bcrypt from "bcrypt";
 import Customer from "../models/customer.model.js";
 
 export const createUser = async (req, res) => {
-  // TODO: user save
   const { email, username, passwordHash, phoneNumber, role } = req.body;
   try {
-    const existingUser = await User.find({ email });
+    const existingUser = await User.findOne({ email });
 
-    if (existingUser.length > 0) {
+    if (existingUser) {
       return res.status(400).json({
         success: false,
         message: "User with this email already exists",
       });
     }
 
-    //save user to db
     const newUser = new User({
       email,
       username,
@@ -27,40 +24,51 @@ export const createUser = async (req, res) => {
 
     const savedUser = await newUser.save();
 
-    // need to add the customer and rider details
-    // if the user is customer or rider
-    if (role === "customer") {
-      const { fullName, address } = req.body.customerDetails;
+    try {
+      if (role === "customer") {
+        const { fullName, address } = req.body || {};
 
-      const newCustomer = new Customer({
-        userId: savedUser._id,
-        fullName,
-        address,
+        const newCustomer = new Customer({
+          userId: savedUser._id,
+          fullName,
+          address,
+        });
+
+        await newCustomer.save();
+        savedUser._doc.customerDetails = newCustomer;
+      } else if (role === "driver") {
+        const {
+          vehicleType,
+          vehicleNumber,
+          fullName,
+          licenseNumber,
+          vehicleModel,
+          vehicleColor,
+        } = req.body;
+
+        const newRider = new Rider({
+          userId: savedUser._id,
+          vehicleType,
+          vehicleNumber,
+          fullName,
+          licenseNumber,
+          vehicleModel,
+          vehicleColor,
+        });
+
+        await newRider.save();
+        savedUser._doc.riderDetails = newRider;
+      }
+    } catch (err) {
+      console.error("Error creating customer/rider:", err.message);
+
+      // 🧹 Rollback: Delete the user if customer/rider creation fails
+      await User.findByIdAndDelete(savedUser._id);
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create user details. User rolled back.",
       });
-
-      await newCustomer.save();
-      savedUser.customerDetails = newCustomer;
-    } else if (role === "driver") {
-      const {
-        vehicleType,
-        vehicleNumber,
-        fullName,
-        licenseNumber,
-        vehicleModel,
-        vehicleColor,
-      } = req.body;
-
-      const newRider = new Rider({
-        userId: savedUser._id,
-        vehicleType,
-        vehicleNumber,
-        fullName,
-        licenseNumber,
-        vehicleModel,
-        vehicleColor,
-      });
-      await newRider.save();
-      savedUser.riderDetails = newRider;
     }
 
     return res.status(201).json({
@@ -69,6 +77,7 @@ export const createUser = async (req, res) => {
       data: savedUser,
     });
   } catch (error) {
+    console.error("Error creating user:", error.message);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
@@ -76,10 +85,10 @@ export const createUser = async (req, res) => {
 };
 
 export const getUserById = async (req, res) => {
-  const { userId } = req.params;
+  const { id } = req.params;
 
   try {
-    const user = await User.findById(userId);
+    const user = await User.findById(id).select("-passwordHash");
 
     if (!user) {
       return res.status(404).json({
@@ -88,39 +97,58 @@ export const getUserById = async (req, res) => {
       });
     }
 
+    let userData = user.toObject();
+
     if (user.role === "customer") {
       const customer = await Customer.findOne({ userId: user._id });
       if (customer) {
-        user.customerDetails = customer;
-      }
-    }
-    if (user.role === "driver") {
-      const rider = await Rider.findOne({ userId: user._id });
-      if (rider) {
-        user.riderDetails = rider;
-      }
-    }
-    if (user.role === "restaurant_admin") {
-      const restaurant = await axios.get(
-        `${RESTAURANT_SERVICE_URL}/owner/${user._id}`
-      );
-      if (restaurant) {
-        user.restaurantDetails = restaurant;
+        userData.customerDetails = customer;
       }
     }
 
+    if (user.role === "driver") {
+      const rider = await Rider.findOne({ userId: user._id });
+      if (rider) {
+        userData.riderDetails = rider;
+      }
+    }
+
+    console.log("User Data:", userData);
+
     return res.status(200).json({
       success: true,
-      data: user,
+      data: userData,
     });
   } catch (error) {
+    console.error(error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
   }
 };
 
-export const getAllUsers = async (req, res) => {};
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-passwordHash");
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No users found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: users,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
 
 export const getActiveRiders = async (req, res) => {
   try {
@@ -149,7 +177,7 @@ export const getUserByEmail = async (req, res) => {
   const { email } = req.params;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("-passwordHash");
 
     if (!user) {
       return res.status(404).json({
@@ -158,46 +186,51 @@ export const getUserByEmail = async (req, res) => {
       });
     }
 
+    let userData = user.toObject();
+
     if (user.role === "customer") {
       const customer = await Customer.findOne({ userId: user._id });
       if (customer) {
-        user.customerDetails = customer;
+        userData.customerDetails = customer;
       }
     }
 
     if (user.role === "driver") {
       const rider = await Rider.findOne({ userId: user._id });
       if (rider) {
-        user.riderDetails = rider;
-      }
-    }
-
-    if (user.role === "restaurant_admin") {
-      const restaurant = await axios.get(
-        `${RESTAURANT_SERVICE_URL}/owner/${user._id}`
-      );
-      if (restaurant) {
-        user.restaurantDetails = restaurant;
+        userData.riderDetails = rider;
       }
     }
 
     return res.status(200).json({
       success: true,
-      data: user,
+      data: userData,
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 
 export const updateRiderLocation = async (req, res) => {
   const { id } = req.params;
-  const { currentLocation } = req.body;
+  const { location } = req.body;
+
+  console.log("Location:", location);
 
   try {
-    const rider = await Rider.findBy({ userId: id });
+    const rider = await Rider.findOneAndUpdate(
+      { userId: id },
+      {
+        $set: {
+          currentLocation: location || undefined,
+        },
+      },
+      { new: true }
+    );
 
     if (!rider) {
       return res.status(404).json({
@@ -206,15 +239,51 @@ export const updateRiderLocation = async (req, res) => {
       });
     }
 
-    rider.currentLocation = currentLocation;
-    await rider.save();
-
     return res.status(200).json({
       success: true,
       message: "Rider location updated successfully",
       data: rider,
     });
   } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const updateRiderStatus = async (req, res) => {
+  const { id } = req.params;
+  const { isAvailable, location } = req.body;
+  console.log(location);
+  try {
+    const rider = await Rider.findOneAndUpdate(
+      { userId: id },
+      {
+        $set: {
+          isAvailable,
+          currentLocation: location || undefined,
+        },
+      },
+      { new: true }
+    );
+
+    if (!rider) {
+      return res.status(404).json({
+        success: false,
+        message: "Rider not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Rider status updated to ${
+        isAvailable ? "available" : "not available"
+      }`,
+      data: rider,
+    });
+  } catch (error) {
+    console.error(error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });

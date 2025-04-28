@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Restaurant } from "./AllRestaurants.types";
-import { api1 } from "../../../api/axios";
 import {
   Star,
   MapPin,
@@ -13,6 +12,7 @@ import {
 } from "lucide-react";
 import { Loader } from "../../common/loader";
 import { useNavigate } from "react-router-dom";
+import api from "../../../api/api";
 
 export const AllRestaurants = () => {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -24,7 +24,7 @@ export const AllRestaurants = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await api1.get("/restaurants/status/open");
+        const response = await api.get("/restaurant/status/open");
         setRestaurants(response.data.restaurants);
         console.log(response.data.restaurants);
       } catch (error) {

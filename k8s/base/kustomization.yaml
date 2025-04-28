@@ -1,3 +1,12 @@
 resources:
   - api-gateway
   - auth-service
+  - user-service
+  - delivery-service
+  - map-service
+  - order-service
+  - payment-service
+  - restaurant-service
+  - review-service
+  - notification-service
+  - rabbitmq

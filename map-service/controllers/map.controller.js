@@ -33,18 +33,20 @@ const MapController = {
 
   // Convert coordinates to an Address
   async coordinatesToAddress(req, res) {
-    const { latitude, longitude } = req.body;
+    const { latitude, longitude, lat, lng } = req.body;
+    const actualLat = latitude ?? lat;
+    const actualLng = longitude ?? lng;
 
-    if (latitude == null || longitude == null) {
-      return res
-        .status(400)
-        .json({ error: "Latitude and longitude are required" });
+    if (actualLat == null || actualLng == null) {
+      return res.status(400).json({
+        error: "Latitude and longitude (or lat and lng) are required",
+      });
     }
 
     try {
       const address = await mapService.getAddressFromCoordinates(
-        latitude,
-        longitude
+        actualLat,
+        actualLng
       );
 
       if (!address) {
@@ -153,10 +155,18 @@ const MapController = {
   async findClosestRider(req, res) {
     const { baseLocation, data } = req.body;
 
+    const baseLat =
+      typeof baseLocation.lat === "number"
+        ? baseLocation.lat
+        : baseLocation.latitude;
+    const baseLng =
+      typeof baseLocation.lng === "number"
+        ? baseLocation.lng
+        : baseLocation.longitude;
+
     if (
-      !baseLocation ||
-      typeof baseLocation.lat !== "number" ||
-      typeof baseLocation.lng !== "number" ||
+      typeof baseLat !== "number" ||
+      typeof baseLng !== "number" ||
       !Array.isArray(data) ||
       data.length === 0
     ) {
@@ -170,27 +180,29 @@ const MapController = {
       let minDistance = Infinity;
 
       for (const rider of data) {
-        const coords = rider.currentLocation;
-        if (
-          !coords ||
-          typeof coords.lat !== "number" ||
-          typeof coords.lng !== "number"
-        ) {
+        const coords = rider.currentLocation || {};
+
+        const riderLat =
+          typeof coords.lat === "number" ? coords.lat : coords.latitude;
+        const riderLng =
+          typeof coords.lng === "number" ? coords.lng : coords.longitude;
+
+        if (typeof riderLat !== "number" || typeof riderLng !== "number") {
           continue;
         }
 
         const distance = GeoService.calculateHaversineDistance(
-          baseLocation.lat,
-          baseLocation.lng,
-          coords.lat,
-          coords.lng
+          baseLat,
+          baseLng,
+          riderLat,
+          riderLng
         );
 
         if (distance < minDistance) {
           minDistance = distance;
           closest = {
             id: rider.userId,
-            currentLocation: coords,
+            currentLocation: { latitude: riderLat, longitude: riderLng },
             distance,
           };
         }
@@ -202,7 +214,11 @@ const MapController = {
           .json({ error: "No valid rider locations found" });
       }
 
-      return res.json(closest);
+      return res.json({
+        baseLocation: { latitude: baseLat, longitude: baseLng },
+        data,
+        closest,
+      });
     } catch (error) {
       console.error("Error finding closest rider:", error.message);
       return res

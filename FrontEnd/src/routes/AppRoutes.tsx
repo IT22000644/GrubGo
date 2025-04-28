@@ -9,10 +9,13 @@ import Profile from "../pages/user/Profile";
 import MainLayout from "../layouts/MainLayout";
 
 import DeliveryAssign from "../pages/delivery/DeliveryAssign";
-import DeliveryControl from "../pages/delivery/DeliveryControl";
 import DeliveryTracking from "../pages/delivery/DeliveryTracking";
 import CustomerTracking from "../pages/delivery/CustomerTracking";
+import DeliveryDataLoader from "../pages/delivery/DeliveryDataLoader";
+import CustomerTrackingLoader from "../pages/delivery/CustomerTrackingLoader";
+import DriverTrackingLoader from "../pages/delivery/DriverTrackingLoader";
 import DriverView from "../pages/delivery/DriverView";
+
 import NotFound from "../pages/common/NotFound";
 import Contact from "../pages/main/ContactUs";
 import { AllRestaurants } from "../pages/restaurant/allRestaurants/AllRestaurants";
@@ -24,10 +27,12 @@ import AdminLayout from "../layouts/AdminLayout";
 import { AdminDashboard } from "../pages/admin/adminDashboard";
 import { AdminRestaurants } from "../pages/restaurant/adminRestaurants/AdminRestaurants";
 
-// import DeliveryTracking from "../pages/delivery/DeliveryTracking";
 import RestaurantOrderPage from "../pages/restaurant/showingorders/Orderpage";
 import RestaurantDetails from "../pages/restaurant/restaurantDetails/restaurantDetails";
+
 import { AdminUser } from "../pages/user/adminUser/AdminUser";
+import Payment from "../pages/admin/Payement";
+
 //import OrderPage from "../pages/restaurent/showingorders/Orderpage";
 
 const AppRoutes: React.FC = () => {
@@ -44,29 +49,45 @@ const AppRoutes: React.FC = () => {
 
         <Route path="/restaurant/orders" element={<RestaurantOrderPage />} />
 
-        <Route path="/delivery" element={<DeliveryAssign />} />
-
         <Route
           path="/cart"
-          element={<CartPage customerId="6611e8f4a1fbb93be88a1a5c" />}
+          element={<CartPage />}
         />
 
         <Route
           path="/orders"
-          element={<OrderPage customerId="6611e8f4a1fbb93be88a1a5c" />}
+          element={<OrderPage />}
         />
 
         <Route path="/delivery-assign" element={<DeliveryAssign />} />
-        <Route path="/delivery-control" element={<DeliveryControl />} />
         <Route path="/delivery-tracking" element={<DeliveryTracking />} />
         <Route path="/customer-tracking" element={<CustomerTracking />} />
-        <Route path="/driver-home" element={<DriverView />} />
+        <Route path="/delivery-loader" element={<DeliveryDataLoader />} />
+        <Route
+          path="/customer-tracking-loader"
+          element={<CustomerTrackingLoader />}
+        />
+        <Route
+          path="/driver-tracking-loader"
+          element={<DriverTrackingLoader />}
+        />
+
+        <Route
+          path="/driver-activity"
+          element={
+            <ProtectedRoute>
+              <DriverView />
+            </ProtectedRoute>
+          }
+        />
       </Route>
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="restaurant" element={<AdminRestaurants />} />
         <Route path="user" element={<AdminUser />} />
+
+        <Route path="payments" element={<Payment />} />
 
         <Route path="*" element={<NotFound />} />
       </Route>

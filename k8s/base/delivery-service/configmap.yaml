@@ -4,4 +4,4 @@ metadata:
   name: delivery-config
 data:
   PORT: "4006"
-  MONGODB_URL: "mongodb://delivery-mongo:27017/deliverydb"
+  MONGODB_URL: "mongodb://mongo-delivery:27017/deliverydb"

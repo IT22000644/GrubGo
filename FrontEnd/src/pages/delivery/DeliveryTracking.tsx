@@ -9,25 +9,37 @@ import ControlsPanel from "../../components/delivery/ControlsPanel";
 import { fetchRoadPath } from "../../utils/delivery/mapHelpers";
 import NextLocationCard from "../../components/delivery/NextLocationCard";
 import StatusTracker from "../../components/delivery/StatusTracker";
-import api5005 from "../../api/api5005";
+
+import api from "../../api/api";
 
 interface TrackingState {
-  mode: "track";
   deliveryId: string;
-}
-
-interface DeliveryStatusResponse {
   orderId: string;
   driverId: string;
   status: string;
+  driverAddress: string;
+  restaurantAddress: string;
+  customerAddress: string;
   driverLocation: { latitude: number; longitude: number };
   restaurantLocation: { latitude: number; longitude: number };
   customerLocation: { latitude: number; longitude: number };
   nextDestination: string;
-  expectedDeliveryTime: string;
+  nextLocation: { latitude: number; longitude: number };
+  distanceToNext: number;
   etaToNext: number;
+  expectedDeliveryTime: string;
   estimatedTimeToRestaurant: number;
   estimatedTimeToCustomer: number;
+  driverName: string;
+  driverImage: string;
+  vehicleType: string;
+  vehicleModel: string;
+  vehicleColor: string;
+  vehicleNumber: string;
+  customerName: string;
+  customerImage: string;
+  restaurantName: string;
+  restaurantImage: string;
 }
 
 export default function DeliveryTracking() {
@@ -35,13 +47,26 @@ export default function DeliveryTracking() {
   const state = loc.state as TrackingState;
 
   const deliveryIdRef = useRef<string>(state.deliveryId);
-  const orderIdRef = useRef<string>("");
-  const [route, setRoute] = useState<DeliveryRoute>();
-  const [status, setStatus] = useState("Loading");
+  const orderIdRef = useRef<string>(state.orderId);
+  const [route, setRoute] = useState<DeliveryRoute>({
+    driverLocation: state.driverLocation,
+    restaurantLocation: state.restaurantLocation,
+    customerLocation: state.customerLocation,
+    vehicleType: state.vehicleType,
+    vehicleColor: state.vehicleColor,
+    vehicleNumber: state.vehicleNumber,
+  });
+  const [status, setStatus] = useState(state.status);
   const socketRef = useRef<Socket | null>(null);
-  const [etaToRestaurant, setEtaToRestaurant] = useState(0);
-  const [etaToCustomer, setEtaToCustomer] = useState(0);
-  const [expectedDeliveryTime, setExpectedDeliveryTime] = useState("");
+  const [etaToRestaurant, setEtaToRestaurant] = useState(
+    state.estimatedTimeToRestaurant
+  );
+  const [etaToCustomer, setEtaToCustomer] = useState(
+    state.estimatedTimeToCustomer
+  );
+  const [expectedDeliveryTime, setExpectedDeliveryTime] = useState(
+    state.expectedDeliveryTime
+  );
   const [pathCoords, setPathCoords] = useState<google.maps.LatLngLiteral[]>([]);
   const [mapPathStage, setMapPathStage] = useState<
     "toRestaurant" | "toCustomer"
@@ -49,8 +74,15 @@ export default function DeliveryTracking() {
   const animationCancelledRef = useRef(false);
   const connectedRef = useRef(false);
   const subscribedRef = useRef(false);
-  const lastFetchedStatusRef = useRef<string | null>(null);
+  const lastFetchedStatusRef = useRef<string | null>(state.status);
   const lastFetchTimeRef = useRef<number>(0);
+
+  const restaurantStatuses = ["Assigned", "In Transit", "Arrived Restaurant"];
+  const customerStatuses = [
+    "Picked Up",
+    "In Transit - Picked Up",
+    "Arrived Customer",
+  ];
 
   function interpolate(
     start: google.maps.LatLngLiteral,
@@ -92,7 +124,6 @@ export default function DeliveryTracking() {
               }
             : r
         );
-
         setPathCoords(path.slice(i + 1));
         await new Promise((res) => setTimeout(res, segmentDuration));
       }
@@ -107,9 +138,7 @@ export default function DeliveryTracking() {
     lastFetchTimeRef.current = now;
 
     try {
-      const res = await api5005.get<DeliveryStatusResponse>(
-        `deliveries/status/${deliveryIdRef.current}`
-      );
+      const res = await api.get(`delivery/status/${deliveryIdRef.current}`);
       const data = res.data;
 
       if (data.status === lastFetchedStatusRef.current) return;
@@ -117,16 +146,7 @@ export default function DeliveryTracking() {
 
       orderIdRef.current = data.orderId;
 
-      const deliveryRoute: DeliveryRoute = {
-        driverLocation: data.driverLocation,
-        restaurantLocation: data.restaurantLocation,
-        customerLocation: data.customerLocation,
-        vehicleType: "car",
-        vehicleColor: "blue",
-        vehicleNumber: "XT-9988",
-      };
-
-      setRoute(deliveryRoute);
+      setRoute((r) => (r ? { ...r, driverLocation: data.driverLocation } : r));
       setStatus(data.status);
       setExpectedDeliveryTime(data.expectedDeliveryTime);
       setEtaToRestaurant(data.estimatedTimeToRestaurant);
@@ -139,8 +159,8 @@ export default function DeliveryTracking() {
             lng: data.driverLocation.longitude,
           },
           {
-            lat: data.restaurantLocation.latitude,
-            lng: data.restaurantLocation.longitude,
+            lat: state.restaurantLocation.latitude,
+            lng: state.restaurantLocation.longitude,
           }
         );
         await animateAlong(path, data.estimatedTimeToRestaurant * 1000);
@@ -152,8 +172,8 @@ export default function DeliveryTracking() {
             lng: data.driverLocation.longitude,
           },
           {
-            lat: data.customerLocation.latitude,
-            lng: data.customerLocation.longitude,
+            lat: state.customerLocation.latitude,
+            lng: state.customerLocation.longitude,
           }
         );
         await animateAlong(
@@ -163,38 +183,22 @@ export default function DeliveryTracking() {
       } else if (data.status === "Arrived Restaurant") {
         animationCancelledRef.current = true;
         setRoute((r) =>
-          r
-            ? {
-                ...r,
-                driverLocation: {
-                  latitude: data.restaurantLocation.latitude,
-                  longitude: data.restaurantLocation.longitude,
-                },
-              }
-            : r
+          r ? { ...r, driverLocation: state.restaurantLocation } : r
         );
       } else if (data.status === "Arrived Customer") {
         animationCancelledRef.current = true;
         setRoute((r) =>
-          r
-            ? {
-                ...r,
-                driverLocation: {
-                  latitude: data.customerLocation.latitude,
-                  longitude: data.customerLocation.longitude,
-                },
-              }
-            : r
+          r ? { ...r, driverLocation: state.customerLocation } : r
         );
       }
     } catch (err) {
       console.error("Failed to resume tracking:", err);
     }
-  }, []);
+  }, [state]);
 
   useEffect(() => {
     if (!connectedRef.current) {
-      socketRef.current = io("http://localhost:5005");
+      socketRef.current = io("http://localhost:4006");
       socketRef.current.on("connect", () => {
         connectedRef.current = true;
       });
@@ -220,16 +224,9 @@ export default function DeliveryTracking() {
     });
   }, [fetchStatusAndResume]);
 
-  const restaurantStatuses = ["Assigned", "In Transit", "Arrived Restaurant"];
-  const customerStatuses = [
-    "Picked Up",
-    "In Transit - Picked Up",
-    "Arrived Customer",
-  ];
-
   const handlePickedUp = useCallback(async () => {
     try {
-      await api5005.put("deliveries/status/picked-up", {
+      await api.put("delivery/status/picked-up", {
         deliveryId: deliveryIdRef.current,
       });
       lastFetchedStatusRef.current = null;
@@ -241,15 +238,12 @@ export default function DeliveryTracking() {
 
   const handleDelivered = useCallback(async () => {
     try {
-      await api5005.put("deliveries/status/delivered", {
+      await api.put("delivery/status/delivered", {
         deliveryId: deliveryIdRef.current,
       });
       lastFetchedStatusRef.current = null;
       setStatus("Delivered");
-
-      // await api5011.put(`status/delivered/${id}`, {
-
-      // });
+      await api.put(`order/status/${orderIdRef.current}`);
     } catch (error) {
       console.error("Error marking delivered:", error);
     }
@@ -260,7 +254,7 @@ export default function DeliveryTracking() {
       <h1 className="text-2xl font-semibold">Tracking Delivery</h1>
       <StatusTracker currentStatus={status} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="col-span-2 h-96 border-4 border-blue-800 border-double">
+        <div className="col-span-2 h-auto shadow-lg">
           <DeliveryMap
             route={route}
             pathStage={mapPathStage}
@@ -279,18 +273,18 @@ export default function DeliveryTracking() {
 
           {restaurantStatuses.includes(status) && (
             <NextLocationCard
-              imageUrl="https://images.pexels.com/photos/1458681/pexels-photo-1458681.jpeg?auto=compress&cs=tinysrgb&w=600"
-              fullName="Spar Supermarket"
-              address="Random Address Place Holder - Restaurant"
+              imageUrl={state.restaurantImage}
+              fullName={state.restaurantName}
+              address={state.restaurantAddress}
               role="Restaurant"
             />
           )}
 
           {customerStatuses.includes(status) && (
             <NextLocationCard
-              imageUrl="https://images.pexels.com/photos/897817/pexels-photo-897817.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-              fullName="John Doe"
-              address="Random Address Place Holder - Customer"
+              imageUrl={state.customerImage}
+              fullName={state.customerName}
+              address={state.customerAddress}
               role="Customer"
             />
           )}

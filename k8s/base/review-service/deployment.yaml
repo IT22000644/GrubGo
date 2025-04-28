@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: user-service
+  name: review-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: user-service
+      app: review-service
   template:
     metadata:
       labels:
-        app: user-service
+        app: review-service
     spec:
       containers:
-        - name: user-service
-          image: manilkanav/user-service:latest
+        - name: review-service
+          image: manilkanav/review-service:latest
           ports:
-            - containerPort: 4002
+            - containerPort: 4008
           envFrom:
             - configMapRef:
-                name: user-config
+                name: review-config
           resources:
             requests:
               cpu: "50m"

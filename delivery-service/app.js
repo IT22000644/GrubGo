@@ -30,7 +30,7 @@ const io = new Server(server, {
 app.set("io", io);
 app.use(cors());
 app.use(express.json());
-app.use("/api/deliveries", deliveryRoutes);
+app.use("/", deliveryRoutes);
 
 startDeliveryScheduler(io);
 //startDriverLocationUpdater(io);
@@ -44,7 +44,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 5005;
+const PORT = process.env.PORT || 4006;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log("WebSocket server is now listening for connections...");

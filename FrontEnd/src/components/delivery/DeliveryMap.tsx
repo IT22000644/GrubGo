@@ -24,14 +24,25 @@ export interface LatLng {
   longitude: number;
 }
 
-export interface DeliveryRoute {
-  driverLocation: LatLng;
-  restaurantLocation: LatLng;
-  customerLocation: LatLng;
+export type DeliveryRoute = {
+  driverLocation: {
+    latitude: number;
+    longitude: number;
+  };
+  restaurantLocation: {
+    latitude: number;
+    longitude: number;
+  };
+  customerLocation: {
+    latitude: number;
+    longitude: number;
+  };
+
   vehicleType?: string;
+  vehicleModel?: string;
   vehicleColor?: string;
   vehicleNumber?: string;
-}
+};
 
 interface Props {
   route?: DeliveryRoute;
@@ -154,8 +165,8 @@ export default function DeliveryMap({
               lng: route.restaurantLocation.longitude,
             }}
             icon={{
-              url: "https://cdn-icons-png.flaticon.com/128/10309/10309202.png", // 🍴 icon from Flaticon
-              scaledSize: new google.maps.Size(32, 32), // adjust size
+              url: "https://cdn-icons-png.flaticon.com/128/10309/10309202.png",
+              scaledSize: new google.maps.Size(32, 32),
             }}
           />
           <Marker
@@ -164,8 +175,8 @@ export default function DeliveryMap({
               lng: route.customerLocation.longitude,
             }}
             icon={{
-              url: "https://cdn-icons-png.flaticon.com/128/3293/3293413.png", // 🍴 icon from Flaticon
-              scaledSize: new google.maps.Size(32, 32), // adjust size
+              url: "https://cdn-icons-png.flaticon.com/128/3293/3293413.png",
+              scaledSize: new google.maps.Size(32, 32),
             }}
           />
           <Marker

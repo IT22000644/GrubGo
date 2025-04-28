@@ -7,3 +7,7 @@ npm-debug.log
 # Exclude git directory and git-related files
 .git
 .gitignore
+
+# Exclude ENV File
+.env
+

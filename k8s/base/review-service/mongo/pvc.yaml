@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mongo-user-pvc
+  name: mongo-review-pvc
 spec:
   accessModes:
     - ReadWriteOnce

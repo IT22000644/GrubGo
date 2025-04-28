@@ -17,7 +17,7 @@ const mongoURI =
 
 connectDB(mongoURI);
 
-app.use("/api/v1", apiV1Routes);
+app.use("/", apiV1Routes);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 if (process.env.NODE_ENV !== "test") {

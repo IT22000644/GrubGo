@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from "react";
 import {
   Search,
@@ -7,9 +8,9 @@ import {
   ExternalLink,
   MapPin,
 } from "lucide-react";
-import { api1 } from "../../../api/axios";
 import { Restaurant } from "../allRestaurants/AllRestaurants.types";
 import Modal from "../../../components/modal/Modal";
+import api from "../../../api/api";
 
 export const AdminRestaurants = () => {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -29,7 +30,7 @@ export const AdminRestaurants = () => {
   const fetchRestaurants = async () => {
     try {
       setLoading(true);
-      const response = await api1.get("/restaurants/");
+      const response = await api.get("/restaurant/");
       setRestaurants(response.data.restaurants);
       console.log("Fetched restaurants:", response.data.restaurants);
 
@@ -115,7 +116,7 @@ export const AdminRestaurants = () => {
   const handleToggle = async (restaurantId: string) => {
     const status = !isOpen ? "open" : "closed";
     if (restaurantId) {
-      await api1.patch(`/restaurants/status/${restaurantId}`, {
+      await api.patch(`/restaurant/status/${restaurantId}`, {
         status,
       });
       fetchRestaurants();
@@ -127,10 +128,6 @@ export const AdminRestaurants = () => {
 
   const handleVerified = async (restaurantId: string) => {
     console.log("Toggle restaurant verification status:", restaurantId);
-  };
-
-  const onEditRestaurant = (restaurantId: string) => {
-    console.log("Edit restaurant with ID:", restaurantId);
   };
 
   return (

@@ -25,6 +25,7 @@ router.put(
 );
 
 router.get("/:id", RestaurantController.getRestaurantById);
+router.get("/owner/:ownerId", RestaurantController.getbyOwnerId);
 router.get("/", RestaurantController.getAllRestaurants);
 router.get("/status/open", RestaurantController.getAllRestaurantsByStatus);
 router.patch("/status/:id", RestaurantController.updateRestaurantStatus);

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: user-config
+  name: review-config
 data:
-  PORT: "4002"
-  MONGODB_URI: "mongodb://user-mongo:27017/userdb"
+  PORT: "4008"
+  MONGO_URI: "mongodb://mongo-review:27017/reviewdb"

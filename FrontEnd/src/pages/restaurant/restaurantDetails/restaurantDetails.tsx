@@ -1,9 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Restaurant, Food } from "../allRestaurants/AllRestaurants.types";
-
-import { api1, api2 } from "../../../api/axios";
-import api5011 from "../../../api/api5011";
+import api from "../../../api/api";
 import {
   Star,
   MapPin,
@@ -26,6 +25,9 @@ import {
 } from "lucide-react";
 import { Loader } from "../../common/loader";
 import { AnimatePresence, motion } from "framer-motion";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../app/store";
+
 type Review = {
   _id: string;
   user: string;
@@ -56,14 +58,16 @@ export const RestaurantDetails = () => {
   const [cartError, setCartError] = useState<string | null>(null);
   const [cartSuccess, setCartSuccess] = useState<boolean>(false);
 
-  const customerId =
-    localStorage.getItem("customerId") || "6611e8f4a1fbb93be88a1a5c";
+  const customerId = useSelector((state: RootState) => state.auth.user?._id);
+
+  // const customerId =
+  // localStorage.getItem("customerId") || "6611e8f4a1fbb93be88a1a5c";
 
   useEffect(() => {
     const fetchRestaurantDetails = async () => {
       try {
         setLoading(true);
-        const response = await api1.get(`/restaurants/${id}`);
+        const response = await api.get(`/restaurant/${id}`);
         setRestaurant(response.data.restaurant);
         if (response.data.restaurant?.menus?.length > 0) {
           setSelectedMenu(response.data.restaurant.menus[0]._id);
@@ -79,7 +83,7 @@ export const RestaurantDetails = () => {
     const fetchReview = async () => {
       try {
         setReviewLoading(true);
-        const reviewsResponse = await api2.get(`/restaurantreviews/${id}`);
+        const reviewsResponse = await api.get(`/review/${id}`);
         setReviews(reviewsResponse.data);
         const averageRating = getAverageRating(reviewsResponse.data);
         setAverage(averageRating);
@@ -108,7 +112,7 @@ export const RestaurantDetails = () => {
     setAutoplayEnabled(!autoplayEnabled);
   };
 
-  const renderStars = (rating: any) => {
+  const renderStars = (rating: number) => {
     return Array(5)
       .fill(0)
       .map((_, i) => (
@@ -128,7 +132,7 @@ export const RestaurantDetails = () => {
     return parseFloat((total / reviews.length).toFixed(1));
   }
 
-  const formatDate = (dateString: any) => {
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
@@ -167,7 +171,7 @@ export const RestaurantDetails = () => {
         },
       ];
 
-      const response = await api5011.post(`/cart/${customerId}/items`, {
+      const response = await api.post(`order/cart/${customerId}/items`, {
         restaurantId: id,
         items: cartItems,
       });

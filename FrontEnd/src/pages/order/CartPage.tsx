@@ -2,19 +2,18 @@ import React, { useEffect, useState } from "react";
 import CartCard from "../../components/Cart/CartCard";
 import CartModal from "../../components/Cart/CartModal";
 import { Cart, CartItem } from "../../components/Cart/types";
-import api5011 from "../../api/api5011";
-import { api1 } from "../../api/axios";
+import api from "../../api/api";
 import { ShoppingCart } from "lucide-react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
 
-interface CartPageProps {
-  customerId: string;
-}
-
-const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
+const CartPage: React.FC = () => {
   const [carts, setCarts] = useState<Cart[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedCart, setSelectedCart] = useState<Cart | null>(null);
   const [showMenu, setShowMenu] = useState(false);
+
+  const customerId = useSelector((state: RootState) => state.auth.user?._id);
 
   useEffect(() => {
     fetchCarts();
@@ -22,15 +21,15 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
 
   const fetchCarts = async () => {
     try {
-      const response = await api5011.get(`/cart/${customerId}`);
-      let data: Cart[] = Array.isArray(response.data)
+      const response = await api.get(`order/cart/${customerId}`);
+      const data: Cart[] = Array.isArray(response.data)
         ? response.data
         : [response.data];
 
       const cartsWithNames = await Promise.all(
         data.map(async (cart) => {
           try {
-            const res = await api1.get(`/restaurants/${cart.restaurantId}`);
+            const res = await api.get(`/restaurant/${cart.restaurantId}`);
             return {
               ...cart,
               restaurantName: res.data.restaurant.name,
@@ -38,15 +37,17 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
             };
           } catch (error) {
             console.error(
-              `Failed to fetch restaurant details for ${cart.restaurantId}`
+              `Failed to fetch restaurant details for ${cart.restaurantId}`,
+              error
             );
             return { ...cart, restaurantName: "Unknown", restaurantImage: "" };
           }
         })
       );
       setCarts(cartsWithNames);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to load carts");
+    } catch (err) {
+      console.error("Error fetching carts", err);
+      setError("Failed to fetch carts. Please try again later.");
     }
   };
 
@@ -68,8 +69,8 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
         })),
       };
 
-      const res = await api5011.put(
-        `/cart/${customerId}/${selectedCart.restaurantId}`,
+      const res = await api.put(
+        `order/cart/${customerId}/${selectedCart.restaurantId}`,
         payload
       );
 
@@ -87,7 +88,7 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
 
   const clearCart = async (restaurantId: string) => {
     try {
-      await api5011.delete(`/cart/${customerId}/${restaurantId}`);
+      await api.delete(`order/cart/${customerId}/${restaurantId}`);
       setSelectedCart(null);
       await fetchCarts();
       alert("Cart cleared successfully!");
@@ -100,7 +101,7 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
     if (!selectedCart) return;
 
     try {
-      const orderRes = await api5011.post("/orders", {
+      const orderRes = await api.post("/order", {
         customerId,
         restaurantId: selectedCart.restaurantId,
         address,
@@ -108,7 +109,7 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
 
       const order = orderRes.data.order;
 
-      const checkoutRes = await api5011.post(`/orders/${order._id}/checkout/`);
+      const checkoutRes = await api.post(`/order/${order._id}/checkout/`);
       const { url } = checkoutRes.data;
 
       window.location.href = url;
@@ -120,7 +121,9 @@ const CartPage: React.FC<CartPageProps> = ({ customerId }) => {
 
   return (
     <div className="p-5 max-w-4xl mx-auto  rounded-lg shadow-lg mt-10 bg-white dark:bg-slate-900 h-[65vh]">
-      <div className="flex font-bold text-2xl items-center gap-5 justify-center ">Your Carts <ShoppingCart /></div>
+      <div className="flex font-bold text-2xl items-center gap-5 justify-center ">
+        Your Carts <ShoppingCart />
+      </div>
       {error && (
         <p className="text-red-500 text-center font-medium mt-5">{error}</p>
       )}
