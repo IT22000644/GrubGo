@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../../api/api';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from "react-redux";
+import { RootState } from '../../../App/hooks';
 
 interface OrderItem {
     _id: string;
@@ -161,7 +163,11 @@ const OrderPage: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [filter, setFilter] = useState<Order['status'] | 'all'>('all');
     const [isLoading, setIsLoading] = useState(true);
-    const restaurantId = "680df103017a68c8b5971ff9";
+    const restaurantId = useSelector(
+        (state: RootState) => state.user.restaurantId
+      );
+
+    // const restaurantId = "680df103017a68c8b5971ff9";
 
     useEffect(() => {
         fetchOrders();
