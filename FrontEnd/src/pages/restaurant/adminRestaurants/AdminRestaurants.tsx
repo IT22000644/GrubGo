@@ -115,7 +115,7 @@ export const AdminRestaurants = () => {
   const handleToggle = async (restaurantId: string) => {
     const status = !isOpen ? "open" : "closed";
     if (restaurantId) {
-      await api1.patch(`/restaurant/status/${restaurantId}`, {
+      await api.patch(`/restaurant/status/${restaurantId}`, {
         status,
       });
       fetchRestaurants();

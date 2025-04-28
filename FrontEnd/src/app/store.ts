@@ -7,7 +7,6 @@ import restaurantReducer from "../features/restaurant/restaurantSlice";
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth"],
 };
 
 const persistedAuthReducer = persistReducer(persistConfig, authReducer);
