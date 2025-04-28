@@ -70,7 +70,7 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const toggleDropdown = (name: any) => {
+  const toggleDropdown = (name: string | null) => {
     if (activeDropdown === name) {
       setActiveDropdown(null);
     } else {
@@ -316,7 +316,7 @@ const Header = () => {
           </Modal>
 
           <ModalCart isOpen={showCart} onClose={() => setShowCart(false)}>
-            <CartPage customerId="6611e8f4a1fbb93be88a1a5c" />
+            <CartPage />
           </ModalCart>
 
           <div className="flex items-center space-x-3 md:hidden">

@@ -5,7 +5,7 @@ import { Cart, CartItem } from "../../components/Cart/types";
 import api from "../../api/api";
 import { ShoppingCart } from "lucide-react";
 import { useSelector } from "react-redux";
-import { RootState } from '../../App/store';
+import { RootState } from "../../app/store";
 
 const CartPage: React.FC = () => {
   const [carts, setCarts] = useState<Cart[]>([]);
@@ -14,8 +14,6 @@ const CartPage: React.FC = () => {
   const [showMenu, setShowMenu] = useState(false);
 
   const customerId = useSelector((state: RootState) => state.auth.user?._id);
-  
-  // const customerId = localStorage.getItem('customerId') || "6611e8f4a1fbb93be88a1a5c";
 
   useEffect(() => {
     fetchCarts();
@@ -24,7 +22,7 @@ const CartPage: React.FC = () => {
   const fetchCarts = async () => {
     try {
       const response = await api.get(`order/cart/${customerId}`);
-      let data: Cart[] = Array.isArray(response.data)
+      const data: Cart[] = Array.isArray(response.data)
         ? response.data
         : [response.data];
 
@@ -39,15 +37,17 @@ const CartPage: React.FC = () => {
             };
           } catch (error) {
             console.error(
-              `Failed to fetch restaurant details for ${cart.restaurantId}`
+              `Failed to fetch restaurant details for ${cart.restaurantId}`,
+              error
             );
             return { ...cart, restaurantName: "Unknown", restaurantImage: "" };
           }
         })
       );
       setCarts(cartsWithNames);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to load carts");
+    } catch (err) {
+      console.error("Error fetching carts", err);
+      setError("Failed to fetch carts. Please try again later.");
     }
   };
 
@@ -121,7 +121,9 @@ const CartPage: React.FC = () => {
 
   return (
     <div className="p-5 max-w-4xl mx-auto  rounded-lg shadow-lg mt-10 bg-white dark:bg-slate-900 h-[65vh]">
-      <div className="flex font-bold text-2xl items-center gap-5 justify-center ">Your Carts <ShoppingCart /></div>
+      <div className="flex font-bold text-2xl items-center gap-5 justify-center ">
+        Your Carts <ShoppingCart />
+      </div>
       {error && (
         <p className="text-red-500 text-center font-medium mt-5">{error}</p>
       )}
