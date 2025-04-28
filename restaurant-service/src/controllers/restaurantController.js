@@ -8,6 +8,7 @@ import {
   deleteRestaurantService,
   getAllRestaurantsByStatusService,
   getRestaurantByOwnerId,
+  toggleRestaurantVerifyService,
 } from "../services/restaurantService.js";
 
 export const RestaurantController = {
@@ -201,6 +202,31 @@ export const RestaurantController = {
       res
         .status(500)
         .json({ message: "Failed to update status", error: error.message });
+    }
+  },
+
+  updateRestaurantVerify: async (req, res) => {
+    const { id } = req.params;
+    const { verification } = req.body;
+
+    try {
+      const updatedRestaurant = await toggleRestaurantVerifyService(
+        id,
+        verification
+      );
+      if (!updatedRestaurant) {
+        return res.status(404).json({ message: "Restaurant not found" });
+      }
+
+      res.status(200).json({
+        message: `Restaurant is verified ${verification}`,
+        restaurant: updatedRestaurant,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Failed to update verification",
+        error: error.message,
+      });
     }
   },
 
