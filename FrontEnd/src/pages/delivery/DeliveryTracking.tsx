@@ -9,6 +9,10 @@ import ControlsPanel from "../../components/delivery/ControlsPanel";
 import { fetchRoadPath } from "../../utils/delivery/mapHelpers";
 import NextLocationCard from "../../components/delivery/NextLocationCard";
 import StatusTracker from "../../components/delivery/StatusTracker";
+import { useAppDispatch } from "../../app/hooks";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
+import { updateRiderStatus } from "../../features/auth/authSlice";
 
 import api from "../../api/api";
 
@@ -83,6 +87,9 @@ export default function DeliveryTracking() {
     "In Transit - Picked Up",
     "Arrived Customer",
   ];
+  const dispatch = useAppDispatch();
+  const token = useSelector((state: RootState) => state.auth.token);
+  const user = useSelector((state: RootState) => state.auth.user);
 
   function interpolate(
     start: google.maps.LatLngLiteral,
@@ -244,10 +251,27 @@ export default function DeliveryTracking() {
       lastFetchedStatusRef.current = null;
       setStatus("Delivered");
       await api.put(`order/status/${orderIdRef.current}`);
+
+      if (!user || !token) {
+        console.warn("Skipping rider status update: missing user or token");
+        return;
+      }
+
+      await dispatch(
+        updateRiderStatus({
+          id: user._id,
+          isAvailable: true,
+          location: {
+            lat: state.customerLocation.latitude,
+            lng: state.customerLocation.longitude,
+          },
+          token,
+        })
+      ).unwrap();
     } catch (error) {
       console.error("Error marking delivered:", error);
     }
-  }, []);
+  }, [dispatch, state.customerLocation, token, user]);
 
   return (
     <div className="p-4 space-y-6">
