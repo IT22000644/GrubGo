@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import {
   Search,
   Plus,
-  Edit,
   MoreHorizontal,
   ExternalLink,
   MapPin,
@@ -21,7 +20,7 @@ export const AdminRestaurants = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [showViewMenu, setShowViewMenu] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [isVerified, setIsVerified] = useState<boolean>(false);
+  const [verification, setVerification] = useState<boolean>(false);
 
   useEffect(() => {
     fetchRestaurants();
@@ -127,7 +126,16 @@ export const AdminRestaurants = () => {
   };
 
   const handleVerified = async (restaurantId: string) => {
-    console.log("Toggle restaurant verification status:", restaurantId);
+    const verification = !isOpen ? true : false;
+    if (restaurantId) {
+      await api.patch(`/restaurant/verify/${restaurantId}`, {
+        verification,
+      });
+      fetchRestaurants();
+      setVerification(!isOpen);
+    } else {
+      console.error("Restaurant ID is null");
+    }
   };
 
   return (
@@ -213,6 +221,8 @@ export const AdminRestaurants = () => {
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredRestaurants.map((restaurant) => {
                   const isOpen = restaurant.status === "open" ? true : false;
+                  const verification =
+                    restaurant.isVerified === true ? true : false;
                   return (
                     <tr
                       key={restaurant._id}
@@ -265,7 +275,7 @@ export const AdminRestaurants = () => {
                                   isOpen ? "text-green-600" : "text-red-600"
                                 }
                               >
-                                {isOpen ? "open" : "closed"}
+                                {isOpen ? "Open" : "Closed"}
                               </span>
                             </span>
                             <button
@@ -293,28 +303,32 @@ export const AdminRestaurants = () => {
                             <span className="text-sm font-medium text-gray-700">
                               <span
                                 className={
-                                  isVerified ? "text-green-600" : "text-red-600"
+                                  verification
+                                    ? "text-green-600"
+                                    : "text-red-600"
                                 }
                               >
-                                {isVerified ? "Verified" : "Not Verified"}
+                                {verification ? "Verified" : "Not Verified"}
                               </span>
                             </span>
                             <button
                               onClick={() => handleVerified(restaurant._id)}
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${
-                                restaurant.status === "verified"
+                                restaurant.isVerified === true
                                   ? "bg-green-500"
                                   : "bg-gray-400"
                               }`}
                               aria-pressed={
-                                restaurant.isVerified === "isVerified"
+                                restaurant.isVerified === true
+                                  ? "true"
+                                  : "false"
                               }
                               aria-labelledby="toggle-label"
                             >
                               <span className="sr-only">Verified status</span>
                               <span
                                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                  restaurant.status === "verified"
+                                  restaurant.isVerified === true
                                     ? "translate-x-6"
                                     : "translate-x-1"
                                 }`}
