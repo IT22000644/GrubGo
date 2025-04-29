@@ -53,18 +53,17 @@ export const ManageRestaurant = () => {
   const [foodPrice, setFoodPrice] = useState(0);
   const [foodDiscount, setFoodDiscount] = useState(0);
   const [foodImages, setFoodImages] = useState<FileList | null>(null);
-  const [restaurantId, setRestaurantId] = useState<string | null>(null);
 
   const ownerId = useSelector((state: RootState) => state.auth.user?._id);
+  const restaurantId = useSelector(
+    (state: RootState) => state.restaurant.restaurantData?._id
+  );
   const fetchRestaurantDetails = async () => {
     try {
       setLoading(true);
       const response = await api.get(`/restaurant/owner/${ownerId}`);
       setRestaurant(response.data.restaurant[0]);
-      console.log(response.data.restaurant);
-      setRestaurantId(response.data.restaurant._id);
-      console.log("--------------->", response.data.restaurantId);
-      setMenus(response.data.restaurant.menus);
+      setMenus(response.data.restaurant[0].menus);
       if (response.data.restaurant?.menus?.length > 0) {
         setSelectedMenu(response.data.restaurant.menus[0]._id);
       }
