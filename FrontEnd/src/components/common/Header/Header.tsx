@@ -9,6 +9,7 @@ import {
   Menu,
   X,
   LogIn,
+  LogOut,
 } from "lucide-react";
 import Modal from "../../modal/Modal";
 import ModalCart from "../../Cart/Modalcart";
@@ -192,7 +193,7 @@ const Header = () => {
               <Search size={20} />
             </button>
 
-            {!isAuthenticated && (
+            {isAuthenticated && (
               <>
                 <div className="relative">
                   <button
@@ -316,17 +317,27 @@ const Header = () => {
 
             <ThemeToggle />
 
-            <button
-              onClick={() => {
-                setShowAuthModal(true);
-                setIsLogin(true);
-              }}
-              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-white hover:text-primary dark:hover:text-primary"
-            >
-              {" "}
-              <LogIn size={18} />
-              Login
-            </button>
+            {!isAuthenticated ? (
+              <button
+                onClick={() => {
+                  setShowAuthModal(true);
+                  setIsLogin(true);
+                }}
+                className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-white hover:text-primary dark:hover:text-primary"
+              >
+                {" "}
+                <LogIn size={18} />
+                Login
+              </button>
+            ) : (
+              <button
+                className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-white hover:text-primary dark:hover:text-primary"
+                onClick={handleLogout}
+              >
+                <LogOut size={18} />
+                LogOut
+              </button>
+            )}
           </div>
 
           <Modal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)}>
