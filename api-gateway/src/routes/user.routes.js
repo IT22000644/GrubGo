@@ -6,6 +6,14 @@ import actionGuard from "../middlewares/role.middleware.js";
 const userRoutes = Router();
 
 userRoutes.use("/email/:email", authMiddleware);
+
+userRoutes.use(
+  "/update-location/:id",
+  authMiddleware,
+  actionGuard({ PATCH: ["owner"] })
+);
+
+// 👇 This must come *after* all specific routes
 userRoutes.use(
   "/:id",
   authMiddleware,
@@ -17,11 +25,6 @@ userRoutes.use(
   })
 );
 
-userRoutes.use(
-  "/update-location/:id",
-  authMiddleware,
-  actionGuard({ PATCH: ["owner"] })
-);
 userRoutes.use("/", userProxy);
 
 export default userRoutes;

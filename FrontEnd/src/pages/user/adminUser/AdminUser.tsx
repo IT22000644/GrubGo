@@ -3,6 +3,8 @@ import { Search, Plus, MoreHorizontal, ExternalLink } from "lucide-react";
 
 import Modal from "../../../components/modal/Modal";
 import api from "../../../api/api";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../app/store";
 
 interface User {
   _id: string;
@@ -51,6 +53,8 @@ export const AdminUser = () => {
       setLoading(false);
     }
   };
+
+  const token = useSelector((state: RootState) => state.auth.token);
 
   const filteredRestaurants = users.filter((user) => {
     const matchesSearch =
@@ -108,12 +112,21 @@ export const AdminUser = () => {
     return `${month} ${day} at ${time}`;
   };
 
-  const handleToggle = async (restaurantId: string) => {
-    const status = !isOpen ? "open" : "closed";
-    if (restaurantId) {
-      await api.patch(`/users/status/${restaurantId}`, {
-        status,
-      });
+  const handleToggle = async (userId: string) => {
+    const status = !isVerified ? false : true;
+    if (userId) {
+      await api.put(
+        `/user/${userId}`,
+        {
+          isVerified: status,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       fetchRestaurants();
       setIsOpen(!isOpen);
     } else {
@@ -211,13 +224,7 @@ export const AdminUser = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="h-10 w-10 flex-shrink-0">
-                            <img
-                              className="h-10 w-10 rounded-full object-cover"
-                              src={
-                                user.profilePicture || "/api/placeholder/40/40"
-                              }
-                              alt={user.username}
-                            />
+                            {user.email}
                           </div>
                           <div className="ml-4">
                             <div className="font-medium text-gray-900 dark:text-white">
