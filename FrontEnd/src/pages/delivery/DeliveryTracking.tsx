@@ -250,7 +250,7 @@ export default function DeliveryTracking() {
       });
       lastFetchedStatusRef.current = null;
       setStatus("Delivered");
-      await api.put(`order/status/${orderIdRef.current}`);
+      await api.put(`order/status/delivered/${orderIdRef.current}`);
 
       if (!user || !token) {
         console.warn("Skipping rider status update: missing user or token");

@@ -12,20 +12,33 @@ const CartPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedCart, setSelectedCart] = useState<Cart | null>(null);
   const [showMenu, setShowMenu] = useState(false);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [defaultAddress, setDefaultAddress] = useState('');
+  const [addressLoading, setAddressLoading] = useState(true);
 
   const customerId = useSelector((state: RootState) => state.auth.user?._id);
+  const token = useSelector((state: RootState) => state.auth.token);
 
-  
-  // const customerId = localStorage.getItem('customerId') || "6611e8f4a1fbb93be88a1a5c";
-// const restaurantId = "680dc6bf09885b823e353937";
-
-
+  console.log(token);
   useEffect(() => {
     fetchCarts();
   }, [customerId]);
 
-  // console.log(restaurantId);
-  console.log(customerId)
+  useEffect(() => {
+    const getAddress = async () => {
+      try {
+        const response = await api.get(`/user/${customerId}`);
+        const address = response.data.address || '';
+        setDefaultAddress(address);
+      } catch (err) {
+        console.error("Error fetching address", err);
+      } finally {
+        setAddressLoading(false);
+      }
+    };
+
+    if (customerId) getAddress();
+  }, [customerId]);
 
   const fetchCarts = async () => {
     try {
@@ -38,7 +51,6 @@ const CartPage: React.FC = () => {
         data.map(async (cart) => {
           try {
             const res = await api.get(`/restaurant/${cart.restaurantId}`);
-         
             return {
               ...cart,
               restaurantName: res.data.restaurant.name,
@@ -56,7 +68,7 @@ const CartPage: React.FC = () => {
       setCarts(cartsWithNames);
     } catch (err) {
       console.error("Error fetching carts", err);
-      setError("Failed to fetch carts. Please try again later.");
+      setError("No Carts.");
     }
   };
 
@@ -92,6 +104,7 @@ const CartPage: React.FC = () => {
       }
     } catch (err) {
       console.error("Error updating quantity", err);
+      alert("Failed to update quantity. Please try again.");
     }
   };
 
@@ -103,35 +116,66 @@ const CartPage: React.FC = () => {
       alert("Cart cleared successfully!");
     } catch (error) {
       console.error("Error clearing cart", error);
+      alert("Failed to clear cart. Please try again.");
+    }
+  };
+
+  const checkRiderAvailability = async () => {
+    try {
+      const response = await api.get("/user/active-riders", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data.success && response.data.data.length > 0) {
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error checking rider availability:", error);
+      return false;
     }
   };
 
   const handlePlaceOrder = async (address: string) => {
     if (!selectedCart) return;
 
+    setIsPlacingOrder(true);
     try {
+      // Check rider availability first
+      const isRiderAvailable = await checkRiderAvailability();
+      if (!isRiderAvailable) {
+        alert("🚫 No riders available at the moment. Please try again later.");
+        return;
+      }
+
+      // Place the order
       const orderRes = await api.post("/order", {
         customerId,
         restaurantId: selectedCart.restaurantId,
         address,
       });
-      console.log(orderRes);
 
+      // Process payment
       const order = orderRes.data.order;
-
       const checkoutRes = await api.post(`/order/${order._id}/checkout/`);
       const { url } = checkoutRes.data;
 
+      // Redirect to payment
       window.location.href = url;
+      alert("✅ Order placed successfully! Redirecting to payment...");
     } catch (error) {
       console.error("Error placing order:", error);
-      alert("Failed to place order");
+      alert(`❌ Failed to place order: || "Please try again later"}`);
+    } finally {
+      setIsPlacingOrder(false);
     }
   };
 
   return (
-    <div className="p-5 max-w-4xl mx-auto  rounded-lg shadow-lg mt-10 bg-white dark:bg-slate-900 h-[65vh]">
-      <div className="flex font-bold text-2xl items-center gap-5 justify-center ">
+    <div className="p-5 max-w-4xl mx-auto rounded-lg shadow-lg mt-10 bg-white dark:bg-slate-900 h-[65vh]">
+      <div className="flex font-bold text-2xl items-center gap-5 justify-center">
         Your Carts <ShoppingCart />
       </div>
       {error && (
@@ -164,6 +208,9 @@ const CartPage: React.FC = () => {
           calculateTotalPrice={calculateTotalPrice}
           showMenu={showMenu}
           toggleMenu={() => setShowMenu((prev) => !prev)}
+          defaultAddress={defaultAddress}
+          isPlacingOrder={isPlacingOrder}
+          addressLoading={addressLoading}
         />
       )}
     </div>
