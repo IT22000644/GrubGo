@@ -362,7 +362,7 @@ const Header = () => {
                 onClick={handleLogout}
               >
                 <LogOut size={18} />
-                LogOut
+                Logout
               </button>
             )}
           </div>
