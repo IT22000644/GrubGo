@@ -56,14 +56,14 @@ export const ManageRestaurant = () => {
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
 
   const ownerId = useSelector((state: RootState) => state.auth.user?._id);
-  console.log(ownerId);
   const fetchRestaurantDetails = async () => {
     try {
       setLoading(true);
       const response = await api.get(`/restaurant/owner/${ownerId}`);
       setRestaurant(response.data.restaurant[0]);
-      console.log(response.data.restaurant)
+      console.log(response.data.restaurant);
       setRestaurantId(response.data.restaurant._id);
+      console.log("--------------->", response.data.restaurantId);
       setMenus(response.data.restaurant.menus);
       if (response.data.restaurant?.menus?.length > 0) {
         setSelectedMenu(response.data.restaurant.menus[0]._id);
@@ -77,7 +77,6 @@ export const ManageRestaurant = () => {
     if (ownerId) {
       fetchRestaurantDetails();
     }
-    console.log(menus);
   }, [ownerId]);
 
   const handleEdit = (id: string) => {

@@ -31,15 +31,20 @@ export const Login = ({ switchToRegister, setShowAuthModal }: LoginProps) => {
     try {
       await dispatch(loginUser({ email, password })).unwrap();
       setShowAuthModal(false);
+
       console.log("Login success");
     } catch (error: any) {
       console.error("Login error:", error);
+      setError(`Login failed. ${error.message}`);
     }
   };
 
   return (
     <div className="bg-white dark:bg-gray-800 p-8 w-full max-w-md">
       <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
+
+      {error && <p className="text-red-500 mb-2 text-sm">{error}</p>}
+
       <input
         type="email"
         placeholder="Email"
