@@ -14,14 +14,6 @@ const Profile = () => {
   );
   const token = useSelector((state: RootState) => state.auth.token);
 
-  // useEffect(() => {
-  //   const unsubscribe = auth.onAuthStateChanged((u) => {
-  //     setUser(u);
-  //   });
-
-  //   return () => unsubscribe();
-  // }, []);
-
   const handleLogout = () => {
     try {
       if (token) {
@@ -47,7 +39,7 @@ const Profile = () => {
         <h2 className="text-2xl font-bold mb-6 text-center">My Profile</h2>
 
         {user?.profilePicture && (
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-6">
             <img
               src={user.profilePicture}
               alt="Profile"
@@ -56,12 +48,34 @@ const Profile = () => {
           </div>
         )}
 
-        <div className="mb-2">
-          <strong>Name:</strong> {user?.username || "Not available"}
-        </div>
-
-        <div className="mb-2">
-          <strong>Email:</strong> {user?.email}
+        <div className="space-y-2 text-sm sm:text-base">
+          <div>
+            <strong>Username:</strong> {user?.username || "Not available"}
+          </div>
+          <div>
+            <strong>Email:</strong> {user?.email || "Not available"}
+          </div>
+          <div>
+            <strong>Phone:</strong> {user?.phone || "Not available"}
+          </div>
+          <div>
+            <strong>Role:</strong> {user?.role || "Not available"}
+          </div>
+          <div>
+            <strong>Verified:</strong> {user?.isVerified ? "Yes" : "No"}
+          </div>
+          <div>
+            <strong>Created At:</strong>{" "}
+            {user?.createdAt
+              ? new Date(user.createdAt).toLocaleDateString()
+              : "Not available"}
+          </div>
+          <div>
+            <strong>Updated At:</strong>{" "}
+            {user?.updatedAt
+              ? new Date(user.updatedAt).toLocaleDateString()
+              : "Not available"}
+          </div>
         </div>
 
         <div className="mt-6 text-center">
