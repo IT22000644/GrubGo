@@ -54,7 +54,12 @@ const DriverInfoCard: React.FC<DriverInfoCardProps> = ({
       {/* Avatar + Vehicle Icon */}
       <div className="relative flex flex-col items-center gap-3">
         <img
-          src={imageUrl}
+          src={
+            !imageUrl ||
+            imageUrl === "https://example.com/default-profile-picture.png"
+              ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCw6RV343VjEiadcJNk0mbq_2dzMeizoL96g&s"
+              : imageUrl
+          }
           alt="Driver"
           className="w-20 h-20 rounded-full object-cover border-4 border-orange-500 dark:border-accent shadow-lg"
         />

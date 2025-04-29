@@ -2,7 +2,7 @@ import { CirclePlus, Eye, MonitorX, Pencil } from "lucide-react";
 import { FoodMenu } from "./ManageRestaurant.types";
 
 interface MenuTableProps {
-  menus: FoodMenu[];
+  menus: FoodMenu[] | undefined;
   onView: (item: FoodMenu) => void;
   onAddFood: (item: FoodMenu) => void;
   onEdit: (menuId: string) => void;
@@ -29,7 +29,7 @@ const MenuTable = ({
           </tr>
         </thead>
         <tbody>
-          {menus.map((menu) => (
+          {menus?.map((menu) => (
             <tr key={menu._id} className="border-t text-sm text-center">
               <td className="p-2">{menu.title}</td>
               <td className="p-2">
@@ -62,7 +62,7 @@ const MenuTable = ({
               </td>
             </tr>
           ))}
-          {menus.length === 0 && (
+          {menus?.length === 0 && (
             <tr>
               <td colSpan={5} className="text-center p-4 text-gray-500">
                 No menus found.

@@ -13,9 +13,12 @@ const NextLocationCard: React.FC<NextLocationCardProps> = ({
   address,
   role,
 }) => {
-  const placeholderImage =
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrCLHZeA--7ckaEIUPD-Z0XASJ5BxYQYLsdA&s";
-  const displayImage = imageUrl ? imageUrl : placeholderImage;
+  const isDefaultImage =
+    !imageUrl || imageUrl === "https://example.com/default-profile-picture.png";
+
+  const displayImage = isDefaultImage
+    ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCw6RV343VjEiadcJNk0mbq_2dzMeizoL96g&s"
+    : imageUrl;
 
   return (
     <div className="p-6 bg-neutral dark:bg-accent/30 rounded-2xl shadow-lg max-w-xl w-full">

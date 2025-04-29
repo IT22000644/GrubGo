@@ -9,9 +9,14 @@ import { loginUser } from "./authSlice";
 interface LoginProps {
   switchToRegister: () => void;
   setShowAuthModal: (show: boolean) => void;
+  setIsSuccess: (success: boolean) => void;
 }
 
-export const Login = ({ switchToRegister, setShowAuthModal }: LoginProps) => {
+export const Login = ({
+  switchToRegister,
+  setShowAuthModal,
+  setIsSuccess,
+}: LoginProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -31,15 +36,23 @@ export const Login = ({ switchToRegister, setShowAuthModal }: LoginProps) => {
     try {
       await dispatch(loginUser({ email, password })).unwrap();
       setShowAuthModal(false);
-      console.log("Login success");
+      setIsSuccess(true);
     } catch (error: any) {
       console.error("Login error:", error);
+      setError("Login failed");
     }
   };
 
   return (
     <div className="bg-white dark:bg-gray-800 p-8 w-full max-w-md">
       <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
+
+      {error && (
+        <p className="w-full bg-accent/20 text-accent/80 text-center mb-2 text-sm font-bold rounded p-2 mb-4">
+          {error}
+        </p>
+      )}
+
       <input
         type="email"
         placeholder="Email"
@@ -57,8 +70,6 @@ export const Login = ({ switchToRegister, setShowAuthModal }: LoginProps) => {
         className="w-full mb-4 px-4 py-2 border rounded text-black"
         required
       />
-
-      {error && <p className="text-red-500 mb-2 text-sm">{error}</p>}
 
       <button
         onClick={handleLogin}

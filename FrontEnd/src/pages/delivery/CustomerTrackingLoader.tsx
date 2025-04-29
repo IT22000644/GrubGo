@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../api/api";
 import { Loader2 } from "lucide-react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
 
 type LocationState = {
   orderId: string;
@@ -11,6 +13,7 @@ export default function CustomerTrackingLoader() {
   const navigate = useNavigate();
   const location = useLocation();
   const { orderId } = location.state as LocationState;
+  const token = useSelector((state: RootState) => state.auth.token);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -23,7 +26,11 @@ export default function CustomerTrackingLoader() {
       // 1. Get Delivery by Order ID
       let deliveryRes;
       try {
-        deliveryRes = await api.get(`delivery/order/${orderId}`);
+        deliveryRes = await api.get(`delivery/order/${orderId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         console.log("1️⃣ Delivery API response:", deliveryRes);
       } catch (err) {
         clearTimeout(timeoutId);
@@ -45,7 +52,11 @@ export default function CustomerTrackingLoader() {
       // 2. Get Delivery Status
       let statusRes;
       try {
-        statusRes = await api.get(`delivery/status/${deliveryId}`);
+        statusRes = await api.get(`delivery/status/${deliveryId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         console.log("2️⃣ Delivery Status API response:", statusRes);
       } catch (err) {
         clearTimeout(timeoutId);
@@ -83,7 +94,11 @@ export default function CustomerTrackingLoader() {
       // 3. Get Driver Info
       let driverRes;
       try {
-        driverRes = await api.get(`user/${driverId}`);
+        driverRes = await api.get(`user/${driverId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         console.log("3️⃣ Driver API response:", driverRes);
       } catch (err) {
         clearTimeout(timeoutId);

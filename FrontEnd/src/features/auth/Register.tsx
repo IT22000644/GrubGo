@@ -8,16 +8,20 @@ import RoleSelection from "../../components/RegisterForms/RoleSelection";
 import { Loader } from "../../pages/common/loader";
 import { useAppDispatch } from "../../app/hooks";
 import { registerUser } from "./authSlice";
-import { UserData, RestaurantData } from "./types";
+import { UserData } from "./types";
 
 type Role = "user" | "rider" | "restaurant";
 
 // Define interfaces for our form data
 interface RegisterProps {
   switchToLogin: () => void;
+  setShowAuthModal: (show: boolean) => void;
 }
 
-export const Register = ({ switchToLogin }: RegisterProps) => {
+export const Register = ({
+  switchToLogin,
+  setShowAuthModal,
+}: RegisterProps) => {
   const dispatch = useAppDispatch();
   // State for selected role
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
@@ -55,20 +59,6 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
     role: "restaurant_admin",
   });
 
-  const [restaurantData, setRestaurantData] = useState<RestaurantData>({
-    name: "",
-    address: {
-      shopNumber: "",
-      street: "",
-      town: "",
-    },
-    cuisine: "",
-    openingHours: "",
-    description: "",
-    phone: "",
-    images: [],
-  });
-
   // State for multi-step form (restaurant registration)
   const [restaurantStep, setRestaurantStep] = useState<1 | 2>(1);
 
@@ -80,19 +70,17 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
     setSelectedRole(role);
   };
 
-  // Handle user registration
   const handleUserSubmit = async (userData: UserData) => {
     setIsLoading(true);
 
     console.log("User Data:", userData);
 
     try {
-      // Dispatch registerUser thunk action
       const actionResult = await dispatch(registerUser(userData));
 
-      // Check if registration was successful (check if the action was fulfilled)
       if (registerUser.fulfilled.match(actionResult)) {
         setIsRegistered(true);
+        setShowAuthModal(false);
       } else {
         throw new Error("Registration failed");
       }
@@ -123,12 +111,6 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleReset = () => {
-    setSelectedRole(null);
-    setRestaurantStep(1);
-    setIsRegistered(false);
   };
 
   if (isRegistered) {
@@ -192,7 +174,10 @@ export const Register = ({ switchToLogin }: RegisterProps) => {
 
       {/* Restaurant Registration Form - Step 2: Restaurant Details */}
       {selectedRole === "restaurant" && restaurantStep === 2 && (
-        <RestaurantDetailsForm onBack={() => setRestaurantStep(1)} />
+        <RestaurantDetailsForm
+          onBack={() => setRestaurantStep(1)}
+          setShowAuthModal={setShowAuthModal}
+        />
       )}
 
       <p className="text-center text-sm mt-4 text-gray-600 dark:text-gray-400">

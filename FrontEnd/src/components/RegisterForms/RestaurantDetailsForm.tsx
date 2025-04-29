@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   ChevronLeft,
   Clock,
   FileText,
+  Loader,
   MapPin,
   Store,
   UtensilsCrossed,
 } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { RestaurantData } from "../../features/auth/types";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
@@ -14,11 +16,15 @@ import api from "../../api/api";
 
 interface RestaurantDetailsFormProps {
   onBack: () => void;
+  setShowAuthModal: (show: boolean) => void;
 }
 
 const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
   onBack,
+  setShowAuthModal,
 }) => {
+  const [isLoading, setLoading] = useState(false);
+  const [isError, setError] = useState<string>("");
   const restaurantOwner = useSelector(
     (state: RootState) => state.auth.user?._id
   );
@@ -62,7 +68,7 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     console.log("Restaurant Data Submitted:", restaurantData);
@@ -84,21 +90,30 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
     console.log("Restaurant Owner:", restaurantOwner);
 
     // Images (array)
-    restaurantData.images.forEach((file, index) => {
+    restaurantData.images.forEach((file) => {
       formData.append(`images`, file);
     });
 
     try {
-      const response = api.post("/restaurant/", formData, {
+      setLoading(true);
+      const response = await api.post("/restaurant/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
+      setLoading(false);
+      setShowAuthModal(false);
     } catch (error) {
+      setLoading(false);
+      setError("Error submitting restaurant data. Please try again later.");
       console.error("Error submitting restaurant data:", error);
     }
   };
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <div className="max-w-md mx-auto">
@@ -114,106 +129,110 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
         </div>
       </div>
 
+      {isError && (
+        <div className="bg-red-100 text-red-700 p-4 rounded-md mb-4">
+          {isError}
+        </div>
+      )}
+
       <div className="h-96 overflow-y-auto pr-2 space-y-5 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-        <div className="h-[400px] overflow-y-auto space-y-5">
-          <div className="space-y-1">
-            <label
-              htmlFor="name"
-              className="text-sm font-medium text-gray-700 flex items-center"
-            >
-              <Store size={15} className="mr-1 text-gray-500" />
-              Restaurant Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              onChange={handleChange}
-              placeholder="Enter your restaurant name"
-              className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-            />
-          </div>
+        <div className="space-y-1">
+          <label
+            htmlFor="name"
+            className="text-sm font-medium text-gray-700 flex items-center"
+          >
+            <Store size={15} className="mr-1 text-gray-500" />
+            Restaurant Name
+          </label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            onChange={handleChange}
+            placeholder="Enter your restaurant name"
+            className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+          />
+        </div>
 
-          <div className="space-y-1">
-            <label
-              htmlFor="address"
-              className="text-sm font-medium text-gray-700 flex items-center"
-            >
-              <MapPin size={15} className="mr-1 text-gray-500" />
-              Restaurant Address
-            </label>
+        <div className="space-y-1">
+          <label
+            htmlFor="address"
+            className="text-sm font-medium text-gray-700 flex items-center"
+          >
+            <MapPin size={15} className="mr-1 text-gray-500" />
+            Restaurant Address
+          </label>
 
-            <div className="space-y-4 pl-4 mt-2">
-              <div className="space-y-1">
-                <label
-                  htmlFor="address.shopNumber"
-                  className="text-sm font-medium text-gray-600 flex items-center"
-                >
-                  Shop Number
-                </label>
-                <input
-                  type="text"
-                  id="address.shopNumber"
-                  name="address.shopNumber"
-                  onChange={handleChange}
-                  placeholder="Enter shop number"
-                  className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-                />
-              </div>
+          <div className="space-y-4 pl-4 mt-2">
+            <div className="space-y-1">
+              <label
+                htmlFor="address.shopNumber"
+                className="text-sm font-medium text-gray-600 flex items-center"
+              >
+                Shop Number
+              </label>
+              <input
+                type="text"
+                id="address.shopNumber"
+                name="address.shopNumber"
+                onChange={handleChange}
+                placeholder="Enter shop number"
+                className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+              />
+            </div>
 
-              <div className="space-y-1">
-                <label
-                  htmlFor="address.street"
-                  className="text-sm font-medium text-gray-600 flex items-center"
-                >
-                  Street
-                </label>
-                <input
-                  type="text"
-                  id="address.street"
-                  name="address.street"
-                  onChange={handleChange}
-                  placeholder="Enter street name"
-                  className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-                />
-              </div>
+            <div className="space-y-1">
+              <label
+                htmlFor="address.street"
+                className="text-sm font-medium text-gray-600 flex items-center"
+              >
+                Street
+              </label>
+              <input
+                type="text"
+                id="address.street"
+                name="address.street"
+                onChange={handleChange}
+                placeholder="Enter street name"
+                className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+              />
+            </div>
 
-              <div className="space-y-1">
-                <label
-                  htmlFor="address.town"
-                  className="text-sm font-medium text-gray-600 flex items-center"
-                >
-                  Town
-                </label>
-                <input
-                  type="text"
-                  id="address.town"
-                  name="address.town"
-                  onChange={handleChange}
-                  placeholder="Enter town/city"
-                  className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-                />
-              </div>
+            <div className="space-y-1">
+              <label
+                htmlFor="address.town"
+                className="text-sm font-medium text-gray-600 flex items-center"
+              >
+                Town
+              </label>
+              <input
+                type="text"
+                id="address.town"
+                name="address.town"
+                onChange={handleChange}
+                placeholder="Enter town/city"
+                className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+              />
             </div>
           </div>
+        </div>
 
-          <div className="space-y-1">
-            <label
-              htmlFor="description"
-              className="text-sm font-medium text-gray-700 flex items-center"
-            >
-              <FileText size={15} className="mr-1 text-gray-500" />
-              Restaurant Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              onChange={handleChange}
-              placeholder="Tell customers about your restaurant..."
-              rows={4}
-              className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
-            />
-          </div>
+        <div className="space-y-1">
+          <label
+            htmlFor="description"
+            className="text-sm font-medium text-gray-700 flex items-center"
+          >
+            <FileText size={15} className="mr-1 text-gray-500" />
+            Restaurant Description
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            onChange={handleChange}
+            placeholder="Tell customers about your restaurant..."
+            rows={4}
+            className="w-full px-3 py-2 rounded-md text-sm bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
+          />
         </div>
 
         <div className="space-y-1 mt-4">

@@ -9,6 +9,7 @@ import {
   Menu,
   X,
   LogIn,
+  LogOut,
 } from "lucide-react";
 import Modal from "../../modal/Modal";
 import ModalCart from "../../Cart/Modalcart";
@@ -30,11 +31,15 @@ const Header = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+  const [isSuccess, setIsSuccess] = useState(false);
   //const role = useSelector((state: RootState) => state.user.role);
   // const restaurantId = useSelector(
   //   (state: RootState) => state.user.restaurantId
   const userRole = useSelector((state: RootState) => state.auth.role);
   const user = useSelector((state: RootState) => state.auth.user);
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -123,6 +128,11 @@ const Header = () => {
       } text-dark_hover dark:text-gray-200`}
     >
       <div className="container mx-auto px-4">
+        {isSuccess && (
+          <div className="fixed bottom-4 right-4 bg-success/30 text-success/80 px-4 py-2 rounded-md shadow-lg animate-fade-in-out">
+            Item added to cart successfully!
+          </div>
+        )}
         <nav className="flex justify-between items-center">
           <Link to="/" className="flex items-center space-x-2 group">
             <div className="w-10 h-10 rounded-full bg-primary dark:bg-primary flex items-center justify-center transition-transform group-hover:scale-110 duration-300">
@@ -189,139 +199,151 @@ const Header = () => {
               <Search size={20} />
             </button>
 
-            <div className="relative">
-              <button
-                onClick={() => toggleDropdown(userRole)}
-                className="p-2 rounded-full hover:bg-light_hover dark:hover:bg-dark_hover transition-colors"
-              >
-                <User size={20} />
-              </button>
-              {activeDropdown === "customer" && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
-                  <div className="py-1">
-                    {updatedLinks.userDropdownContent.map((item) => (
-                      <Link
-                        key={item.name}
-                        to={item?.path || ""}
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-light_hover dark:hover:bg-dark_hover"
-                        onClick={() => {
-                          closeDropdowns();
-                          item.onClick();
-                        }}
-                      >
-                        {item.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {activeDropdown === "restaurant_admin" && (
-                <div className="absolute right-0 mt-2 w-[280px] bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
-                  <div className="py-1">
-                    {updatedLinks.restaurantDropdownContent.map((item) => (
-                      <div className="flex flex-row justify-between">
-                        {item.visible && item ? (
-                          <div className="flex flex-row justify-between">
-                            <div className="px-4 py-2">{item.name}</div>
-                            <div className="flex items-center space-x-3 px-4 py-2">
-                              <span className="text-sm font-medium text-gray-700">
-                                <span
-                                  className={
-                                    isOpen ? "text-green-600" : "text-red-600"
-                                  }
-                                >
-                                  {isOpen ? "open" : "closed"}
-                                </span>
-                              </span>
-                              <button
-                                onClick={handleToggle}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${
-                                  isOpen ? "bg-green-500" : "bg-gray-400"
-                                }`}
-                                aria-pressed={isOpen}
-                                aria-labelledby="toggle-label"
-                              >
-                                <span className="sr-only">Toggle status</span>
-                                <span
-                                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                    isOpen ? "translate-x-6" : "translate-x-1"
-                                  }`}
-                                />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
+            {isAuthenticated && (
+              <>
+                <div className="relative">
+                  <button
+                    onClick={() => toggleDropdown(userRole)}
+                    className="p-2 rounded-full hover:bg-light_hover dark:hover:bg-dark_hover transition-colors"
+                  >
+                    <User size={20} />
+                  </button>
+                  {activeDropdown === "customer" && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
+                      <div className="py-1">
+                        {updatedLinks.userDropdownContent.map((item) => (
                           <Link
                             key={item.name}
                             to={item?.path || ""}
-                            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-light_hover dark:hover:bg-dark_hover w-full"
+                            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-light_hover dark:hover:bg-dark_hover"
                             onClick={() => {
                               closeDropdowns();
-                              if (typeof item?.onClick === "function") {
-                                item.onClick();
-                              }
+                              item.onClick();
                             }}
                           >
                             {item.name}
                           </Link>
-                        )}
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  )}
+                  {activeDropdown === "restaurant_admin" && (
+                    <div className="absolute right-0 mt-2 w-[280px] bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
+                      <div className="py-1">
+                        {updatedLinks.restaurantDropdownContent.map((item) => (
+                          <div className="flex flex-row justify-between">
+                            {item.visible && item ? (
+                              <div className="flex flex-row justify-between">
+                                <div className="px-4 py-2">{item.name}</div>
+                                <div className="flex items-center space-x-3 px-4 py-2">
+                                  <span className="text-sm font-medium text-gray-700">
+                                    <span
+                                      className={
+                                        isOpen
+                                          ? "text-green-600"
+                                          : "text-red-600"
+                                      }
+                                    >
+                                      {isOpen ? "open" : "closed"}
+                                    </span>
+                                  </span>
+                                  <button
+                                    onClick={handleToggle}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${
+                                      isOpen ? "bg-green-500" : "bg-gray-400"
+                                    }`}
+                                    aria-pressed={isOpen}
+                                    aria-labelledby="toggle-label"
+                                  >
+                                    <span className="sr-only">
+                                      Toggle status
+                                    </span>
+                                    <span
+                                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                        isOpen
+                                          ? "translate-x-6"
+                                          : "translate-x-1"
+                                      }`}
+                                    />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <Link
+                                key={item.name}
+                                to={item?.path || ""}
+                                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-light_hover dark:hover:bg-dark_hover w-full"
+                                onClick={() => {
+                                  closeDropdowns();
+                                  if (typeof item?.onClick === "function") {
+                                    item.onClick();
+                                  }
+                                }}
+                              >
+                                {item.name}
+                              </Link>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {activeDropdown === "driver" && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
+                      <div className="py-1">
+                        {updatedLinks.riderDropdownContent.map((item) => (
+                          <Link
+                            key={item.name}
+                            to={item?.path || ""}
+                            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-light_hover dark:hover:bg-dark_hover"
+                            onClick={() => {
+                              closeDropdowns();
+                              item.onClick();
+                            }}
+                          >
+                            {item.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-              {activeDropdown === "driver" && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
-                  <div className="py-1">
-                    {updatedLinks.riderDropdownContent.map((item) => (
-                      <Link
-                        key={item.name}
-                        to={item?.path || ""}
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-light_hover dark:hover:bg-dark_hover"
-                        onClick={() => {
-                          closeDropdowns();
-                          item.onClick();
-                        }}
-                      >
-                        {item.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {activeDropdown === "" && (
-                <div
-                  className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50"
-                  onMouseEnter={() => setActiveDropdown(userRole)}
-                  onMouseLeave={closeDropdowns}
-                >
-                  <div className="p-2 text-sm text-gray-700 font-semibold dark:text-gray-300">
-                    Please Login to see your account
-                  </div>
-                </div>
-              )}
-            </div>
 
-            <button onClick={() => setShowCart(true)} className="relative p-2">
-              <ShoppingBag size={20} />
-              <span className="absolute -top-1 -right-1 bg-primary dark:bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                3
-              </span>
-            </button>
+                <button
+                  onClick={() => setShowCart(true)}
+                  className="relative p-2"
+                >
+                  <ShoppingBag size={20} />
+                  <span className="absolute -top-1 -right-1 bg-primary dark:bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    3
+                  </span>
+                </button>
+              </>
+            )}
 
             <ThemeToggle />
 
-            <button
-              onClick={() => {
-                setShowAuthModal(true);
-                setIsLogin(true);
-              }}
-              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-white hover:text-primary dark:hover:text-primary"
-            >
-              {" "}
-              <LogIn size={18} />
-              Login
-            </button>
+            {!isAuthenticated ? (
+              <button
+                onClick={() => {
+                  setShowAuthModal(true);
+                  setIsLogin(true);
+                }}
+                className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-white hover:text-primary dark:hover:text-primary"
+              >
+                {" "}
+                <LogIn size={18} />
+                Login
+              </button>
+            ) : (
+              <button
+                className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-white hover:text-primary dark:hover:text-primary"
+                onClick={handleLogout}
+              >
+                <LogOut size={18} />
+                LogOut
+              </button>
+            )}
           </div>
 
           <Modal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)}>
@@ -329,9 +351,13 @@ const Header = () => {
               <Login
                 switchToRegister={() => setIsLogin(false)}
                 setShowAuthModal={setShowAuthModal}
+                setIsSuccess={setIsSuccess}
               />
             ) : (
-              <Register switchToLogin={() => setIsLogin(true)} />
+              <Register
+                switchToLogin={() => setIsLogin(true)}
+                setShowAuthModal={setShowAuthModal}
+              />
             )}
           </Modal>
 
