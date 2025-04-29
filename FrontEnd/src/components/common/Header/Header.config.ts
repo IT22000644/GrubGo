@@ -52,8 +52,8 @@ export const adminLinks = {
       path: "/restaurant/manage",
     },
     {
-      name: "Settings",
-      path: "/",
+      name: "Orders",
+      path: "/restaurant/orders",
     },
     {
       name: "Logout",
@@ -95,6 +95,11 @@ export const adminLinks = {
       name: "Edit Profile",
       path: "/restaurants/popular",
       onClick: () => console.log("Popular clicked"),
+    },
+    {
+      name: "Activities",
+      path: "/driver-activity",
+      onClick: () => console.log("Activities clicked"),
     },
     {
       name: "Settings",
