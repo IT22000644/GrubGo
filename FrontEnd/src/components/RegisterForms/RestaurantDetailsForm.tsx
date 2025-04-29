@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   ChevronLeft,
   Clock,
@@ -6,7 +7,7 @@ import {
   Store,
   UtensilsCrossed,
 } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { RestaurantData } from "../../features/auth/types";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
@@ -14,11 +15,15 @@ import api from "../../api/api";
 
 interface RestaurantDetailsFormProps {
   onBack: () => void;
+  setShowAuthModal: (show: boolean) => void;
 }
 
 const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
   onBack,
+  setShowAuthModal,
 }) => {
+  const [isLoading, setLoading] = useState(false);
+  const [isError, setError] = useState<string>("");
   const restaurantOwner = useSelector(
     (state: RootState) => state.auth.user?._id
   );
@@ -84,18 +89,24 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
     console.log("Restaurant Owner:", restaurantOwner);
 
     // Images (array)
-    restaurantData.images.forEach((file, index) => {
+    restaurantData.images.forEach((file) => {
       formData.append(`images`, file);
     });
 
     try {
+      setLoading(true);
       const response = api.post("/restaurant/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
+      setLoading(false);
+      setShowAuthModal(false);
+      console.log("Restaurant data submitted successfully:", response);
     } catch (error) {
+      setLoading(false);
+      setError("Error submitting restaurant data. Please try again later.");
       console.error("Error submitting restaurant data:", error);
     }
   };
@@ -113,6 +124,12 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
           </p>
         </div>
       </div>
+
+      {isError && (
+        <div className="bg-red-100 text-red-700 p-4 rounded-md mb-4">
+          {isError}
+        </div>
+      )}
 
       <div className="h-96 overflow-y-auto pr-2 space-y-5 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
         <div className="h-[400px] overflow-y-auto space-y-5">
