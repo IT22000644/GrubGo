@@ -110,4 +110,15 @@ export const adminLinks = {
       onClick: () => console.log("All Restaurants clicked"),
     },
   ],
+  adminDropdownContent: [
+    {
+      name: "Dashboard",
+      path: "/admin",
+      onClick: () => console.log("All Restaurants clicked"),
+    },
+    {
+      name: "Logout",
+      onClick: () => console.log("All Restaurants clicked"),
+    },
+  ],
 };

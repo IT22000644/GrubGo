@@ -112,14 +112,18 @@ export const AdminUser = () => {
     return `${month} ${day} at ${time}`;
   };
 
-  const handleToggle = async (userId: string) => {
-    const status = !isVerified ? false : true;
-    if (userId) {
+  const handleToggle = async (userId: string, currentStatus: boolean) => {
+    const updatedStatus = !currentStatus;
+
+    if (!userId) {
+      console.error("User ID is null");
+      return;
+    }
+
+    try {
       await api.put(
         `/user/${userId}`,
-        {
-          isVerified: status,
-        },
+        { isVerified: updatedStatus },
         {
           headers: {
             "Content-Type": "application/json",
@@ -128,9 +132,9 @@ export const AdminUser = () => {
         }
       );
       fetchRestaurants();
-      setIsOpen(!isOpen);
-    } else {
-      console.error("Restaurant ID is null");
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Failed to toggle verification status:", error);
     }
   };
 
@@ -269,7 +273,9 @@ export const AdminUser = () => {
                               </span>
                             </span>
                             <button
-                              onClick={() => handleToggle(user._id)}
+                              onClick={() =>
+                                handleToggle(user._id, user?.isVerified)
+                              }
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${
                                 user.isVerified === true
                                   ? "bg-green-500"

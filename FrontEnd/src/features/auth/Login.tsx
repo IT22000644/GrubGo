@@ -3,7 +3,7 @@ import { useState } from "react";
 import { auth, googleProvider } from "../../firebase/config";
 import { signInWithPopup } from "firebase/auth";
 import Google from "../../assets/Images/OIP (3).jpeg";
-import { useAppDispatch } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { loginUser } from "./authSlice";
 
 interface LoginProps {
@@ -33,6 +33,7 @@ export const Login = ({
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
       await dispatch(loginUser({ email, password })).unwrap();
       setShowAuthModal(false);

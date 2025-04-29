@@ -128,11 +128,11 @@ const Header = () => {
       } text-dark_hover dark:text-gray-200`}
     >
       <div className="container mx-auto px-4">
-        {isSuccess && (
+        {/* {isSuccess && (
           <div className="fixed bottom-4 right-4 bg-success/30 text-success/80 px-4 py-2 rounded-md shadow-lg animate-fade-in-out">
-            Item added to cart successfully!
+            User logged in successfully!
           </div>
-        )}
+        )} */}
         <nav className="flex justify-between items-center">
           <Link to="/" className="flex items-center space-x-2 group">
             <div className="w-10 h-10 rounded-full bg-primary dark:bg-primary flex items-center justify-center transition-transform group-hover:scale-110 duration-300">
@@ -292,6 +292,25 @@ const Header = () => {
                     <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
                       <div className="py-1">
                         {updatedLinks.riderDropdownContent.map((item) => (
+                          <Link
+                            key={item.name}
+                            to={item?.path || ""}
+                            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-light_hover dark:hover:bg-dark_hover"
+                            onClick={() => {
+                              closeDropdowns();
+                              item.onClick();
+                            }}
+                          >
+                            {item.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {activeDropdown === "admin" && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark_hover rounded-md shadow-lg overflow-hidden ring-1 ring-black ring-opacity-5 z-50">
+                      <div className="py-1">
+                        {updatedLinks.adminDropdownContent.map((item) => (
                           <Link
                             key={item.name}
                             to={item?.path || ""}
