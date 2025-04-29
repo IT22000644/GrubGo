@@ -32,7 +32,6 @@ import RestaurantDetails from "../pages/restaurant/restaurantDetails/restaurantD
 
 import { AdminUser } from "../pages/user/adminUser/AdminUser";
 import Payment from "../pages/admin/Payement";
-import TempDeliveryLoader from "../pages/delivery/TempDeliveryLoader";
 
 //import OrderPage from "../pages/restaurent/showingorders/Orderpage";
 
@@ -53,8 +52,6 @@ const AppRoutes: React.FC = () => {
         <Route path="/cart" element={<CartPage />} />
 
         <Route path="/orders" element={<OrderPage />} />
-
-        <Route path="/temp-delivery-loader" element={<TempDeliveryLoader />} />
 
         <Route path="/delivery-assign" element={<DeliveryAssign />} />
         <Route path="/delivery-tracking" element={<DeliveryTracking />} />
