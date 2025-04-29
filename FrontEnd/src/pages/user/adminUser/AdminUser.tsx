@@ -39,8 +39,9 @@ export const AdminUser = () => {
     try {
       setLoading(true);
       const response = await api.get("user/");
-      setUsers(response.data.users);
-      console.log("Fetched users:", response.data.users);
+      const usersData = response.data.data;
+      setUsers(usersData);
+      console.log("Fetched users:", usersData);
 
       setError(null);
     } catch (err) {
@@ -53,10 +54,10 @@ export const AdminUser = () => {
 
   const filteredRestaurants = users.filter((user) => {
     const matchesSearch =
-      user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.phoneNumber.includes(searchTerm);
+      user?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user?.userId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user?.phoneNumber?.includes(searchTerm);
 
     const matchesStatus =
       statusFilter === "all" || user.role === statusFilter.toLowerCase();
@@ -64,10 +65,10 @@ export const AdminUser = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const StatusBadge: React.FC<{ isVaried: boolean }> = ({ isVaried }) => {
+  const StatusBadge: React.FC<{ isVerified: boolean }> = ({ isVerified }) => {
     let badgeClass = "";
 
-    switch (isVaried) {
+    switch (isVerified) {
       case true:
         badgeClass =
           "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
@@ -236,7 +237,7 @@ export const AdminUser = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <StatusBadge isVaried={user.isVerified} />
+                        <StatusBadge isVerified={user.isVerified} />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end space-x-2">
@@ -252,10 +253,12 @@ export const AdminUser = () => {
                             <span className="text-sm font-medium text-gray-700">
                               <span
                                 className={
-                                  isVerified ? "text-green-600" : "text-red-600"
+                                  user?.isVerified
+                                    ? "text-green-600"
+                                    : "text-red-600"
                                 }
                               >
-                                {isVerified ? "Verified" : "Not Verified"}
+                                {user?.isVerified ? "Verified" : "Not Verified"}
                               </span>
                             </span>
                             <button

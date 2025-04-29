@@ -59,8 +59,8 @@ export const registerUser = createAsyncThunk<
     profilePicture: string;
     role: string;
     isVerified: boolean;
-    customerDetails: any;
-    riderDetails: any;
+    customerDetails?: any;
+    riderDetails?: any;
   }
 >("auth/register", async (formData) => {
   const response = await api.post("/auth/register", formData, {

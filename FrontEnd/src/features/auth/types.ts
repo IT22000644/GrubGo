@@ -11,6 +11,7 @@ export interface UserData {
   vehicleModel?: string;
   vehicleColor?: string;
   vehicleNumber?: string;
+  profilePicture?: string;
 }
 interface Address {
   shopNumber: string;
