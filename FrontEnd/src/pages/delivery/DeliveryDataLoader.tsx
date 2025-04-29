@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../api/api";
 import { Loader2 } from "lucide-react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
 
 type LocationState = {
   orderId: string;
@@ -11,6 +13,7 @@ export default function AssignDeliveryDataLoader() {
   const navigate = useNavigate();
   const location = useLocation();
   const { orderId } = location.state as LocationState;
+  const token = useSelector((state: RootState) => state.auth.token);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -23,7 +26,11 @@ export default function AssignDeliveryDataLoader() {
       // 1. Get Order by ID
       let orderRes;
       try {
-        orderRes = await api.get(`order/${orderId}`);
+        orderRes = await api.get(`order/${orderId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         console.log("1️⃣ Order API response:", orderRes);
       } catch (err) {
         clearTimeout(timeoutId);
@@ -40,7 +47,11 @@ export default function AssignDeliveryDataLoader() {
       // 2. Get Customer Info
       let customerRes;
       try {
-        customerRes = await api.get(`user/${customerId}`);
+        customerRes = await api.get(`user/${customerId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         console.log("2️⃣ Customer API response:", customerRes);
       } catch (err) {
         clearTimeout(timeoutId);
@@ -59,7 +70,11 @@ export default function AssignDeliveryDataLoader() {
       // 3. Get Restaurant Info
       let restaurantRes;
       try {
-        restaurantRes = await api.get(`restaurant/${restaurantId}`);
+        restaurantRes = await api.get(`restaurant/${restaurantId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         console.log("3️⃣ Restaurant API response:", restaurantRes);
       } catch (err) {
         clearTimeout(timeoutId);
@@ -84,6 +99,9 @@ export default function AssignDeliveryDataLoader() {
       let stringRes;
       try {
         stringRes = await api.post("map/string", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           addressParts: restaurantAddressTemp,
         });
         console.log("3️⃣.a String API response:", stringRes);
@@ -127,7 +145,11 @@ export default function AssignDeliveryDataLoader() {
       // 5. Get Active Riders
       let allDriversRes;
       try {
-        allDriversRes = await api.get("user/active-riders");
+        allDriversRes = await api.get("user/active-riders", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         console.log("5️⃣ Active Riders API response:", allDriversRes);
         if (!allDriversRes.data.success) throw new Error("No active riders");
       } catch (err) {
@@ -147,6 +169,9 @@ export default function AssignDeliveryDataLoader() {
       let closestDriverRes;
       try {
         closestDriverRes = await api.post(`map/closest-rider`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           baseLocation: restaurantLocation,
           data: payloadRiders,
         });
@@ -167,7 +192,11 @@ export default function AssignDeliveryDataLoader() {
       // 7. Get Driver Info
       let driverRes;
       try {
-        driverRes = await api.get(`user/${driverId}`);
+        driverRes = await api.get(`user/${driverId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         console.log("7️⃣ Driver API response:", driverRes);
       } catch (err) {
         clearTimeout(timeoutId);
@@ -192,6 +221,9 @@ export default function AssignDeliveryDataLoader() {
       let driverAddress = "";
       try {
         const driverAddressRes = await api.post("map/address", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           latitude: driverLocation.latitude,
           longitude: driverLocation.longitude,
         });

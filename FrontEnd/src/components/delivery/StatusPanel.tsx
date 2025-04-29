@@ -58,7 +58,7 @@ const StatusPanel: React.FC<Props> = ({
           </div>
 
           {status === "Assigned" && (
-            <div className="text-sm text-gray-700 space-y-1">
+            <div className="text-sm text-gray-700 dark:text-white space-y-1">
               <p>
                 ETA to Restaurant:{" "}
                 <span className="font-semibold text-gray-900 dark:text-white">

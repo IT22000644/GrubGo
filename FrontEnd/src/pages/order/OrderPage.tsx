@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import OrderCard from "../../components/Order/OrderCard";
 import api from "../../api/api";
 import type { Order } from "../../components/Order/types";
 import ReviewForm from "../../components/Review/ReviewForm";
 import { useSelector } from "react-redux";
-import { RootState } from '../../App/store';
+import { RootState } from "../../App/store";
 
 const statusOptions = ["done", "pending", "completed"];
 
@@ -16,7 +16,7 @@ const OrderPage: React.FC = () => {
   const [error, setError] = useState("");
   const [reviewingOrder, setReviewingOrder] = useState<Order | null>(null);
   const navigate = useNavigate();
-  
+
   const customerId = useSelector((state: RootState) => state.auth.user?._id);
 
   // const customerId = localStorage.getItem('customerId') || "6611e8f4a1fbb93be88a1a5c";
@@ -100,7 +100,7 @@ const OrderPage: React.FC = () => {
 
   const trackthedelivary = async (orderId: string) => {
     navigate("/customer-tracking-loader", { state: { orderId } });
-}
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -137,22 +137,26 @@ const OrderPage: React.FC = () => {
           <button
             key={option}
             onClick={() => setStatus(option)}
-            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${status === option
-              ? option === 'completed'
-                ? "bg-blue-100 text-blue-800"
-                : "bg-orange-400 hover:bg-orange-500 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30"
-              : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
-              }`}
+            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+              status === option
+                ? option === "completed"
+                  ? "bg-blue-100 text-blue-800"
+                  : "bg-orange-400 hover:bg-orange-500 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30"
+                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+            }`}
           >
-            {option === 'completed' ? 'Delivery' : option.charAt(0).toUpperCase() + option.slice(1)}
+            {option === "completed"
+              ? "Delivery"
+              : option.charAt(0).toUpperCase() + option.slice(1)}
           </button>
         ))}
         <button
           onClick={() => setStatus("")}
-          className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${status === ""
-            ? "bg-orange-400 hover:bg-orange-500 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30"
-            : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
-            }`}
+          className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+            status === ""
+              ? "bg-orange-400 hover:bg-orange-500 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30"
+              : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+          }`}
         >
           All Orders
         </button>
@@ -171,12 +175,22 @@ const OrderPage: React.FC = () => {
         <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-5 rounded-lg mb-8">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              <svg
+                className="h-5 w-5 text-red-500"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-red-700 dark:text-red-400 font-medium">{error}</p>
+              <p className="text-red-700 dark:text-red-400 font-medium">
+                {error}
+              </p>
             </div>
           </div>
         </div>

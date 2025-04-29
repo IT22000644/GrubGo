@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import api from "../../api/api";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
 
 type LocationState = {
   deliveryId: string;
@@ -11,6 +13,7 @@ export default function DriverTrackingLoader() {
   const navigate = useNavigate();
   const location = useLocation();
   const { deliveryId } = location.state as LocationState;
+  const token = useSelector((state: RootState) => state.auth.token);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -23,7 +26,11 @@ export default function DriverTrackingLoader() {
       // 1. Get Delivery Status
       let deliveryRes;
       try {
-        deliveryRes = await api.get(`delivery/status/${deliveryId}`);
+        deliveryRes = await api.get(`delivery/status/${deliveryId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         console.log("1️⃣ Delivery Status API response:", deliveryRes);
       } catch (err) {
         clearTimeout(timeoutId);
@@ -54,7 +61,11 @@ export default function DriverTrackingLoader() {
       // 2. Get Driver Info
       let driverRes;
       try {
-        driverRes = await api.get(`user/${driverId}`);
+        driverRes = await api.get(`user/${driverId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         console.log("2️⃣ Driver Info API response:", driverRes);
       } catch (err) {
         clearTimeout(timeoutId);
@@ -76,7 +87,11 @@ export default function DriverTrackingLoader() {
       // 3. Get Order Info
       let orderRes;
       try {
-        orderRes = await api.get(`order/${orderId}`);
+        orderRes = await api.get(`order/${orderId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         console.log("3️⃣ Order Info API response:", orderRes);
       } catch (err) {
         clearTimeout(timeoutId);
@@ -90,7 +105,11 @@ export default function DriverTrackingLoader() {
       // 4. Get Customer Info
       let customerRes;
       try {
-        customerRes = await api.get(`user/${customerId}`);
+        customerRes = await api.get(`user/${customerId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         console.log("4️⃣ Customer Info API response:", customerRes);
       } catch (err) {
         clearTimeout(timeoutId);
@@ -109,7 +128,11 @@ export default function DriverTrackingLoader() {
       // 5. Get Restaurant Info
       let restaurantRes;
       try {
-        restaurantRes = await api.get(`restaurant/${restaurantId}`);
+        restaurantRes = await api.get(`restaurant/${restaurantId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         console.log("5️⃣ Restaurant Info API response:", restaurantRes);
       } catch (err) {
         clearTimeout(timeoutId);
