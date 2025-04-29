@@ -63,7 +63,7 @@ export const adminLinks = {
   userDropdownContent: [
     {
       name: "User Profile",
-      path: "/restaurants/nearby",
+      path: "/profile",
       onClick: () => console.log("Nearby clicked"),
     },
     {
@@ -93,7 +93,7 @@ export const adminLinks = {
     },
     {
       name: "Edit Profile",
-      path: "/restaurants/popular",
+      path: "/profile",
       onClick: () => console.log("Popular clicked"),
     },
     {
