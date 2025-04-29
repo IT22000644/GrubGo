@@ -221,6 +221,8 @@ export const AdminRestaurants = () => {
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredRestaurants.map((restaurant) => {
                   const isOpen = restaurant.status === "open" ? true : false;
+                  const verification =
+                    restaurant.isVerified === true ? true : false;
                   return (
                     <tr
                       key={restaurant._id}
@@ -273,7 +275,7 @@ export const AdminRestaurants = () => {
                                   isOpen ? "text-green-600" : "text-red-600"
                                 }
                               >
-                                {isOpen ? "open" : "closed"}
+                                {isOpen ? "Open" : "Closed"}
                               </span>
                             </span>
                             <button
