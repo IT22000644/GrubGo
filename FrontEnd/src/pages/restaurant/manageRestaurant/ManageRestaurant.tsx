@@ -147,7 +147,7 @@ export const ManageRestaurant = () => {
       });
     }
     try {
-      const response = await api.post("/food/", formData, {
+      const response = await api.post("/restaurant/foods/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -796,7 +796,7 @@ export const ManageRestaurant = () => {
               <ul className="list-disc list-inside space-y-1">
                 {singleMenu.items.map((item, index) => (
                   <li key={index} className="text-sm text-gray-700">
-                    {item.name} - ${item.price.toFixed(2)}
+                    {item.name} - ${item.price?.toFixed(2)}
                   </li>
                 ))}
               </ul>

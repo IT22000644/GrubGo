@@ -309,15 +309,17 @@ const Header = () => {
                   )}
                 </div>
 
-                <button
-                  onClick={() => setShowCart(true)}
-                  className="relative p-2"
-                >
-                  <ShoppingBag size={20} />
-                  <span className="absolute -top-1 -right-1 bg-primary dark:bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    3
-                  </span>
-                </button>
+                {userRole === "customer" && (
+                  <button
+                    onClick={() => setShowCart(true)}
+                    className="relative p-2"
+                  >
+                    <ShoppingBag size={20} />
+                    <span className="absolute -top-1 -right-1 bg-primary dark:bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      3
+                    </span>
+                  </button>
+                )}
               </>
             )}
 

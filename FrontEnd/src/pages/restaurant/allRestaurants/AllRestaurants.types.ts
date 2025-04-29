@@ -8,7 +8,7 @@ export type Restaurant = {
   menus: FoodMenu[];
   createdAt: string;
   updatedAt: string;
-  isVerified?: string;
+  isVerified?: boolean;
 };
 
 export type Address = {
