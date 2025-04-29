@@ -92,7 +92,7 @@ export const updateRiderStatus = createAsyncThunk<
   {
     id: string;
     isAvailable: boolean;
-    location: { lat: number; lng: number };
+    location?: { lat: number; lng: number };
     token: string;
   }
 >("auth/updateRiderStatus", async ({ id, isAvailable, location, token }) => {

@@ -10,6 +10,10 @@ import { fetchRoadPath } from "../../utils/delivery/mapHelpers";
 import StatusTracker from "../../components/delivery/StatusTracker";
 import DriverInfoCard from "../../components/delivery/DriverInfoCard";
 import PickupDropInfo from "../../components/delivery/PickupDropInfo";
+import { useAppDispatch } from "../../app/hooks";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
+import { updateRiderStatus } from "../../features/auth/authSlice";
 
 interface AssignPayload {
   message: string;
@@ -78,6 +82,9 @@ export default function DeliveryAssign() {
   const assignCalledRef = useRef(false);
   const animationCancelledRef = useRef(false);
   const socketRef = useRef<Socket | null>(null);
+  const dispatch = useAppDispatch();
+  const token = useSelector((state: RootState) => state.auth.token);
+  const user = useSelector((state: RootState) => state.auth.user);
 
   function interpolate(
     start: google.maps.LatLngLiteral,
@@ -243,6 +250,24 @@ export default function DeliveryAssign() {
 
       setStatus("Assigned");
       setMapPathStage("toRestaurant");
+
+      if (!user || !token) {
+        console.warn("Skipping updateRiderStatus: missing user or token");
+        return;
+      }
+
+      try {
+        await dispatch(
+          updateRiderStatus({
+            id: user._id,
+            isAvailable: false,
+
+            token,
+          })
+        ).unwrap();
+      } catch (error) {
+        console.error("Failed to update rider status:", error);
+      }
     } catch (e) {
       console.error("Assign error:", e);
     }
@@ -259,6 +284,9 @@ export default function DeliveryAssign() {
     vehicleModel,
     vehicleNumber,
     vehicleColor,
+    dispatch,
+    user,
+    token,
   ]);
 
   useEffect(() => {
