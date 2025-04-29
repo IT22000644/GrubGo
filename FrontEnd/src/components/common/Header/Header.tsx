@@ -31,6 +31,7 @@ const Header = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+  const [isSuccess, setIsSuccess] = useState(false);
   //const role = useSelector((state: RootState) => state.user.role);
   // const restaurantId = useSelector(
   //   (state: RootState) => state.user.restaurantId
@@ -127,6 +128,11 @@ const Header = () => {
       } text-dark_hover dark:text-gray-200`}
     >
       <div className="container mx-auto px-4">
+        {isSuccess && (
+          <div className="fixed bottom-4 right-4 bg-success/30 text-success/80 px-4 py-2 rounded-md shadow-lg animate-fade-in-out">
+            Item added to cart successfully!
+          </div>
+        )}
         <nav className="flex justify-between items-center">
           <Link to="/" className="flex items-center space-x-2 group">
             <div className="w-10 h-10 rounded-full bg-primary dark:bg-primary flex items-center justify-center transition-transform group-hover:scale-110 duration-300">
@@ -345,6 +351,7 @@ const Header = () => {
               <Login
                 switchToRegister={() => setIsLogin(false)}
                 setShowAuthModal={setShowAuthModal}
+                setIsSuccess={setIsSuccess}
               />
             ) : (
               <Register

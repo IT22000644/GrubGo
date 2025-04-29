@@ -8,13 +8,14 @@ type Props = {
 };
 
 const CategorySelector = ({ onCategorySelect }: Props) => {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const res = await api.get("restaurant/categories");
+        console.log("Categories fetched:", res.data.categories);
         setCategories(res.data.categories);
       } catch (err) {
         console.error("Failed to fetch categories", err);
