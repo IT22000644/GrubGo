@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import deliveryRoutes from "./routes/delivery.routes.js";
 import { startDeliveryScheduler } from "./services/delivery-scheduler.service.js";
+import { connectQueue } from "./utils/messageQueue.js";
 //import { startDriverLocationUpdater } from "./services/driver-location.service.js";
 
 /*
@@ -45,7 +46,17 @@ io.on("connection", (socket) => {
 });
 
 const PORT = process.env.PORT || 4006;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log("WebSocket server is now listening for connections...");
-});
+(async () => {
+  try {
+    await connectQueue();
+    console.log("[RabbitMQ] Queue connection established.");
+
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log("WebSocket server is now listening for connections...");
+    });
+  } catch (err) {
+    console.error("Failed to start application:", err);
+    process.exit(1);
+  }
+})();
