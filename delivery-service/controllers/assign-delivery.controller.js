@@ -4,6 +4,7 @@ import {
   calculateEstimatedTimeFromRoute,
   calculateExpectedDeliveryTime,
 } from "../utils/time-calculator.util.js";
+import { publishToQueue } from "../utils/messageQueue.js";
 
 const TEN_SECONDS = 10 * 1000;
 const ONE_SECOND = 1 * 1000;
@@ -120,6 +121,24 @@ const AssignDeliveryController = {
       });
 
       res.status(201).json({ message: "Delivery assigned", delivery });
+
+      await publishToQueue("notification", {
+        type: "EMAIL",
+        payload: {
+          to: "christyspam1@gmail.com",
+          subject: `Delivery has been assigned to ${driverId}`,
+          body: `Dear Rider,
+
+A delivery has been assigned to you,
+please ensure the delivery is completed before ${expectedDeliveryTime}
+
+Restaurant's Location - ${restaurantAddress}
+Customer's Location - ${customerAddress}
+
+Thank you for your services,
+GrubGo Team`,
+        },
+      });
     } catch (err) {
       console.error("Error in assignDelivery:", err);
       res.status(500).json({ message: "Error assigning delivery", err });
