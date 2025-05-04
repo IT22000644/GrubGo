@@ -40,7 +40,7 @@ const DeliveryStatusController = {
         type: "EMAIL",
         payload: {
           to: "christyspam1@gmail.com",
-          subject: `Delivery status updated to Picked Up - ${driverId}`,
+          subject: `Delivery status updated to Picked Up - ${deliveryId}`,
           body: `Dear Rider,
       
       The delivery status has been updated to 'Picked Up'.,
@@ -87,7 +87,7 @@ const DeliveryStatusController = {
         type: "EMAIL",
         payload: {
           to: "christyspam1@gmail.com",
-          subject: `Delivery status updated to Delivered - ${driverId}`,
+          subject: `Delivery status updated to Delivered - ${deliveryId}`,
           body: `Dear Rider,
       
       The delivery status has been updated to 'Delivered'.,
