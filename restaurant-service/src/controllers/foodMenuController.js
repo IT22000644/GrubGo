@@ -23,7 +23,7 @@ export const foodMenuController = {
       const imagePaths = req.files
         ? req.files.map(
             (file) =>
-              `${req.protocol}://$${process.env.HOST_NAME}/${file.path.replace(
+              `${req.protocol}://${process.env.HOST_NAME}/${file.path.replace(
                 /\\/g,
                 "/"
               )}`

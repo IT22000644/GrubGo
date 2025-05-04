@@ -13,7 +13,6 @@ userRoutes.use(
   actionGuard({ PATCH: ["owner"] })
 );
 
-// 👇 This must come *after* all specific routes
 userRoutes.use(
   "/:id",
   authMiddleware,

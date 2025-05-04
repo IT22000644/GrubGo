@@ -49,7 +49,7 @@ export const loginUser = createAsyncThunk<
 });
 
 export const registerUser = createAsyncThunk<
-  { user: User; token: string },
+  { user: User; accessToken: string },
   {
     email: string;
     password: string;
@@ -154,7 +154,7 @@ const authSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isAuthenticated = true;
         state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.token = action.payload.accessToken;
         state.role = action.payload.user.role;
         state.loading = false;
       })
