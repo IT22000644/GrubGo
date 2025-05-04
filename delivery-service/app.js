@@ -7,15 +7,7 @@ import connectDB from "./config/db.js";
 import deliveryRoutes from "./routes/delivery.routes.js";
 import { startDeliveryScheduler } from "./services/delivery-scheduler.service.js";
 import { connectQueue } from "./utils/messageQueue.js";
-//import { startDriverLocationUpdater } from "./services/driver-location.service.js";
-
-/*
- * Note: The startDriverLocationUpdater Function is Operational, however
- * is commented out since it could cost money due to running google maps every 30 seconds
- * Driver location is still updated when they reach the Restaurant or Customer however,
- * will not be updated every 30 seconds
- * (Hence Driver location in transit will not be accurate without startDriverLocationUpdater Function)
- */
+import { startDriverLocationUpdater } from "./services/driver-location.service.js";
 
 dotenv.config();
 connectDB();
@@ -34,7 +26,7 @@ app.use(express.json());
 app.use("/", deliveryRoutes);
 
 startDeliveryScheduler(io);
-//startDriverLocationUpdater(io);
+startDriverLocationUpdater(io);
 
 // WebSocket connection listener
 io.on("connection", (socket) => {
@@ -49,7 +41,6 @@ const PORT = process.env.PORT || 4006;
 (async () => {
   try {
     await connectQueue();
-    console.log("[RabbitMQ] Queue connection established.");
 
     server.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);

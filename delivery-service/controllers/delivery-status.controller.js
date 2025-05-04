@@ -1,5 +1,6 @@
 import Delivery from "../models/Delivery.js";
 import { calculateHaversineDistance } from "../utils/time-calculator.util.js";
+import { publishToQueue } from "../utils/messageQueue.js";
 
 const TEN_SECONDS = 10 * 1000;
 const ONE_SECOND = 1 * 1000;
@@ -35,6 +36,20 @@ const DeliveryStatusController = {
         timestamp: now,
       });
 
+      await publishToQueue("notification", {
+        type: "EMAIL",
+        payload: {
+          to: "christyspam1@gmail.com",
+          subject: `Delivery status updated to Picked Up - ${driverId}`,
+          body: `Dear Rider,
+      
+      The delivery status has been updated to 'Picked Up'.,
+      
+      Thank you,
+      GrubGo Team`,
+        },
+      });
+
       console.log(
         `[Update] Order ${d.orderId} - Status updated to 'Picked Up'`
       );
@@ -66,6 +81,20 @@ const DeliveryStatusController = {
         status: "Delivered",
 
         timestamp: now,
+      });
+
+      await publishToQueue("notification", {
+        type: "EMAIL",
+        payload: {
+          to: "christyspam1@gmail.com",
+          subject: `Delivery status updated to Delivered - ${driverId}`,
+          body: `Dear Rider,
+      
+      The delivery status has been updated to 'Delivered'.,
+      
+      Thank you for your services,
+      GrubGo Team`,
+        },
       });
 
       console.log(
