@@ -49,6 +49,8 @@ const consumePaymentDoneQueue = async () => {
                                     GrubGo Team`
                         }
                     });
+
+                    console.log("Message published to queue");
                 }
 
             } else {
