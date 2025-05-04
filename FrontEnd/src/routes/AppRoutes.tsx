@@ -74,6 +74,14 @@ const AppRoutes: React.FC = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
       </Route>
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />
@@ -86,14 +94,6 @@ const AppRoutes: React.FC = () => {
         <Route path="*" element={<NotFound />} />
       </Route>
 
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        }
-      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
