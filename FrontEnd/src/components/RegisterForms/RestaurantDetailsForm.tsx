@@ -13,6 +13,8 @@ import { RestaurantData } from "../../features/auth/types";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import api from "../../api/api";
+import { useAppDispatch } from "../../app/hooks";
+import { setRestaurantData } from "../../features/restaurant/restaurantSlice";
 
 interface RestaurantDetailsFormProps {
   onBack: () => void;
@@ -29,17 +31,19 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
     (state: RootState) => state.auth.user?._id
   );
   const token = useSelector((state: RootState) => state.auth.token);
+  const dispatch = useAppDispatch();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [restaurantData, setRestaurantData] = React.useState<RestaurantData>({
-    name: "",
-    cuisine: "",
-    address: { shopNumber: "", street: "", town: "" },
-    description: "",
-    openingHours: "",
-    phone: "",
-    images: [],
-  });
+  const [restaurantData, setLocalRestaurantData] =
+    React.useState<RestaurantData>({
+      name: "",
+      cuisine: "",
+      address: { shopNumber: "", street: "", town: "" },
+      description: "",
+      openingHours: "",
+      phone: "",
+      images: [],
+    });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -48,7 +52,7 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
 
     if (name.startsWith("address.")) {
       const addressField = name.split(".")[1];
-      setRestaurantData((prev) => ({
+      setLocalRestaurantData((prev) => ({
         ...prev,
         address: {
           ...prev.address,
@@ -56,12 +60,12 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
         },
       }));
     } else if (name === "images" && files) {
-      setRestaurantData((prev) => ({
+      setLocalRestaurantData((prev) => ({
         ...prev,
         images: Array.from(files),
       }));
     } else {
-      setRestaurantData((prev) => ({
+      setLocalRestaurantData((prev) => ({
         ...prev,
         [name]: value,
       }));
@@ -102,6 +106,9 @@ const RestaurantDetailsForm: React.FC<RestaurantDetailsFormProps> = ({
           Authorization: `Bearer ${token}`,
         },
       });
+
+      const newRestaurant: RestaurantData = response.data.restaurant;
+      dispatch(setRestaurantData(newRestaurant));
       setLoading(false);
       setShowAuthModal(false);
     } catch (error) {

@@ -206,6 +206,14 @@ export const login = async (req, res) => {
       },
     });
 
+    await sendToQueue("notification", {
+      type: "SMS",
+      payload: {
+        to: user.phoneNumber,
+        body: `Hello ${user.username}, you just logged in from ${ipAddress}`,
+      },
+    });
+
     return res.status(200).json({
       success: true,
       message: "Login successful",
