@@ -10,8 +10,10 @@ interface User {
   profilePicture: string;
   role: string;
   isVerified: boolean;
-  customerDetails: any;
-  riderDetails: any;
+  customerDetails?: any;
+  riderDetails?: any;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface AuthState {
