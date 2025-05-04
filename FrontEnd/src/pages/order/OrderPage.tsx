@@ -5,7 +5,7 @@ import api from "../../api/api";
 import type { Order } from "../../components/Order/types";
 import ReviewForm from "../../components/Review/ReviewForm";
 import { useSelector } from "react-redux";
-import { RootState } from "../../App/store";
+import { RootState } from "../../app/store";
 
 const statusOptions = ["done", "pending", "completed"];
 
@@ -18,6 +18,9 @@ const OrderPage: React.FC = () => {
   const navigate = useNavigate();
 
   const customerId = useSelector((state: RootState) => state.auth.user?._id);
+  const token = useSelector((state: RootState) => state.auth.token);
+  
+  console.log(token);
 
   // const customerId = localStorage.getItem('customerId') || "6611e8f4a1fbb93be88a1a5c";
 

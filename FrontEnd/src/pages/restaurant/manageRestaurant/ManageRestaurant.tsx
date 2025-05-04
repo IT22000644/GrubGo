@@ -83,7 +83,7 @@ export const ManageRestaurant = () => {
   };
 
   const handleDelete = async (id: string) => {
-    await api.delete(`/foodMenus/${id}`);
+    await api.delete(`/restaurant/foodMenus/${id}`);
     fetchRestaurantDetails();
   };
 
@@ -169,6 +169,8 @@ export const ManageRestaurant = () => {
     if (!discount) return price;
     return price - price * (discount / 100);
   };
+
+  console.log(selectedMenuData?.items)
 
   return (
     <div className="min-h-screen pb-12 mt-20">
