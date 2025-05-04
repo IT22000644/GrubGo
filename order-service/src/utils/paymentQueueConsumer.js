@@ -21,7 +21,6 @@ const consumePaymentDoneQueue = async () => {
 
                 console.log(`Order updated in DB. Paymentstatus: ${order.Paymentstatus}, status: ${order.status}`);
 
-                // If payment is completed, notify restaurant service
                 if (order.Paymentstatus === 'completed') {
                     const orderPayload = {
                         orderId: order._id,
@@ -32,6 +31,24 @@ const consumePaymentDoneQueue = async () => {
 
                     await publishToQueue('orderQueue', orderPayload);
                     console.log('Order pushed to orderQueue:', orderPayload);
+                    const itemList = order.items.map(item =>
+                        `- ${item.name} (x${item.quantity})`
+                    ).join('\n');
+
+                    await publishToQueue("notification", {
+                        type: "EMAIL",
+                        payload: {
+                            to: "pererajude00@gmail.com",
+                            subject: `Payment Successful for Order #${order._id}`,
+                            body: `Dear Customer,
+                                    Your payment has been successfully processed. Here are the details of your order:
+                                    Items Ordered:
+                                    ${itemList}
+                                    We are now processing your order and will notify you once it's out for delivery.
+                                    Thank you for choosing GrubGo!
+                                    GrubGo Team`
+                        }
+                    });
                 }
 
             } else {

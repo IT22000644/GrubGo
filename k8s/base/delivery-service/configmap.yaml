@@ -5,3 +5,4 @@ metadata:
 data:
   PORT: "4006"
   MONGODB_URL: "mongodb://mongo-delivery:27017/deliverydb"
+  RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
